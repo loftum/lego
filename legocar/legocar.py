@@ -1,13 +1,5 @@
-# Picon Zero Motor Test
-# Moves: Forward, Reverse, turn Right, turn Left, Stop - then repeat
-# Press Ctrl-C to stop
-#
-# To check wiring is correct ensure the order of movement as above is correct
-
 import piconzero as pz, time, hcsr04, thread
 
-#======================================================================
-# Reading single character by forcing stdin to raw mode
 import sys
 import tty
 import termios
