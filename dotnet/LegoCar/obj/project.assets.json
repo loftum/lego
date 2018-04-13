@@ -1,0 +1,146 @@
+{
+  "version": 3,
+  "targets": {
+    ".NETFramework,Version=v4.6.1": {
+      "Unosquare.Raspberry.IO/0.14.0": {
+        "type": "package",
+        "dependencies": {
+          "Unosquare.Swan": "0.28.1"
+        },
+        "compile": {
+          "lib/net452/Unosquare.RaspberryIO.dll": {}
+        },
+        "runtime": {
+          "lib/net452/Unosquare.RaspberryIO.dll": {}
+        }
+      },
+      "Unosquare.Swan/0.28.1": {
+        "type": "package",
+        "dependencies": {
+          "Unosquare.Swan.Lite": "0.28.0"
+        },
+        "frameworkAssemblies": [
+          "System.Drawing",
+          "System.Net.Http",
+          "System.ServiceProcess"
+        ],
+        "compile": {
+          "lib/net452/Unosquare.Swan.dll": {}
+        },
+        "runtime": {
+          "lib/net452/Unosquare.Swan.dll": {}
+        }
+      },
+      "Unosquare.Swan.Lite/0.28.0": {
+        "type": "package",
+        "compile": {
+          "lib/net452/Unosquare.Swan.Lite.dll": {}
+        },
+        "runtime": {
+          "lib/net452/Unosquare.Swan.Lite.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Unosquare.Raspberry.IO/0.14.0": {
+      "sha512": "qBCE5CH7z/03Bkw5NGsxLk57kWvSX9dU1EaYx8oO5kVz+nagjxbtrlhmxRFg38bWjSuAfsoUML0YDZ2jpr+jMg==",
+      "type": "package",
+      "path": "unosquare.raspberry.io/0.14.0",
+      "files": [
+        "lib/net452/Unosquare.RaspberryIO.dll",
+        "lib/net452/Unosquare.RaspberryIO.xml",
+        "lib/netstandard2.0/Unosquare.RaspberryIO.dll",
+        "lib/netstandard2.0/Unosquare.RaspberryIO.xml",
+        "unosquare.raspberry.io.0.14.0.nupkg.sha512",
+        "unosquare.raspberry.io.nuspec"
+      ]
+    },
+    "Unosquare.Swan/0.28.1": {
+      "sha512": "0nlfGEeweyj/uhBVwLYn2pD8dc/z/wGi7V3hXhcy4Y4r2zXeflnzD3lhD+W8vXZCSyp/OtwCiO6A9Hvr95gULA==",
+      "type": "package",
+      "path": "unosquare.swan/0.28.1",
+      "files": [
+        "lib/net452/Unosquare.Swan.dll",
+        "lib/net452/Unosquare.Swan.xml",
+        "lib/netstandard1.3/Unosquare.Swan.dll",
+        "lib/netstandard1.3/Unosquare.Swan.xml",
+        "lib/netstandard2.0/Unosquare.Swan.dll",
+        "lib/netstandard2.0/Unosquare.Swan.xml",
+        "lib/uap10.0/Unosquare.Swan.dll",
+        "lib/uap10.0/Unosquare.Swan.xml",
+        "unosquare.swan.0.28.1.nupkg.sha512",
+        "unosquare.swan.nuspec"
+      ]
+    },
+    "Unosquare.Swan.Lite/0.28.0": {
+      "sha512": "Oi/os2GxRdWhuXxna5SnH0VryGNICGTdiKxJ5dtzTvvxCl6NzwFHe6CxoV6dci+mC8ZU2xUKHdhEXqhWw16Vlw==",
+      "type": "package",
+      "path": "unosquare.swan.lite/0.28.0",
+      "files": [
+        "lib/net452/Unosquare.Swan.Lite.dll",
+        "lib/net452/Unosquare.Swan.Lite.xml",
+        "lib/netstandard1.3/Unosquare.Swan.Lite.dll",
+        "lib/netstandard1.3/Unosquare.Swan.Lite.xml",
+        "lib/netstandard2.0/Unosquare.Swan.Lite.dll",
+        "lib/netstandard2.0/Unosquare.Swan.Lite.xml",
+        "lib/uap10.0/Unosquare.Swan.Lite.dll",
+        "lib/uap10.0/Unosquare.Swan.Lite.xml",
+        "unosquare.swan.lite.0.28.0.nupkg.sha512",
+        "unosquare.swan.lite.nuspec"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    ".NETFramework,Version=v4.6.1": [
+      "Unosquare.Raspberry.IO >= 0.14.0"
+    ]
+  },
+  "packageFolders": {
+    "/Users/loftum/.nuget/packages/": {},
+    "/usr/local/share/dotnet/sdk/NuGetFallbackFolder": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "/Users/loftum/dev/piconzero/dotnet/LegoCar/LegoCar.csproj",
+      "projectName": "LegoCar",
+      "projectPath": "/Users/loftum/dev/piconzero/dotnet/LegoCar/LegoCar.csproj",
+      "packagesPath": "/Users/loftum/.nuget/packages/",
+      "outputPath": "/Users/loftum/dev/piconzero/dotnet/LegoCar/obj",
+      "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
+      ],
+      "configFilePaths": [
+        "/Users/loftum/.config/NuGet/NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "net461"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net461": {
+          "projectReferences": {}
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "net461": {
+        "dependencies": {
+          "Unosquare.Raspberry.IO": {
+            "target": "Package",
+            "version": "0.14.0"
+          }
+        }
+      }
+    }
+  }
+}

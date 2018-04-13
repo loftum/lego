@@ -3,4 +3,4 @@ if [ -z "$1" ]
     echo "Usage: deploy.sh user@host"
     exit
 fi
-scp *.py "$1":~/legocar
+scp *.py "$1":~/legocar/python

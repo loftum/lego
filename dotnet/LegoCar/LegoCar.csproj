@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net461;mono581</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="deploy.sh" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Unosquare.Raspberry.IO" Version="0.14.0" />
+  </ItemGroup>
+</Project>
