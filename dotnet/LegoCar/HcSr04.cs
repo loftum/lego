@@ -22,15 +22,21 @@ namespace LegoCar
             while (_pin.Read() == false && temp.ElapsedMilliseconds < 100)
             {
             }
+
             sw.Start();
             temp.Restart();
             while (_pin.Read() == true && temp.ElapsedMilliseconds < 100)
             {
             }
+
+            if (temp.ElapsedMilliseconds >= 100)
+            {
+                // Sensor totally covered
+                return 0;
+            }
             sw.Stop();
             
             var distance = sw.Elapsed.TotalSeconds * SpeedOfSound / 2;
-            Console.WriteLine($"distance = {sw.Elapsed.TotalSeconds} * {SpeedOfSound} / 2");
             return distance;
         }
 
