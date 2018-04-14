@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Unosquare.RaspberryIO;
+using Unosquare.RaspberryIO.Gpio;
 
 namespace LegoCar
 {
@@ -11,18 +13,22 @@ namespace LegoCar
         private readonly int _motorPin;
         private readonly PiconZeroBoard _picon;
         private readonly HcSr04 _sonar;
+        private readonly GpioPin _lightPin;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public int Speed { get; private set; }
         public int Steer { get; private set; }
         public double DistanceInMm { get; private set; }
+        public bool LightsOn { get; private set; }
 
-        public Car(int steerPin, int motorPin, PiconZeroBoard picon, HcSr04 sonar)
+        public Car(int steerPin, int motorPin, PiconZeroBoard picon, HcSr04 sonar, GpioPin lightPin)
         {
             _steerPin = steerPin;
             _motorPin = motorPin;
             _picon = picon;
             _sonar = sonar;
+            lightPin.PinMode = GpioPinDriveMode.Output;
+            _lightPin = lightPin;
             picon.SetOutputConfig(_steerPin, OutputType.Servo);
             Reset();
             Task.Run(() => MeasureDistance(_cancellationTokenSource.Token));
@@ -39,7 +45,6 @@ namespace LegoCar
                     {
                         Stop();
                     }
-                    Console.WriteLine($"Getting distance {DistanceInMm}");
                 }
                 catch
                 {
@@ -123,6 +128,22 @@ namespace LegoCar
         public void Dispose()
         {
             _cancellationTokenSource?.Dispose();
+        }
+
+
+        public void ToggleLights()
+        {
+            LightsOn = !LightsOn;
+            Console.WriteLine($"Lights: {LightsOn.ToOnOff()}");
+            _lightPin.Write(LightsOn);
+        }
+    }
+
+    public static class BoolExtensions
+    {
+        public static string ToOnOff(this bool b)
+        {
+            return b ? "on" : "off";
         }
     }
 }
