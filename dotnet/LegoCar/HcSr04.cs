@@ -6,7 +6,10 @@ using Unosquare.RaspberryIO.Gpio;
 
 namespace LegoCar
 {
-    public class HcSr04
+    /// <summary>
+    /// Sonar
+    /// </summary>
+    public class HCSR04
     {
         private const int SpeedOfSound = 340000; // mm/s
         private readonly GpioPin _pin = Pi.Gpio.GetGpioPinByBcmPinNumber(20);

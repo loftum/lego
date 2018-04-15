@@ -12,7 +12,7 @@ namespace LegoCar
         private readonly int _steerPin;
         private readonly int _motorPin;
         private readonly PiconZeroBoard _picon;
-        private readonly HcSr04 _sonar;
+        private readonly HCSR04 _sonar;
         private readonly GpioPin _lightPin;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
@@ -21,7 +21,7 @@ namespace LegoCar
         public double DistanceInMm { get; private set; }
         public bool LightsOn { get; private set; }
 
-        public Car(int steerPin, int motorPin, PiconZeroBoard picon, HcSr04 sonar, GpioPin lightPin)
+        public Car(int steerPin, int motorPin, PiconZeroBoard picon, HCSR04 sonar, GpioPin lightPin)
         {
             _steerPin = steerPin;
             _motorPin = motorPin;

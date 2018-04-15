@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Unosquare.RaspberryIO;
 using Unosquare.RaspberryIO.Gpio;
 
 namespace LegoCar
@@ -19,9 +18,9 @@ namespace LegoCar
         private const int RESET = 20;
         private readonly int _retries = 10;
 
-        public PiconZeroBoard()
+        public PiconZeroBoard(I2CBus bus)
         {
-            _device = Pi.I2C.AddDevice(I2CAddress);
+            _device = bus.AddDevice(I2CAddress);
         }
 
         public string GetRevision()

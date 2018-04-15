@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Unosquare.RaspberryIO;
 
 namespace LegoCar
@@ -9,13 +8,13 @@ namespace LegoCar
         static int Main(string[] args)
         {
             Console.WriteLine($"Hello {Pi.Info}");
-            var picon = new PiconZeroBoard();
+            var picon = new PiconZeroBoard(Pi.I2C);
             //picon.Reset();
             Console.WriteLine(picon.GetRevision());
             var running = true;
             Console.CancelKeyPress += (s, a) => running = false;
 
-            var car = new Car(0, 1, picon, new HcSr04(), Pi.Gpio.GetGpioPinByBcmPinNumber(18));
+            var car = new Car(0, 1, picon, new HCSR04(), Pi.Gpio.GetGpioPinByBcmPinNumber(18));
             try
             {
                 while (running)
