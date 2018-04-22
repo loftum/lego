@@ -61,7 +61,7 @@ namespace LegoCar.LSM9DS1
         public void Reset()
         {
             _accelerometer.WriteAddressByte(AccelRegisters.CTRL_REG8, 0x05);
-            _magnometer.WriteAddressByte(MagRegisters.LSM9DS1_REGISTER_CTRL_REG2_M, 0x0c);
+            _magnometer.WriteAddressByte(MagRegisters.CTRL_REG2_M, 0x0c);
             Thread.Sleep(10);
 
             var id = _accelerometer.ReadAddressByte(AccelRegisters.WHO_AM_I_XG);
@@ -70,7 +70,7 @@ namespace LegoCar.LSM9DS1
                 throw new Exception($"Expected id {LSM9DS1_XG_ID}, but got {id} for accelerometer");
             }
 
-            id = _magnometer.ReadAddressByte(MagRegisters.LSM9DS1_REGISTER_WHO_AM_I_M);
+            id = _magnometer.ReadAddressByte(MagRegisters.WHO_AM_I_M);
             if (id != LSM9DS1_MAG_ID)
             {
                 throw new Exception($"Expected id {LSM9DS1_MAG_ID}, but got {id} for magnometer");
@@ -83,9 +83,9 @@ namespace LegoCar.LSM9DS1
             _accelerometer.WriteAddressByte(AccelRegisters.CTRL_REG6_XL, 0xc0);
 
             // Enable mag continuous
-            //_magnometer.WriteAddressByte(MagRegisters.LSM9DS1_REGISTER_CTRL_REG1_M, 0xfc); // High perf XY, 80 Hz ODR
-            _magnometer.WriteAddressByte(MagRegisters.LSM9DS1_REGISTER_CTRL_REG3_M, 0x00);
-            //_magnometer.WriteAddressByte(MagRegisters.LSM9DS1_REGISTER_CTRL_REG4_M, 0x0c); // High perf Z mode
+            //_magnometer.WriteAddressByte(MagRegisters.CTRL_REG1_M, 0xfc); // High perf XY, 80 Hz ODR
+            _magnometer.WriteAddressByte(MagRegisters.CTRL_REG3_M, 0x00);
+            //_magnometer.WriteAddressByte(MagRegisters.CTRL_REG4_M, 0x0c); // High perf Z mode
 
 
 
