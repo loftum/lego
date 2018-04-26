@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Unosquare.RaspberryIO;
+using Devices.Ultrasonic;
+using Devices._4tronix;
 using Unosquare.RaspberryIO.Gpio;
 
 namespace LegoCar

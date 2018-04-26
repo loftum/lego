@@ -1,4 +1,6 @@
 ﻿using System;
+using Devices.Ultrasonic;
+using Devices._4tronix;
 using Unosquare.RaspberryIO;
 
 namespace LegoCar

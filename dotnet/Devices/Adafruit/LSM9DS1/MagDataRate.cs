@@ -1,4 +1,4 @@
-﻿namespace LegoCar.LSM9DS1
+﻿namespace Devices.Adafruit.LSM9DS1
 {
     public enum MagDataRate
     {

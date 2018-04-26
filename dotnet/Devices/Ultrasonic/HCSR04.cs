@@ -4,7 +4,7 @@ using System.Threading;
 using Unosquare.RaspberryIO;
 using Unosquare.RaspberryIO.Gpio;
 
-namespace LegoCar
+namespace Devices.Ultrasonic
 {
     /// <summary>
     /// Sonar

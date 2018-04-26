@@ -2,7 +2,7 @@
 using System.Threading;
 using Unosquare.RaspberryIO.Gpio;
 
-namespace LegoCar
+namespace Devices._4tronix
 {
     public class PiconZeroBoard
     {
