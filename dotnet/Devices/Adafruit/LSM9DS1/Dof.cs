@@ -19,23 +19,6 @@ namespace Devices.Adafruit.LSM9DS1
 
         // Temperature: LSB per degree celsius
         public const int LSM9DS1_TEMP_LSB_DEGREE_CELSIUS = 8;  // 1°C = 8, 25° = 200, etc.
-        public const bool MAGTYPE = true;
-        public const bool XGTYPE = false;
-
-        private bool _i2c;
-        //private TwoWire* _wire;
-        private byte _csm, _csxg, _mosi, _miso, _clk;
-        private float _accel_mg_lsb;
-        private float _mag_mgauss_lsb;
-        private float _gyro_dps_digit;
-        private int _lsm9dso_sensorid_accel;
-        private int _lsm9dso_sensorid_mag;
-        private int _lsm9dso_sensorid_gyro;
-        private int _lsm9dso_sensorid_temp;
-        //private Sensor _accelSensor;
-        //private Sensor _magSensor;
-        //private Sensor _gyroSensor;
-        //private Sensor _tempSensor;
 
         private AccelRange _accelRange = AccelRange._2G;
         public AccelRange AccelRange
