@@ -4,26 +4,12 @@
     {
         public static Vector3 ToVector3(this byte[] buffer)
         {
-            var xlo = buffer[0];
-            ushort xhi = buffer[1];
-            var ylo = buffer[2];
-            ushort yhi = buffer[3];
-            var zlo = buffer[4];
-            ushort zhi = buffer[5];
-
-            // Shift values to create properly formed integer (low byte first)
-            xhi <<= 8; xhi |= xlo;
-            yhi <<= 8; yhi |= ylo;
-            zhi <<= 8; zhi |= zlo;
-            return new Vector3(xhi, yhi, zhi);
+            return new Vector3(buffer[1] << 8 | buffer[0], buffer[3] << 8 | buffer[2], buffer[5] << 8 | buffer[4]);
         }
 
-        public static ushort ToUshort(this byte[] buffer)
+        public static int ToUshort(this byte[] buffer)
         {
-            var lo = buffer[0];
-            ushort hi = buffer[1];
-            hi <<= 8; hi |= lo;
-            return hi;
+            return buffer[1] << 8 | buffer[0];
         }
     }
 }

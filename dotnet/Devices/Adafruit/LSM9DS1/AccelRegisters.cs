@@ -2,6 +2,7 @@
 {
     public static class AccelRegisters
     {
+        public const int ORIENT_CFG_G = 0x13;
         public const int WHO_AM_I_XG = 0x0F;
         public const int CTRL_REG1_G = 0x10;
         public const int CTRL_REG2_G = 0x11;

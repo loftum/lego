@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using Devices.Adafruit.LSM9DS1;
+using Unosquare.RaspberryIO;
 using Unosquare.RaspberryIO.Gpio;
 
 namespace DofTest
@@ -10,7 +11,7 @@ namespace DofTest
     {
         static void Main(string[] args)
         {
-            var dof = new Dof(I2CBus.Instance);
+            var dof = new Dof(Pi.I2C);
             var running = true;
             Console.CancelKeyPress += (s, e) => running = false;
 
