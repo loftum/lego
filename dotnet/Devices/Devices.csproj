@@ -9,6 +9,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="pigpio-dotnet">
+      <HintPath>..\libs\pigpio-dotnet\pigpio-dotnet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="gpio.2.44">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

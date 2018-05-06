@@ -8,9 +8,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "20. Libs", "20. Libs", "{28
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "10. Apps", "10. Apps", "{5A141452-1CF5-4AFB-B2FF-5816C534AC3C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Devices", "Devices\Devices.csproj", "{769D26E4-3D86-4EDD-AEB7-02FA327D9021}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Devices", "Devices\Devices.csproj", "{769D26E4-3D86-4EDD-AEB7-02FA327D9021}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DofTest", "DofTest\DofTest.csproj", "{6EA256A8-5660-4622-8F05-F5B99DCDE7E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DofTest", "DofTest\DofTest.csproj", "{6EA256A8-5660-4622-8F05-F5B99DCDE7E0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

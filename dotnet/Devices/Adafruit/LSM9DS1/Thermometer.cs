@@ -1,4 +1,4 @@
-﻿using Unosquare.RaspberryIO.Gpio;
+﻿using Unosquare.PiGpio.ManagedModel;
 
 namespace Devices.Adafruit.LSM9DS1
 {
@@ -13,17 +13,16 @@ namespace Devices.Adafruit.LSM9DS1
         public const int LSM9DS1_TEMP_LSB_DEGREE_CELSIUS = 8;  // 1°C = 8, 25° = 200, etc.
 
         public TempSettings Settings { get; } = new TempSettings();
-        private readonly I2CDevice _device;
+        private readonly I2cDevice _device;
 
-        public Thermometer(I2CDevice device)
+        public Thermometer(I2cDevice device)
         {
             _device = device;
-            
         }
 
         public double Read()
         {
-            return _device.ReadAddressBytes(AccelRegisters.TEMP_OUT_L, 2).ToUshort() / LSM9DS1_TEMP_LSB_DEGREE_CELSIUS;
+            return _device.ReadBlock(AccelRegisters.TEMP_OUT_L, 2).ToUshort() / LSM9DS1_TEMP_LSB_DEGREE_CELSIUS;
         }
     }
 }

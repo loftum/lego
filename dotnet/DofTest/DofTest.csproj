@@ -9,4 +9,10 @@
     <ProjectReference Include="..\Devices\Devices.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="pigpio-dotnet">
+      <HintPath>..\libs\pigpio-dotnet\pigpio-dotnet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

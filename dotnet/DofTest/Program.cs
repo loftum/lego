@@ -2,8 +2,7 @@
 using System.Linq;
 using System.Threading;
 using Devices.Adafruit.LSM9DS1;
-using Unosquare.RaspberryIO;
-using Unosquare.RaspberryIO.Gpio;
+using Unosquare.PiGpio;
 
 namespace DofTest
 {
@@ -11,37 +10,39 @@ namespace DofTest
     {
         static void Main(string[] args)
         {
-            var dof = new Dof(Pi.I2C);
-            var running = true;
-            Console.CancelKeyPress += (s, e) => running = false;
-
-            var accel = args.Contains("a");
-            var gyro = args.Contains("g");
-            var mag = args.Contains("m");
-            var temp = args.Contains("t");
-            while (running)
+            using (var dof = new Dof(Board.Peripherals))
             {
-                dof.ReadAll();
-                if (accel)
-                {
-                    Console.WriteLine($"accel: {dof.AccelValue} m/s^2");
-                }
+                var running = true;
+                Console.CancelKeyPress += (s, e) => running = false;
 
-                if (gyro)
+                var accel = args.Contains("a");
+                var gyro = args.Contains("g");
+                var mag = args.Contains("m");
+                var temp = args.Contains("t");
+                while (running)
                 {
-                    Console.WriteLine($"gyro: {dof.GyroValue} degrees/s");
-                }
+                    dof.ReadAll();
+                    if (accel)
+                    {
+                        Console.WriteLine($"accel: {dof.AccelValue} m/s^2");
+                    }
 
-                if (mag)
-                {
-                    Console.WriteLine($"mag: {dof.MagValue} gauss");
-                }
+                    if (gyro)
+                    {
+                        Console.WriteLine($"gyro: {dof.GyroValue} degrees/s");
+                    }
 
-                if (temp)
-                {
-                    Console.WriteLine($"temp: {dof.TempValue} C");
+                    if (mag)
+                    {
+                        Console.WriteLine($"mag: {dof.MagValue} gauss");
+                    }
+
+                    if (temp)
+                    {
+                        Console.WriteLine($"temp: {dof.TempValue} C");
+                    }
+                    Thread.Sleep(500);
                 }
-                Thread.Sleep(500);
             }
         }
     }

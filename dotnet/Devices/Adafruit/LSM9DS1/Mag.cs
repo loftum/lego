@@ -1,4 +1,4 @@
-﻿using Unosquare.RaspberryIO.Gpio;
+﻿using Unosquare.PiGpio.ManagedModel;
 
 namespace Devices.Adafruit.LSM9DS1
 {
@@ -68,9 +68,9 @@ namespace Devices.Adafruit.LSM9DS1
     public class Mag
     {
         public MagSettings Settings { get; } = new MagSettings();
-        private readonly I2CDevice _device;
+        private readonly I2cDevice _device;
 
-        public Mag(I2CDevice device)
+        public Mag(I2cDevice device)
         {
             _device = device;
             Init();
@@ -87,7 +87,7 @@ namespace Devices.Adafruit.LSM9DS1
 
             regValue |= ((int) Settings.XYPerformance % 0x03) << 5;
             regValue |= ((int) Settings.SampleRate & 0x07) << 2;
-            _device.WriteAddressByte(MagRegisters.CTRL_REG1_M, (byte) regValue);
+            _device.Write(MagRegisters.CTRL_REG1_M, (byte) regValue);
 
             regValue = 0;
             switch (Settings.MagGain)
@@ -102,7 +102,7 @@ namespace Devices.Adafruit.LSM9DS1
                     regValue |= 0X3 << 5;
                     break;
             }
-            _device.WriteAddressByte(MagRegisters.CTRL_REG2_M, (byte) regValue);
+            _device.Write(MagRegisters.CTRL_REG2_M, (byte) regValue);
 
             regValue = 0;
             if (Settings.LowPowerEnable)
@@ -111,14 +111,14 @@ namespace Devices.Adafruit.LSM9DS1
             }
 
             regValue |= (int) Settings.OperatingMode & 0x03;
-            _device.WriteAddressByte(MagRegisters.CTRL_REG3_M, (byte) regValue);
+            _device.Write(MagRegisters.CTRL_REG3_M, (byte) regValue);
 
             regValue = 0;
             regValue = ((int) Settings.ZPerformance & 0x03) << 2;
-            _device.WriteAddressByte(MagRegisters.CTRL_REG4_M, (byte) regValue);
+            _device.Write(MagRegisters.CTRL_REG4_M, (byte) regValue);
 
             regValue = 0;
-            _device.WriteAddressByte(MagRegisters.CTRL_REG5_M, (byte) regValue);
+            _device.Write(MagRegisters.CTRL_REG5_M, (byte) regValue);
         }
 
         private double GetGain()
@@ -135,7 +135,7 @@ namespace Devices.Adafruit.LSM9DS1
 
         public Vector3 Read()
         {
-            return _device.ReadAddressBytes(0x80 | MagRegisters.OUT_X_L_M, 6).ToVector3() * GetGain();
+            return _device.ReadBlock(0x80 | MagRegisters.OUT_X_L_M, 6).ToVector3() * GetGain();
         }
     }
 }

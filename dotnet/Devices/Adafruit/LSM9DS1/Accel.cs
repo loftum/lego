@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using Unosquare.RaspberryIO.Gpio;
+﻿using Unosquare.PiGpio.ManagedModel;
 
 namespace Devices.Adafruit.LSM9DS1
 {
@@ -91,9 +90,9 @@ namespace Devices.Adafruit.LSM9DS1
     public class Accel
     {
         public AccelSettings Settings { get; }
-        private readonly I2CDevice _device;
+        private readonly I2cDevice _device;
 
-        public Accel(I2CDevice device)
+        public Accel(I2cDevice device)
         {
             _device = device;
             Settings = new AccelSettings();
@@ -117,7 +116,7 @@ namespace Devices.Adafruit.LSM9DS1
             {
                 regValue |= 1 << 3;
             }
-            _device.WriteAddressByte(AccelRegisters.CTRL_REG5_XL, (byte)regValue);
+            _device.Write(AccelRegisters.CTRL_REG5_XL, (byte)regValue);
 
             regValue = 0;
             if (Settings.Enabled)
@@ -145,7 +144,7 @@ namespace Devices.Adafruit.LSM9DS1
                     regValue |= (int) Settings.Bandwidth & 0x03;
                     break;
             }
-            _device.WriteAddressByte(AccelRegisters.CTRL_REG6_XL, (byte)regValue);
+            _device.Write(AccelRegisters.CTRL_REG6_XL, (byte)regValue);
 
             regValue = 0;
             if (Settings.HighResEnable)
@@ -153,7 +152,7 @@ namespace Devices.Adafruit.LSM9DS1
                 regValue |= 1 << 7;
                 regValue |= ((int) Settings.HighResBandwidth & 0x03) << 5;
             }
-            _device.WriteAddressByte(AccelRegisters.CTRL_REG7_XL, (byte) regValue);
+            _device.Write(AccelRegisters.CTRL_REG7_XL, (byte) regValue);
         }
 
         private double GetMgPerLsb()
@@ -170,7 +169,8 @@ namespace Devices.Adafruit.LSM9DS1
 
         public Vector3 Read()
         {
-            return _device.ReadAddressBytes(0x80 | AccelRegisters.OUT_X_L_XL, 6).ToVector3() * GetMgPerLsb() * Constants.SENSORS_GRAVITY_STANDARD;
+            return _device.ReadBlock(0x80 | AccelRegisters.OUT_X_L_XL, 6).ToVector3() * GetMgPerLsb() * Constants.SENSORS_GRAVITY_STANDARD;
+            //return _device.ReadBlock(AccelRegisters.OUT_X_L_XL, 6).ToVector3() * GetMgPerLsb() * Constants.SENSORS_GRAVITY_STANDARD;
         }
     }
 }
