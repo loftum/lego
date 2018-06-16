@@ -56,11 +56,11 @@ namespace Devices.Adafruit.LSM9DS1
     {
         public GyroSettings Settings { get; } = new GyroSettings();
 
-        private readonly I2cDevice _device;
+        public I2cDevice Device { get; }
 
         public Gyro(I2cDevice device)
         {
-            _device = device;
+            Device = device;
             Init();
         }
 
@@ -82,15 +82,15 @@ namespace Devices.Adafruit.LSM9DS1
                     break;
             }
             regValue |= Settings.Bandwidth & 0x03;
-            _device.Write(AccelRegisters.CTRL_REG1_G, (byte)regValue);
-            _device.Write(AccelRegisters.CTRL_REG2_G, 0x00);
+            Device.Write(AccelRegisters.CTRL_REG1_G, (byte)regValue);
+            Device.Write(AccelRegisters.CTRL_REG2_G, 0x00);
 
             regValue = Settings.LowPowerEnable ? 1 << 7 : 0;
             if (Settings.HPFEnable)
             {
                 regValue |= 1 << 6 | (Settings.HPFCutoff & 0x0f);
             }
-            _device.Write(AccelRegisters.CTRL_REG3_G, (byte)regValue);
+            Device.Write(AccelRegisters.CTRL_REG3_G, (byte)regValue);
 
             regValue = 0;
             if (Settings.EnableZ)
@@ -112,7 +112,7 @@ namespace Devices.Adafruit.LSM9DS1
             {
                 regValue |= 1 << 1;
             }
-            _device.Write(AccelRegisters.CTRL_REG4, (byte)regValue);
+            Device.Write(AccelRegisters.CTRL_REG4, (byte)regValue);
 
             regValue = 0;
             if (Settings.FlipX)
@@ -129,7 +129,7 @@ namespace Devices.Adafruit.LSM9DS1
             {
                 regValue |= 1 << 3;
             }
-            _device.Write(AccelRegisters.ORIENT_CFG_G, (byte) regValue);
+            Device.Write(AccelRegisters.ORIENT_CFG_G, (byte) regValue);
         }
 
         private double GetScale()
@@ -145,7 +145,7 @@ namespace Devices.Adafruit.LSM9DS1
 
         public Vector3 Read()
         {
-            return _device.ReadBlock(0x80 | AccelRegisters.OUT_X_L_G, 6).ToVector3() * GetScale();
+            return Device.ReadBlock(0x80 | AccelRegisters.OUT_X_L_G, 6).ToVector3() * GetScale();
         }
     }
 }

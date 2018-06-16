@@ -1,7 +1,9 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Devices.Adafruit.LSM9DS1;
+using Terminal.Interactive;
+using Terminal.Interactive.PoorMans;
 using Unosquare.PiGpio;
 
 namespace DofTest
@@ -10,38 +12,59 @@ namespace DofTest
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Hello!");
+            using (var source = new CancellationTokenSource())
+            {
+                Console.CancelKeyPress += (s, e) =>
+                {
+                    e.Cancel = true;
+                    Console.WriteLine("Bye!");
+                    Environment.Exit(0);
+                };
+                try
+                {
+                    Run(source.Token).Wait(source.Token);
+                }
+                catch (Exception e)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(e);
+                    Console.ResetColor();
+                }
+            }
+        }
+
+        private static async Task Run( CancellationToken token)
+        {
             using (var dof = new Dof(Board.Peripherals))
             {
-                var running = true;
-                Console.CancelKeyPress += (s, e) => running = false;
-
-                var accel = args.Contains("a");
-                var gyro = args.Contains("g");
-                var mag = args.Contains("m");
-                var temp = args.Contains("t");
-                while (running)
+                while (!token.IsCancellationRequested)
                 {
-                    dof.ReadAll();
-                    if (accel)
+                    try
                     {
-                        Console.WriteLine($"accel: {dof.AccelValue} m/s^2");
+                        var history = new InputHistory(new string[0], 50);
+                        var controller = new PoorMansAppController(dof, token);
+                        var reader = new CommandReader(controller, history);
+                        var input = await reader.ReadCommand();
+                        if (string.IsNullOrEmpty(input))
+                        {
+                            continue;
+                        }
+                        if (input == "quit" || input == "exit")
+                        {
+                            Console.WriteLine("Bye!");
+                            break;
+                        }
+                        history.Add(input);
+                        var result = await controller.ExecuteAsync(input, token);
+                        Console.WriteLine(result.Pretty());
                     }
-
-                    if (gyro)
+                    catch (Exception e)
                     {
-                        Console.WriteLine($"gyro: {dof.GyroValue} degrees/s");
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine(e);
+                        Console.ResetColor();
                     }
-
-                    if (mag)
-                    {
-                        Console.WriteLine($"mag: {dof.MagValue} gauss");
-                    }
-
-                    if (temp)
-                    {
-                        Console.WriteLine($"temp: {dof.TempValue} C");
-                    }
-                    Thread.Sleep(500);
                 }
             }
         }

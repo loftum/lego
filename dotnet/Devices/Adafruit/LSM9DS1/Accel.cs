@@ -90,11 +90,11 @@ namespace Devices.Adafruit.LSM9DS1
     public class Accel
     {
         public AccelSettings Settings { get; }
-        private readonly I2cDevice _device;
+        public I2cDevice Device { get; }
 
         public Accel(I2cDevice device)
         {
-            _device = device;
+            Device = device;
             Settings = new AccelSettings();
             Init();
         }
@@ -116,7 +116,7 @@ namespace Devices.Adafruit.LSM9DS1
             {
                 regValue |= 1 << 3;
             }
-            _device.Write(AccelRegisters.CTRL_REG5_XL, (byte)regValue);
+            Device.Write(AccelRegisters.CTRL_REG5_XL, (byte)regValue);
 
             regValue = 0;
             if (Settings.Enabled)
@@ -144,7 +144,7 @@ namespace Devices.Adafruit.LSM9DS1
                     regValue |= (int) Settings.Bandwidth & 0x03;
                     break;
             }
-            _device.Write(AccelRegisters.CTRL_REG6_XL, (byte)regValue);
+            Device.Write(AccelRegisters.CTRL_REG6_XL, (byte)regValue);
 
             regValue = 0;
             if (Settings.HighResEnable)
@@ -152,7 +152,7 @@ namespace Devices.Adafruit.LSM9DS1
                 regValue |= 1 << 7;
                 regValue |= ((int) Settings.HighResBandwidth & 0x03) << 5;
             }
-            _device.Write(AccelRegisters.CTRL_REG7_XL, (byte) regValue);
+            Device.Write(AccelRegisters.CTRL_REG7_XL, (byte) regValue);
         }
 
         private double GetMgPerLsb()
@@ -169,8 +169,8 @@ namespace Devices.Adafruit.LSM9DS1
 
         public Vector3 Read()
         {
-            return _device.ReadBlock(0x80 | AccelRegisters.OUT_X_L_XL, 6).ToVector3() * GetMgPerLsb() * Constants.SENSORS_GRAVITY_STANDARD;
-            //return _device.ReadBlock(AccelRegisters.OUT_X_L_XL, 6).ToVector3() * GetMgPerLsb() * Constants.SENSORS_GRAVITY_STANDARD;
+            var value = Device.ReadBlock(0x80 | AccelRegisters.OUT_X_L_XL, 6).ToVector3();
+            return value * GetMgPerLsb() * Constants.SENSORS_GRAVITY_STANDARD;
         }
     }
 }

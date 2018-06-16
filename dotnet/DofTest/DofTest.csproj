@@ -6,13 +6,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Devices\Devices.csproj" />
+    <ProjectReference Include="..\Terminal.Interactive.PoorMans\Terminal.Interactive.PoorMans.csproj" />
+    <ProjectReference Include="..\Terminal.Interactive\Terminal.Interactive.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="pigpio-dotnet">
       <HintPath>..\libs\pigpio-dotnet\pigpio-dotnet.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Interactive\" />
   </ItemGroup>
 
 </Project>
