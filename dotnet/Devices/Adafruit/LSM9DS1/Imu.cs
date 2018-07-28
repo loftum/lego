@@ -8,15 +8,15 @@ namespace Devices.Adafruit.LSM9DS1
     /// <summary>
     /// Accelerometer, Gyro, Magnetometer
     /// </summary>
-    public class Dof : IDisposable
+    public class Imu : IDisposable
     {
         private readonly I2cDevice _accelerometer;
         private readonly I2cDevice _magnometer;
 
-        private const int AccelAddress = 0x6B;
-        private const int MagAddress = 0x1E;
-        private const int AccelId = 0b01101000;
-        private const int MagId = 0b00111101;
+        public const int AccelAddress = 0x6B;
+        public const int MagAddress = 0x1E;
+        public const int AccelId = 0b01101000; // 0x68
+        public const int MagId = 0b00111101; // 0x3d
 
         public Gyro Gyro { get; private set; }
         public Accel Accel { get; private set; }
@@ -28,7 +28,7 @@ namespace Devices.Adafruit.LSM9DS1
         public Vector3 GyroValue { get; private set; }
         public double TempValue { get; private set; }
 
-        public Dof(BoardPeripheralsService bus)
+        public Imu(BoardPeripheralsService bus)
         {
             _accelerometer = bus.OpenI2cDevice(AccelAddress);
             _magnometer = bus.OpenI2cDevice(MagAddress);

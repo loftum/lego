@@ -10,7 +10,7 @@
         public const int TEMP_OUT_L = 0x15;
         public const int TEMP_OUT_H = 0x16;
         public const int STATUS_REG = 0x17;
-        public const int OUT_X_L_G = 0x18;
+        public const byte OUT_X_L_G = 0x18;
         public const int OUT_X_H_G = 0x19;
         public const int OUT_Y_L_G = 0x1A;
         public const int OUT_Y_H_G = 0x1B;
@@ -23,7 +23,7 @@
         public const int CTRL_REG8 = 0x22;
         public const int CTRL_REG9 = 0x23;
         public const int CTRL_REG10 = 0x24;
-        public const int OUT_X_L_XL = 0x28;
+        public const byte OUT_X_L_XL = 0x28;
         public const int OUT_X_H_XL = 0x29;
         public const int OUT_Y_L_XL = 0x2A;
         public const int OUT_Y_H_XL = 0x2B;
