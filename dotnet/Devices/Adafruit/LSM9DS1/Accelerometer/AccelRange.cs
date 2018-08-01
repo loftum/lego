@@ -1,4 +1,4 @@
-﻿namespace Devices.Adafruit.LSM9DS1
+﻿namespace Devices.Adafruit.LSM9DS1.Accelerometer
 {
     /// <summary>
     /// Linear acceleration: mg per LSB

@@ -1,4 +1,5 @@
-﻿using Unosquare.PiGpio.ManagedModel;
+﻿using Devices.Adafruit.LSM9DS1.Accelerometer;
+using Unosquare.PiGpio.ManagedModel;
 
 namespace Devices.Adafruit.LSM9DS1
 {

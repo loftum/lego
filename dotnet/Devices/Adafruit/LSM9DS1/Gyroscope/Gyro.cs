@@ -1,61 +1,11 @@
-﻿using Unosquare.PiGpio.ManagedModel;
+﻿using Devices.Adafruit.LSM9DS1.Accelerometer;
+using Unosquare.PiGpio.ManagedModel;
 
-namespace Devices.Adafruit.LSM9DS1
+namespace Devices.Adafruit.LSM9DS1.Gyroscope
 {
-    public enum GyroSampleRate
-    {
-        /// <summary>
-        /// 14.9
-        /// </summary>
-        _14_9,
-        /// <summary>
-        /// 59.5
-        /// </summary>
-        _59_5,
-        /// <summary>
-        /// 119
-        /// </summary>
-        _119,
-        /// <summary>
-        /// 238
-        /// </summary>
-        _238,
-        /// <summary>
-        /// 476
-        /// </summary>
-        _476,
-        /// <summary>
-        /// 952
-        /// </summary>
-        _952,
-    }
-
-    public class GyroSettings
-    {
-        public bool Enabled { get; set; } = true;
-        public bool EnableX { get; set; } = true;
-        public bool EnableY { get; set; } = true;
-        public bool EnableZ { get; set; } = true;
-        public GyroScale Scale { get; set; } = GyroScale._245DPS;
-        public GyroSampleRate SampleRate { get; set; } = GyroSampleRate._952;
-        /// <summary>
-        /// 0-3
-        /// </summary>
-        public int Bandwidth { get; set; }
-        public bool LowPowerEnable { get; set; }
-        public bool HPFEnable { get; set; }
-        public int HPFCutoff { get; set; }
-        public bool FlipX { get; set; }
-        public bool FlipY { get; set; }
-        public bool FlipZ { get; set; }
-        public int Orientation { get; set; }
-        public bool LatchInterrupt { get; set; } = true;
-    }
-
     public class Gyro
     {
         public GyroSettings Settings { get; } = new GyroSettings();
-
         public I2cDevice Device { get; }
 
         public Gyro(I2cDevice device)
@@ -132,20 +82,9 @@ namespace Devices.Adafruit.LSM9DS1
             Device.Write(AccelRegisters.ORIENT_CFG_G, (byte) regValue);
         }
 
-        private double GetScale()
-        {
-            switch (Settings.Scale)
-            {
-                case GyroScale._2000DPS: return 0.07000;
-                case GyroScale._500DPS: return 0.01750;
-                case GyroScale._245DPS: return 0.00875;
-                default: return 0.00875;
-            }
-        }
-
         public Vector3 Read()
         {
-            return Device.ReadBlock(0x80 | AccelRegisters.OUT_X_L_G, 6).ToVector3() * GetScale();
+            return Device.ReadBlock(0x80 | AccelRegisters.OUT_X_L_G, 6).ToVector3() * Settings.GetScale();
         }
     }
 }
