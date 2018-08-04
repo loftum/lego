@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Devices\Devices.csproj" />
-    <ProjectReference Include="..\Terminal.Interactive\Terminal.Interactive.csproj" />
   </ItemGroup>
 
 </Project>

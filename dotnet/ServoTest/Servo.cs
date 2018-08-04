@@ -5,26 +5,22 @@ namespace ServoTest
 {
     public class Servo : IDisposable
     {
-        private readonly int _steerPin;
-        private readonly PiconZeroBoard _picon;
-        private int _angle;
-
+        private readonly OutputPort _output;
+        
         public int Angle
         {
-            get => _angle;
+            get => _output.Value;
             set
             {
-                _angle = value;
-                _picon.SetOutput(_steerPin, value);
+                _output.Value = value;
                 Console.WriteLine($"Angle: {value}");
             }
         }
 
-        public Servo(PiconZeroBoard picon, int steerPin)
+        public Servo(OutputPort output)
         {
-            _steerPin = steerPin;
-            picon.SetOutputConfig(_steerPin, OutputType.Pwm);
-            _picon = picon;
+            _output = output;
+            _output.Type = OutputType.Servo;
             Reset();
         }
 

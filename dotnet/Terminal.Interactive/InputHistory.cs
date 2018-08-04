@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -6,6 +8,9 @@ namespace Terminal.Interactive
 {
     public class InputHistory
     {
+        public static readonly string
+            FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "inputhistory.txt");
+
         private int _index;
         private readonly int _limit;
         private readonly List<string> _commands;
@@ -47,6 +52,7 @@ namespace Terminal.Interactive
             {
                 _temp = "";
             }
+
             LoadCurrent();
         }
 
@@ -61,6 +67,7 @@ namespace Terminal.Interactive
             {
                 return false;
             }
+
             SaveCurrent();
             _index++;
             LoadCurrent();
@@ -87,6 +94,7 @@ namespace Terminal.Interactive
             {
                 return false;
             }
+
             SaveCurrent();
             _index--;
             LoadCurrent();
@@ -111,5 +119,15 @@ namespace Terminal.Interactive
         }
 
         public StringBuilder Current { get; }
+
+        public static InputHistory Load()
+        {
+            return File.Exists(FileName) ? new InputHistory(File.ReadAllLines(FileName), 50) : new InputHistory(new string[0], 50);
+        }
+
+        public void Save()
+        {
+            File.WriteAllLines(FileName, _commands);
+        }
     }
 }

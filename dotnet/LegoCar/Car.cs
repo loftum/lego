@@ -10,27 +10,23 @@ namespace LegoCar
     public class Car: IDisposable
     {
         private const double DistanceLimit = 75;
-        private readonly int _steerPin;
-        private readonly int _motorPin;
-        private readonly PiconZeroBoard _picon;
         private readonly HCSR04 _sonar;
         private readonly GpioPin _lightPin;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        public int Speed { get; private set; }
-        public int Steer { get; private set; }
         public double DistanceInMm { get; private set; }
         public bool LightsOn { get; private set; }
+        private readonly MotorPort _motor;
+        private readonly OutputPort _steer;
 
         public Car(int steerPin, int motorPin, PiconZeroBoard picon, HCSR04 sonar, GpioPin lightPin)
         {
-            _steerPin = steerPin;
-            _motorPin = motorPin;
-            _picon = picon;
+            _steer = picon.Outputs[steerPin];
+            _motor = picon.Motors[motorPin];
             _sonar = sonar;
             lightPin.PinMode = GpioPinDriveMode.Output;
             _lightPin = lightPin;
-            picon.SetOutputConfig(_steerPin, OutputType.Servo);
+            picon.SetOutputConfig(steerPin, OutputType.Servo);
             Reset();
             Task.Run(() => MeasureDistance(_cancellationTokenSource.Token));
         }
@@ -60,21 +56,21 @@ namespace LegoCar
 
         public void SpeedUp()
         {
-            if (Speed < 0)
+            if (_motor.Speed < 0)
             {
                 Stop();
             }
-            SetSpeed(Speed + 30);
+            SetSpeed(_motor.Speed + 30);
         }
 
         public void SpeedDown()
         {
-            if (Speed > 0)
+            if (_motor.Speed > 0)
             {
                 Stop();
                 return;
             }
-            SetSpeed(Speed - 30);
+            SetSpeed(_motor.Speed - 30);
         }
 
         public void Stop()
@@ -89,24 +85,23 @@ namespace LegoCar
                 return;
             }
 
-            if (speed > 0 && DistanceInMm < DistanceLimit)
+            if (_motor.Speed > 0 && DistanceInMm < DistanceLimit)
             {
-                speed = 0;
+                _motor.Speed = 0;
+                return;
             }
 
-            Speed = speed;
-            _picon.SetMotor(_motorPin, speed);
+            _motor.Speed = speed;
             Console.WriteLine($"Speed: {speed}");
         }
 
         private void SetSteer(int angle)
         {
-            if (angle > 145 || angle < 35)
+            if (_steer.Value > 145 || _steer.Value < 35)
             {
                 return;
             }
-            Steer = angle;
-            _picon.SetOutput(_steerPin, angle);
+            _steer.Value = angle;
             Console.WriteLine($"Steer: {angle}");
         }
 
@@ -118,12 +113,12 @@ namespace LegoCar
 
         public void SteerLeft()
         {
-            SetSteer(Steer + 10);
+            SetSteer(_steer.Value + 10);
         }
 
         public void SteerRight()
         {
-            SetSteer(Steer - 10);
+            SetSteer(_steer.Value - 10);
         }
 
         public void Dispose()

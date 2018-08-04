@@ -10,13 +10,11 @@ namespace Terminal.Interactive.PoorMans
     {
         private readonly object _context;
         private readonly ObjectNode _model;
-        private readonly CancellationToken _cancellationToken;
 
-        public PoorMansAppController(object context, CancellationToken cancellationToken)
+        public PoorMansAppController(object context)
         {
             _model = new ObjectNode(context.GetType(), context);
             _context = context;
-            _cancellationToken = cancellationToken;
         }
 
         public Task<List<CompletionData>> GetCompletions(string code, int location)

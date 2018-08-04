@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using Unosquare.RaspberryIO.Gpio;
 
@@ -7,25 +8,32 @@ namespace Devices._4tronix
     public class PiconZeroBoard
     {
         public const int I2CAddress = 0x22;
-        private readonly I2CDevice _device;
+        public I2CDevice Device { get; }
 
         private const int MOTORA = 0;
-        private const int OUTCFG0 = 2;
-        private const int OUTPUT0 = 8;
-        private const int INCFG0 = 14;
+        public const int OUTCFG0 = 2;
+        public const int OUTPUT0 = 8;
+        public const int INCFG0 = 14;
         private const int SETBRIGHT = 18;
         private const int UPDATENOW = 19;
         private const int RESET = 20;
         private readonly int _retries = 10;
 
+        public InputPort[] Inputs { get; }
+        public OutputPort[] Outputs { get; }
+        public MotorPort[] Motors { get; }
+
         public PiconZeroBoard(I2CBus bus)
         {
-            _device = bus.AddDevice(I2CAddress);
+            Device = bus.AddDevice(I2CAddress);
+            Inputs = Enumerable.Range(0, 4).Select(i => new InputPort(Device, i)).ToArray();
+            Outputs = Enumerable.Range(0, 6).Select(i => new OutputPort(Device, i)).ToArray();
+            Motors = Enumerable.Range(0, 2).Select(i => new MotorPort(Device, i)).ToArray();
         }
 
         public string GetRevision()
         {
-            var value = _device.ReadAddressWord(0);
+            var value = Device.ReadAddressWord(0);
             return $"{value / 256} {value % 256}";
         }
 
@@ -35,7 +43,7 @@ namespace Devices._4tronix
             {
                 return;
             }
-            Try(() => _device.WriteAddressByte(motor, (byte)speed));
+            Try(() => Device.WriteAddressByte(motor, (byte)speed));
         }
 
         public void SetOutput(int channel, int value)
@@ -43,13 +51,14 @@ namespace Devices._4tronix
             if (channel < 0 || channel > 5)
             {
                 return;
+
             }
-            Try(() => _device.WriteAddressByte(OUTPUT0 + channel, (byte)value));
+            Try(() => Device.WriteAddressByte(OUTPUT0 + channel, (byte)value));
         }
 
         public void Reset()
         {
-            Try(() => _device.WriteAddressByte(RESET, 0));
+            Try(() => Device.WriteAddressByte(RESET, 0));
         }
 
         private void Try(Action action)
@@ -89,7 +98,7 @@ namespace Devices._4tronix
             {
                 throw new ArgumentException("Output pin must be 0-5", nameof(pin));
             }
-            Try(() => _device.WriteAddressByte(OUTCFG0 + pin, (byte) type));
+            Try(() => Device.WriteAddressByte(OUTCFG0 + pin, (byte) type));
         }
 
         public void SetInputConfig(int pin, InputType type)
@@ -98,21 +107,7 @@ namespace Devices._4tronix
             {
                 throw new ArgumentException("Input pin must be 0-3", nameof(pin));
             }
-            Try(() => _device.WriteAddressByte(INCFG0 + pin, (byte)type));
+            Try(() => Device.WriteAddressByte(INCFG0 + pin, (byte)type));
         }
-    }
-
-    public enum InputType
-    {
-        Digital = 0,
-        Analog = 1
-    }
-
-    public enum OutputType
-    {
-        OnOff = 0,
-        Pwm = 1,
-        Servo = 2,
-        Ws2812B = 3
     }
 }
