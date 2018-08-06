@@ -16,7 +16,7 @@ namespace LegoCar
             var running = true;
             Console.CancelKeyPress += (s, a) => running = false;
 
-            var car = new Car(0, 0, picon, new HCSR04(), Pi.Gpio.GetGpioPinByBcmPinNumber(18));
+            var car = new Car(0, 0, picon, new HCSR04(), Pi.Gpio.GetGpioPinByBcmPinNumber(18), false);
             try
             {
                 while (running)
@@ -39,8 +39,14 @@ namespace LegoCar
                         case ConsoleKey.Spacebar:
                             car.Reset();
                             break;
+                        case ConsoleKey.B:
+                            car.Boost();
+                            break;
                         case ConsoleKey.L:
                             car.ToggleLights();
+                            break;
+                        case ConsoleKey.R:
+                            car.Reset();
                             break;
                         case ConsoleKey.Q:
                             running = false;
