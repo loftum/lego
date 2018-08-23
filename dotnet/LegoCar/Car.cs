@@ -7,6 +7,30 @@ using Unosquare.RaspberryIO.Gpio;
 
 namespace LegoCar
 {
+    public class BothMotors
+    {
+        private readonly MotorPort _motor1;
+        private readonly MotorPort _motor2;
+        private int _speed;
+
+        public int Speed
+        {
+            get => _speed;
+            set
+            {
+                _motor1.Speed = value;
+                _motor2.Speed = value;
+                _speed = value;
+            }
+        }
+
+        public BothMotors(MotorPort motor1, MotorPort motor2)
+        {
+            _motor1 = motor1;
+            _motor2 = motor2;
+        }
+    }
+
     public class Car: IDisposable
     {
         private const double DistanceLimit = 75;
@@ -16,7 +40,7 @@ namespace LegoCar
 
         public double DistanceInMm { get; private set; }
         public bool LightsOn { get; private set; }
-        private readonly MotorPort _motor;
+        private readonly BothMotors _motor;
         private readonly OutputPort _steer;
         private readonly bool _enableDistanceGuard;
 
@@ -26,7 +50,7 @@ namespace LegoCar
             _steer = picon.Outputs[steerPin];
             _steer.Type = OutputType.Servo;
             _steer.Value = 90;
-            _motor = picon.Motors[motorPin];
+            _motor = new BothMotors(picon.Motors[0], picon.Motors[1]);
             _motor.Speed = 0;
             _sonar = sonar;
             lightPin.PinMode = GpioPinDriveMode.Output;
