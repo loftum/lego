@@ -1,0 +1,38 @@
+Actuonix L12 EV3:
+
+Original
+======================
+Pin out:
+White/Black: Motor Terminals
+Green: Tach Supply Positive(5V)
+Red: Tach Supply Ground
+Yellow: Tach out #1
+Blue: Tach out #2
+
+
+White/Black: Motor Terminals
+Green: Tach Supply Positive(5V)
+Red: Tach Supply Ground
+Yellow: Tach out #1
+Blue: Tach out #2
+
+Mapping
+(to RJ12 cable)
+=======================
+
+Blue -> Brown
+Yellow -> Yellow
+Green -> Green
+Red -> Pink
+Black -> Black
+White -> Blue
+
+
+Mapped
+(to RJ cable)
+========================
+Blue/Black: Motor Terminals
+Green: Tach Supply Positive(5V)
+Pink: Tach Supply Ground
+Yellow: Tach out #1
+Brown: Tach out #2
