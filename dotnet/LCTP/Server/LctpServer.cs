@@ -11,6 +11,8 @@ namespace LCTP.Server
     /// </summary>
     public class LctpServer: IDisposable
     {
+        public const int DefaultPort = 5080;
+
         private readonly IController _controller;
         private readonly IPEndPoint _localEndpoint;
         private readonly Socket _listener;

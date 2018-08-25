@@ -36,5 +36,19 @@ namespace MotoZeroServer
                 Content = speed.ToString()
             });
         }
+
+        public override void ConnectionOpened()
+        {
+            foreach (var motor in _board.Motors)
+            {
+                motor.Enabled = true;
+                motor.Speed = 0;
+            }
+        }
+
+        public override void ConnectionClosed()
+        {
+            _board.Reset();
+        }
     }
 }

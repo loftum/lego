@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using LCTP.Extensions;
 
 namespace LCTP.Server
 {
@@ -26,17 +27,36 @@ namespace LCTP.Server
 
         public async Task Handle(CancellationToken cancellationToken)
         {
+            try
+            {
+                _controller.ConnectionOpened();
+                await DoHandle(cancellationToken);
+            }
+            catch (IOException e)
+            {
+                _controller.ConnectionClosed();
+                Console.WriteLine(e.Message);
+            }
+            catch (SocketException e)
+            {
+                _controller.ConnectionClosed();
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        private async Task DoHandle(CancellationToken cancellationToken)
+        {
             while (true)
             {
                 var request = await Receive(cancellationToken);
                 try
                 {
                     var response = await _controller.Execute(request);
-                    await _writer.WriteLineAsync(response.Format());
+                    await _writer.WriteLineAndFlushAsync(response.Format());
                 }
                 catch (Exception e)
                 {
-                    await _writer.WriteLineAsync(new ResponseMessage
+                    await _writer.WriteLineAndFlushAsync(new ResponseMessage
                     {
                         StatusCode = 500,
                         Content = e.Message

@@ -40,5 +40,8 @@ namespace LCTP.Routing
                 StatusCode = 404
             });
         }
+
+        public abstract void ConnectionClosed();
+        public abstract void ConnectionOpened();
     }
 }

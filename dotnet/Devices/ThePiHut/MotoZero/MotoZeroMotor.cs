@@ -3,7 +3,7 @@ using Unosquare.RaspberryIO.Gpio;
 
 namespace Devices.ThePiHut.MotoZero
 {
-    public class MotoZeroMotor : IDisposable
+    public class MotoZeroMotor
     {
         private readonly GpioPin _enablePin;
         private readonly GpioPin _plusPin;
@@ -19,11 +19,6 @@ namespace Devices.ThePiHut.MotoZero
             set
             {
                 _enablePin.Write(value);
-                if (value)
-                {
-                    _plusPin.StartSoftPwm(0, Range);
-                    _minusPin.StartSoftPwm(0, Range);
-                }
                 _enabled = value;
             }
         }
@@ -66,18 +61,19 @@ namespace Devices.ThePiHut.MotoZero
             }
         }
 
-
         public MotoZeroMotor(GpioPin enablePin, GpioPin plusPin, GpioPin minusPin)
         {
             enablePin.PinMode = GpioPinDriveMode.Output;
             plusPin.PinMode = GpioPinDriveMode.Output;
+            plusPin.StartSoftPwm(0, Range);
             minusPin.PinMode = GpioPinDriveMode.Output;
+            minusPin.StartSoftPwm(0, Range);
             _enablePin = enablePin;
             _plusPin = plusPin;
             _minusPin = minusPin;
         }
 
-        public void Dispose()
+        public void Reset()
         {
             Speed = 0;
             Enabled = false;

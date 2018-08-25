@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using LCTP.Extensions;
 
 namespace LCTP.Client
 {
@@ -13,24 +14,26 @@ namespace LCTP.Client
     public class LctpClient: IDisposable
     {
         private readonly Encoding _encoding = new UTF8Encoding();
+        private readonly IPEndPoint _remoteEp;
+        private readonly Socket _socket;
         private readonly StreamReader _reader;
         private readonly StreamWriter _writer;
 
         public LctpClient(string host, int port)
         {
-            var ipHostInfo = Dns.GetHostEntry(host);
-            var ipAddress = ipHostInfo.AddressList[0];
-            var remoteEp = new IPEndPoint(ipAddress, port);
-            var socket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            socket.Connect(remoteEp);
-            var stream = new NetworkStream(socket);
+            var ipAddress = IPAddress.Parse(host);
+            _remoteEp = new IPEndPoint(ipAddress, port);
+            _socket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            
+            _socket.Connect(_remoteEp);
+            var stream = new NetworkStream(_socket);
             _reader = new StreamReader(stream);
             _writer = new StreamWriter(stream, _encoding);
         }
 
         public async Task<ResponseMessage> Send(RequestMessage request)
         {
-            await _writer.WriteLineAsync(request.Format());
+            await _writer.WriteLineAndFlushAsync(request.Format());
             var response = await _reader.ReadLineAsync();
             return ResponseMessage.Parse(response);
         }

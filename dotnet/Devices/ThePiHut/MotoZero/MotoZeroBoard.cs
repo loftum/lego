@@ -18,12 +18,17 @@ namespace Devices.ThePiHut.MotoZero
             };
         }
 
-        public void Dispose()
+        public void Reset()
         {
             foreach (var motor in Motors)
             {
-                motor.Dispose();
+                motor.Reset();
             }
+        }
+
+        public void Dispose()
+        {
+            Reset();
         }
     }
 }
