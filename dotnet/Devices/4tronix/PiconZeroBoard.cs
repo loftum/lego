@@ -5,7 +5,7 @@ using Unosquare.RaspberryIO.Gpio;
 
 namespace Devices._4tronix
 {
-    public class PiconZeroBoard
+    public class PiconZeroBoard: IDisposable
     {
         public const int I2CAddress = 0x22;
         public I2CDevice Device { get; }
@@ -108,6 +108,12 @@ namespace Devices._4tronix
                 throw new ArgumentException("Input pin must be 0-3", nameof(pin));
             }
             Try(() => Device.WriteAddressByte(INCFG0 + pin, (byte)type));
+        }
+
+
+        public void Dispose()
+        {
+            
         }
     }
 }

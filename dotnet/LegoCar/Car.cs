@@ -151,12 +151,12 @@ namespace LegoCar
 
         public void SteerLeft()
         {
-            SetSteer(_steer.Value + 15);
+            SetSteer(_steer.Value - 15);
         }
 
         public void SteerRight()
         {
-            SetSteer(_steer.Value - 15);
+            SetSteer(_steer.Value + 15);
         }
 
         public void Dispose()

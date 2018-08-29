@@ -1,4 +1,5 @@
 ﻿using Unosquare.RaspberryIO.Gpio;
+using Unosquare.Swan;
 
 namespace Devices._4tronix
 {
@@ -8,12 +9,18 @@ namespace Devices._4tronix
         private readonly I2CDevice _device;
         private OutputType _type;
         private int _value;
+        public int MinValue { get; set; } = 20;
+        public int MaxValue { get; set; } = 170;
 
         public int Value
         {
             get => _value;
             set
             {
+                if (!value.IsBetween(MinValue, MaxValue))
+                {
+                    return;
+                }
                 _device.WriteAddressByte(PiconZeroBoard.OUTPUT0 + Number, (byte) value);
                 _value = value;
             }

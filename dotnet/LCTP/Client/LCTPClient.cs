@@ -44,4 +44,26 @@ namespace LCTP.Client
             _writer?.Dispose();
         }
     }
+
+    public static class LctpClientExtensions
+    {
+        public static Task<ResponseMessage> Set(this LctpClient client, string path, string content)
+        {
+            return client.Send(new RequestMessage
+            {
+                Method = "SET",
+                Path = path,
+                Content = content
+            });
+        }
+
+        public static Task<ResponseMessage> Get(this LctpClient client, string path)
+        {
+            return client.Send(new RequestMessage
+            {
+                Method = "GET",
+                Path = path,
+            });
+        }
+    }
 }

@@ -35,5 +35,14 @@ namespace LCTP
                 Content = message
             };
         }
+
+        public static ResponseMessage Ok(object content = null)
+        {
+            return new ResponseMessage
+            {
+                StatusCode = 200,
+                Content = content?.ToString() ?? "OK"
+            };
+        }
     }
 }
