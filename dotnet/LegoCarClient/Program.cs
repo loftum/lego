@@ -50,7 +50,6 @@ namespace LegoCarClient
             Console.WriteLine($"Connecting to {host}:{port}");
             int speed = 0;
             int steer = 90;
-            int set = 0;
             ResponseMessage response = null;
             using (var client = new LctpClient(host, port))
             {
