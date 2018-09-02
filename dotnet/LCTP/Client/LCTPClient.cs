@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -13,22 +14,44 @@ namespace LCTP.Client
     /// </summary>
     public class LctpClient: IDisposable
     {
+        public bool Connected => _socket.Connected;
         private readonly Encoding _encoding = new UTF8Encoding();
-        private readonly IPEndPoint _remoteEp;
+        private readonly EndPoint _remoteEp;
         private readonly Socket _socket;
-        private readonly StreamReader _reader;
-        private readonly StreamWriter _writer;
+        private StreamReader _reader;
+        private StreamWriter _writer;
 
         public LctpClient(string host, int port)
         {
-            var ipAddress = IPAddress.Parse(host);
+            var entry = Dns.GetHostEntry(host);
+            var ipAddress = entry.AddressList.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
             _remoteEp = new IPEndPoint(ipAddress, port);
             _socket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            
+        }
+
+        public void Connect()
+        {
+            if (Connected)
+            {
+                return;
+            }
             _socket.Connect(_remoteEp);
             var stream = new NetworkStream(_socket);
             _reader = new StreamReader(stream);
             _writer = new StreamWriter(stream, _encoding);
+        }
+
+        public void Disconnect()
+        {
+            if (!Connected)
+            {
+                return;
+            }
+            _socket.Disconnect(true);
+            _reader.Dispose();
+            _reader = null;
+            _writer.Dispose();
+            _writer = null;
         }
 
         public async Task<ResponseMessage> Send(RequestMessage request)
@@ -40,6 +63,7 @@ namespace LCTP.Client
 
         public void Dispose()
         {
+            _socket?.Dispose();
             _reader?.Dispose();
             _writer?.Dispose();
         }

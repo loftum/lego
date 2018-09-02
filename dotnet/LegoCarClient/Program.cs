@@ -53,6 +53,7 @@ namespace LegoCarClient
             ResponseMessage response = null;
             using (var client = new LctpClient(host, port))
             {
+                client.Connect();
                 Console.WriteLine("Use arrows to steer car");
                 while (true)
                 {

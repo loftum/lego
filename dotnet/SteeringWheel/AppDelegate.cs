@@ -12,7 +12,6 @@ namespace SteeringWheel
         {
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
             var controller = new ViewController();
-            controller.View.BackgroundColor = UIColor.Green;
             Window.RootViewController = controller;
             Window.MakeKeyAndVisible();
             return true;

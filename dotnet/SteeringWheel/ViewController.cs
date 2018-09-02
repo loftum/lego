@@ -7,7 +7,9 @@ namespace SteeringWheel
 {
     public partial class ViewController : UIViewController
     {
+        private bool _connected;
         private LctpClient _client;
+
 
         public ViewController(): base("ViewController", null)
         {
@@ -27,6 +29,25 @@ namespace SteeringWheel
 
         partial void ConnectButton_TouchUpInside(UIButton sender)
         {
+            if (!_connected)
+            {
+                Connect();
+            }
+            else
+            {
+                Disconnect();
+            }
+        }
+
+        private void Disconnect()
+        {
+            _client.Disconnect();
+            ConnectButton.SetTitle("Connect", UIControlState.Normal);
+            _connected = false;
+        }
+
+        private void Connect()
+        {
             if (string.IsNullOrWhiteSpace(HostField.Text))
             {
                 return;
@@ -34,7 +55,19 @@ namespace SteeringWheel
             var parts = HostField.Text.Split(':');
             var host = parts[0];
             var port = parts.Length > 1 && int.TryParse(parts[1], out var v) ? v : LctpServer.DefaultPort;
-            _client = new LctpClient(host, port);
+            try
+            {
+                _client = new LctpClient(host, port);
+                _client.Connect();
+                _connected = true;
+                ConnectButton.SetTitle("Disconnect", UIControlState.Normal);
+            }
+            catch (Exception ex)
+            {
+                var controller = new UIAlertController();
+                controller.AddAction(UIAlertAction.Create(ex.Message, UIAlertActionStyle.Default, null));
+                ShowViewController(controller, this);
+            }
         }
     }
 }

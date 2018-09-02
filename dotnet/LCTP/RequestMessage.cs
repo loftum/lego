@@ -10,6 +10,10 @@ namespace LCTP
 
         public static RequestMessage Parse(string raw)
         {
+            if (string.IsNullOrEmpty(raw))
+            {
+                return null;
+            }
             var parts = raw.Split(' ');
             return new RequestMessage
             {

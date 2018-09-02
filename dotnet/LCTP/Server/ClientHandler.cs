@@ -49,6 +49,10 @@ namespace LCTP.Server
             while (true)
             {
                 var request = await Receive(cancellationToken);
+                if (request == null)
+                {
+                    continue;
+                }
                 try
                 {
                     var response = await _controller.Execute(request);
