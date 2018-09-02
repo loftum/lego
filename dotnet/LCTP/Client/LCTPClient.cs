@@ -47,11 +47,13 @@ namespace LCTP.Client
             {
                 return;
             }
-            _socket.Disconnect(true);
-            _reader.Dispose();
-            _reader = null;
+            _writer.Close();
             _writer.Dispose();
             _writer = null;
+            _reader.Close();
+            _reader.Dispose();
+            _reader = null;
+            _socket.Disconnect(false);
         }
 
         public async Task<ResponseMessage> Send(RequestMessage request)

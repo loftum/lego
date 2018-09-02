@@ -1,5 +1,6 @@
 ﻿using System;
-using LCTP.Client;
+using CoreMotion;
+using Foundation;
 using LCTP.Server;
 using UIKit;
 
@@ -7,29 +8,28 @@ namespace SteeringWheel
 {
     public partial class ViewController : UIViewController
     {
-        private bool _connected;
-        private LctpClient _client;
+        private readonly LegoCarController _controller;
+        private readonly NSUserDefaults _userDefaults = new NSUserDefaults("app", NSUserDefaultsType.SuiteName);
 
-
-        public ViewController(): base("ViewController", null)
+        public ViewController() : base("ViewController", null)
         {
+            _controller = new LegoCarController();
         }
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            // Perform any additional setup after loading the view, typically from a nib.
+            HostField.Text = _userDefaults.StringForKey("host") ?? "host";
         }
 
         public override void DidReceiveMemoryWarning()
         {
             base.DidReceiveMemoryWarning();
-            // Release any cached data, images, etc that aren't in use.
         }
 
         partial void ConnectButton_TouchUpInside(UIButton sender)
         {
-            if (!_connected)
+            if (!_controller.Connected)
             {
                 Connect();
             }
@@ -41,9 +41,8 @@ namespace SteeringWheel
 
         private void Disconnect()
         {
-            _client.Disconnect();
+            _controller.Disconnect();
             ConnectButton.SetTitle("Connect", UIControlState.Normal);
-            _connected = false;
         }
 
         private void Connect()
@@ -57,9 +56,8 @@ namespace SteeringWheel
             var port = parts.Length > 1 && int.TryParse(parts[1], out var v) ? v : LctpServer.DefaultPort;
             try
             {
-                _client = new LctpClient(host, port);
-                _client.Connect();
-                _connected = true;
+                _controller.Connect(host, port);
+                _userDefaults.SetString(HostField.Text, "host");
                 ConnectButton.SetTitle("Disconnect", UIControlState.Normal);
             }
             catch (Exception ex)

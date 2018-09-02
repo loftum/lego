@@ -104,6 +104,8 @@
     <Compile Include="ViewController.designer.cs">
       <DependentUpon>ViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="MotionManager.cs" />
+    <Compile Include="LegoCarController.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="ViewController.xib" />
