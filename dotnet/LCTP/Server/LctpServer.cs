@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -21,8 +22,10 @@ namespace LCTP.Server
         {
             _controller = controller;
 
-            var ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            var ipAddress = ipHostInfo.AddressList[0];
+            var hostname = Dns.GetHostName();
+            Console.WriteLine($"hostname: {hostname}");
+            var ipHostInfo = Dns.GetHostEntry(hostname);
+            var ipAddress = ipHostInfo.AddressList.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
             _localEndpoint = new IPEndPoint(ipAddress, port);
             _listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         }
@@ -37,10 +40,14 @@ namespace LCTP.Server
                 while (true)
                 {
                     Console.WriteLine($"Listening for connections on port {_localEndpoint.Port}");
-                    var socket = await _listener.AcceptAsync();
-                    Console.WriteLine($"Got connection from {socket.RemoteEndPoint}");
-                    var handler = new ClientHandler(socket, _controller);
-                    await handler.Handle(cancellationToken);
+                    using (var socket = await _listener.AcceptAsync())
+                    {
+                        Console.WriteLine($"Got connection from {socket.RemoteEndPoint}");
+                        using (var handler = new ClientHandler(socket, _controller))
+                        {
+                            await handler.Handle(cancellationToken);
+                        }
+                    }
                 }
             }
             catch (Exception e)

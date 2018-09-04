@@ -51,7 +51,7 @@ namespace LCTP.Server
                 var request = await Receive(cancellationToken);
                 if (request == null)
                 {
-                    continue;
+                    return;
                 }
                 try
                 {

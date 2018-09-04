@@ -18,7 +18,8 @@ namespace SteeringWheel
 
     public class LegoCarController
     {
-        private Thread _thread;
+        private CancellationTokenSource _source;
+        private Task _task;
         private LctpClient _client;
         private readonly CMMotionManager _motionManager = MotionManager.Instance;
 
@@ -39,22 +40,27 @@ namespace SteeringWheel
             _client.Connect();
             _motionManager.DeviceMotionUpdateInterval = 0.1;
             _motionManager.StartDeviceMotionUpdates();
-            _thread = new Thread(Update);
-            _thread.Start();
+
+            _source = new CancellationTokenSource();
+            _task = Update(_source.Token);
         }
 
-        private void Update()
+        private async Task Update(CancellationToken cancellationToken)
         {
             var sw = new Stopwatch();
-            while (Connected)
+            while (true)
             {
                 sw.Start();
-                DoUpdate().Wait();
+                await DoUpdate();
                 while(sw.ElapsedMilliseconds < 100)
                 {
-                    Thread.Sleep(1);
+                    await Task.Delay(1);
                 }
                 sw.Reset();
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
             }
         }
 
@@ -75,12 +81,10 @@ namespace SteeringWheel
             {
                 return;
             }
-
+            _source.Cancel();
             _client.Disconnect();
             _motionManager.StopDeviceMotionUpdates();
-            _thread.Abort();
-            _thread.Join();
-            _thread = null;
+            _task = null;
         }
     }
 }

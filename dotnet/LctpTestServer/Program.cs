@@ -16,7 +16,8 @@ namespace LctpTestServer
                 Console.CancelKeyPress += (s, e) => source.Cancel();
                 try
                 {
-                    Run(source.Token).Wait(source.Token);
+                    var port = args.Length > 0 && int.TryParse(args[0], out var v) ? v : LctpServer.DefaultPort;
+                    Run(port, source.Token).Wait(source.Token);
                     return 0;
                 }
                 catch (OperationCanceledException)
@@ -41,9 +42,9 @@ namespace LctpTestServer
             return 0;
         }
 
-        private static async Task Run(CancellationToken cancellationToken)
+        private static async Task Run(int port, CancellationToken cancellationToken)
         {
-            using(var server = new LctpServer(LctpServer.DefaultPort, new EchoController()))
+            using(var server = new LctpServer(port, new EchoController()))
             {
                 await server.Start(cancellationToken);
             }
@@ -64,6 +65,7 @@ namespace LctpTestServer
 
         public Task<ResponseMessage> Execute(RequestMessage request)
         {
+            Console.WriteLine(request);
             return Task.FromResult(new ResponseMessage
             {
                 Content = request.Content
