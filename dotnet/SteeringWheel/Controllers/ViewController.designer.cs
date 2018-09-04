@@ -9,7 +9,7 @@ using System;
 using System.CodeDom.Compiler;
 using UIKit;
 
-namespace SteeringWheel
+namespace SteeringWheel.Controllers
 {
     [Register ("ViewController")]
     partial class ViewController

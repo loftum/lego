@@ -26,7 +26,11 @@ namespace LCTP.Client
             var entry = Dns.GetHostEntry(host);
             var ipAddress = entry.AddressList.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
             _remoteEp = new IPEndPoint(ipAddress, port);
-            _socket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            _socket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+            {
+                SendTimeout = 1000,
+                ReceiveTimeout = 1000
+            };
         }
 
         public void Connect()

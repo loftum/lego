@@ -92,6 +92,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
+    <Folder Include="Controllers\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -100,15 +101,20 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
-    <Compile Include="ViewController.cs" />
-    <Compile Include="ViewController.designer.cs">
+    <Compile Include="MotionManager.cs" />
+    <Compile Include="Controllers\ViewController.cs" />
+    <Compile Include="Controllers\ViewController.designer.cs">
       <DependentUpon>ViewController.cs</DependentUpon>
     </Compile>
-    <Compile Include="MotionManager.cs" />
-    <Compile Include="LegoCarController.cs" />
+    <Compile Include="Controllers\SteeringWheelViewController.cs" />
+    <Compile Include="Controllers\SteeringWheelViewController.designer.cs">
+      <DependentUpon>SteeringWheelViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controllers\MathExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <InterfaceDefinition Include="ViewController.xib" />
+    <InterfaceDefinition Include="Controllers\ViewController.xib" />
+    <InterfaceDefinition Include="Controllers\SteeringWheelViewController.xib" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LCTP\LCTP.csproj">

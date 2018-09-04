@@ -4,16 +4,14 @@ using Foundation;
 using LCTP.Server;
 using UIKit;
 
-namespace SteeringWheel
+namespace SteeringWheel.Controllers
 {
     public partial class ViewController : UIViewController
     {
-        private readonly LegoCarController _controller;
         private readonly NSUserDefaults _userDefaults = new NSUserDefaults("app", NSUserDefaultsType.SuiteName);
 
         public ViewController() : base("ViewController", null)
         {
-            _controller = new LegoCarController();
         }
 
         public override void ViewDidLoad()
@@ -29,20 +27,7 @@ namespace SteeringWheel
 
         partial void ConnectButton_TouchUpInside(UIButton sender)
         {
-            if (!_controller.Connected)
-            {
-                Connect();
-            }
-            else
-            {
-                Disconnect();
-            }
-        }
-
-        private void Disconnect()
-        {
-            _controller.Disconnect();
-            ConnectButton.SetTitle("Connect", UIControlState.Normal);
+            Connect();
         }
 
         private void Connect()
@@ -56,9 +41,8 @@ namespace SteeringWheel
             var port = parts.Length > 1 && int.TryParse(parts[1], out var v) ? v : LctpServer.DefaultPort;
             try
             {
-                _controller.Connect(host, port);
+                ShowViewController(new SteeringWheelViewController(host, port), this);
                 _userDefaults.SetString(HostField.Text, "host");
-                ConnectButton.SetTitle("Disconnect", UIControlState.Normal);
             }
             catch (Exception ex)
             {
