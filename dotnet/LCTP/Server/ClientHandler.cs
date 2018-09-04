@@ -42,6 +42,7 @@ namespace LCTP.Server
                 _controller.ConnectionClosed();
                 Console.WriteLine(e.Message);
             }
+            _controller.ConnectionClosed();
         }
 
         private async Task DoHandle(CancellationToken cancellationToken)

@@ -29,8 +29,6 @@ namespace SteeringWheel.Controllers
             base.ViewDidLoad();
             CGAffineTransform trans = CGAffineTransform.MakeRotation((nfloat)(Math.PI * 1.5));
             Throttle.Transform = trans;
-
-
             Throttle.MinValue = -127;
             Throttle.MaxValue = 127;
 

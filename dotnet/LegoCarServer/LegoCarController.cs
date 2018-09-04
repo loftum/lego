@@ -52,6 +52,7 @@ namespace LegoCarServer
             _motor = board.Motors[options.MotorNumber];
             _motor.MinSpeed = options.MinSpeed;
             _motor.MaxSpeed = options.MaxSpeed;
+            _motor.Speed = 0;
             _options = options;
         }
 
@@ -131,7 +132,8 @@ namespace LegoCarServer
 
         public override void ConnectionOpened()
         {
-            
+            _motor.Speed = 0;
+            _steer.Value = 90;
         }
     }
 }
