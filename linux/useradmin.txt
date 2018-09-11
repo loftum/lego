@@ -1,0 +1,7 @@
+# Add sudo user
+sudo adduser username
+usermod -aG sudo username
+
+
+# Delete user
+userdel -r pi
