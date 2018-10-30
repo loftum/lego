@@ -6,6 +6,7 @@ namespace LCTP
     {
         public int StatusCode { get; set; } = 200;
         public string Content { get; set; }
+        
 
         public string Format()
         {
@@ -44,5 +45,7 @@ namespace LCTP
                 Content = content?.ToString() ?? "OK"
             };
         }
+
+        public static ResponseMessage Pong => Ok("Pong");
     }
 }

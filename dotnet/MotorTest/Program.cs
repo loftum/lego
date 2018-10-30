@@ -1,13 +1,20 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Devices._4tronix;
+using Shared;
 using Unosquare.RaspberryIO;
 
 namespace MotorTest
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
+        {
+            return ConsoleRunner.Run(() => Run(args));
+        }
+
+        private static Task Run(string[] args)
         {
             Console.WriteLine("Motor test");
             var number = GetMotorNumber(args);
@@ -15,35 +22,23 @@ namespace MotorTest
             var motor = picon.Motors[number];
             Console.WriteLine($"Motor: {number}");
             motor.Speed = 0;
-            try
-            {
-                var running = true;
-                Console.WriteLine("Enter motor speed");
-                while (running)
-                {
-                    Console.Write("> ");
-                    var text = Console.ReadLine();
-                    if (text == "quit")
-                    {
-                        break;
-                    }
 
-                    if (int.TryParse(text, out var speed))
-                    {
-                        motor.Speed = speed;
-                    }
+            Console.WriteLine("Enter motor speed");
+            while (true)
+            {
+                Console.Write("> ");
+                var text = Console.ReadLine();
+                if (text == "quit")
+                {
+                    break;
+                }
+
+                if (int.TryParse(text, out var speed))
+                {
+                    motor.Speed = speed;
                 }
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-            finally
-            {
-                motor.Speed = 0;
-                Console.WriteLine("Bye!");
-            }
+            return Task.CompletedTask;
         }
 
         private static int GetMotorNumber(string[] args)

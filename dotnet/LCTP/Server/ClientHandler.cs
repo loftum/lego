@@ -49,10 +49,22 @@ namespace LCTP.Server
         {
             while (true)
             {
-                var request = await Receive(cancellationToken);
+                var receive = Receive(cancellationToken);
+                if (await Task.WhenAny(receive, Task.Delay(500, cancellationToken)) != receive)
+                {
+                    return;
+                }
+
+                var request = await receive;
                 if (request == null)
                 {
                     return;
+                }
+
+                if (request.Method == "PING")
+                {
+                    await _writer.WriteLineAndFlushAsync(ResponseMessage.Pong.Format());
+                    continue;
                 }
                 try
                 {

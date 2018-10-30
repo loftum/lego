@@ -12,22 +12,15 @@ namespace LegoCarServer
         public int SteerPin { get; set; } = 0;
         public int SteerMin { get; set; } = 15;
         public int SteerMax { get; set; } = 165;
-        /// <summary>
-        /// 0 -> B
-        /// 1 -> A
-        /// </summary>
-        public int MotorNumber { get; set; } = 0;
-
         public int MaxSpeed { get; set; } = 127;
         public int MinSpeed { get; set; } = -127;
     }
 
-    public class 
-        LegoCarController : BaseController
+    public class LegoCarController : BaseController
     {
         private readonly PiconZeroBoard _board;
         private readonly OutputPort _steer;
-        private readonly MotorPort _motor;
+        private readonly IMotorPort _bothMotors;
         private readonly LegoCarOptions _options;
 
         public LegoCarController(PiconZeroBoard board, LegoCarOptions options)
@@ -35,7 +28,12 @@ namespace LegoCarServer
             
             _board = board;
             Get("motor/speed", GetSpeed);
-            Set("motor/speed", SetSpeed);
+            Set("motor/speed", SetBothMotorsSpeed);
+            // 0 -> B
+            // 1 -> A
+            Get("motor/(\\d{1})/speed", GetMotorSpeed);
+            Set("motor/(\\d{1})/speed", SetMotorSpeed);
+            
             Set("motor/increasespeed", IncreaseSpeed);
             Set("motor/decreasespeed", DecreaseSpeed);
             Get("steer", GetSteer);
@@ -49,10 +47,12 @@ namespace LegoCarServer
             _steer.MinValue = options.SteerMin;
             _steer.MaxValue = options.SteerMax;
             _steer.Value = 90;
-            _motor = board.Motors[options.MotorNumber];
-            _motor.MinSpeed = options.MinSpeed;
-            _motor.MaxSpeed = options.MaxSpeed;
-            _motor.Speed = 0;
+            _bothMotors = new CompositeMotorPort(board.Motors)
+            {
+                MinSpeed = options.MinSpeed,
+                MaxSpeed = options.MaxSpeed,
+                Speed = 0
+            };
             _options = options;
         }
 
@@ -84,8 +84,8 @@ namespace LegoCarServer
             {
                 return Task.FromResult(ResponseMessage.BadRequest($"Bad number: {request.Content}"));
             }
-            _motor.Speed -= delta;
-            return Task.FromResult(ResponseMessage.Ok(_motor.Speed));
+            _bothMotors.Speed -= delta;
+            return Task.FromResult(ResponseMessage.Ok(_bothMotors.Speed));
         }
 
         private Task<ResponseMessage> IncreaseSpeed(RequestMessage request, Match match)
@@ -94,8 +94,8 @@ namespace LegoCarServer
             {
                 return Task.FromResult(ResponseMessage.BadRequest($"Bad number: {request.Content}"));
             }
-            _motor.Speed += delta;
-            return Task.FromResult(ResponseMessage.Ok(_motor.Speed));
+            _bothMotors.Speed += delta;
+            return Task.FromResult(ResponseMessage.Ok(_bothMotors.Speed));
         }
 
         private Task<ResponseMessage> GetSteer(RequestMessage request, Match match)
@@ -113,27 +113,55 @@ namespace LegoCarServer
             return Task.FromResult(ResponseMessage.Ok(_steer.Value));
         }
 
-        private Task<ResponseMessage> SetSpeed(RequestMessage request, Match match)
+        private Task<ResponseMessage> GetMotorSpeed(RequestMessage request, Match match)
         {
-            _motor.Speed = int.Parse(request.Content);
-            return Task.FromResult(ResponseMessage.Ok(_motor.Speed));
+            if (!int.TryParse(match.Groups[1].Value, out var number))
+            {
+                return Task.FromResult(ResponseMessage.BadRequest("Bad motor number"));
+            }
+            return Task.FromResult(ResponseMessage.Ok(_board.Motors[number].Speed));
+        }
+
+        private Task<ResponseMessage> SetMotorSpeed(RequestMessage request, Match match)
+        {
+            if (!int.TryParse(match.Groups[1].Value, out var number))
+            {
+                return Task.FromResult(ResponseMessage.BadRequest("Bad motor number"));
+            }
+
+            if (!int.TryParse(request.Content, out var speed))
+            {
+                return Task.FromResult(ResponseMessage.BadRequest("Bad motor speed"));
+            }
+            _board.Motors[number].Speed = speed;
+            return Task.FromResult(ResponseMessage.Ok(_board.Motors[number].Speed));
+        }
+
+        private Task<ResponseMessage> SetBothMotorsSpeed(RequestMessage request, Match match)
+        {
+            _bothMotors.Speed = int.Parse(request.Content);
+            return Task.FromResult(ResponseMessage.Ok(_bothMotors.Speed));
         }
 
         private Task<ResponseMessage> GetSpeed(RequestMessage request, Match match)
         {
-            return Task.FromResult(ResponseMessage.Ok(_motor.Speed));
+            return Task.FromResult(ResponseMessage.Ok(_bothMotors.Speed));
+        }
+
+        private void Reset()
+        {
+            _bothMotors.Speed = 0;
+            _steer.Value = 90;
         }
 
         public override void ConnectionClosed()
         {
-            _motor.Speed = 0;
-            _steer.Value = 90;
+            Reset();
         }
 
         public override void ConnectionOpened()
         {
-            _motor.Speed = 0;
-            _steer.Value = 90;
+            Reset();
         }
     }
 }

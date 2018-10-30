@@ -2,7 +2,6 @@
 using System.Linq;
 using Devices._4tronix;
 using Unosquare.RaspberryIO;
-using Unosquare.RaspberryIO.Gpio;
 
 namespace ServoTest
 {

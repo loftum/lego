@@ -34,5 +34,11 @@ namespace LCTP
         {
             return Format();
         }
+
+        public static RequestMessage Ping => new RequestMessage
+        {
+            Method = "PING",
+            Path = "/"
+        };
     }
 }

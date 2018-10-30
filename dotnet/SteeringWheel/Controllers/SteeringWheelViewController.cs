@@ -13,7 +13,7 @@ namespace SteeringWheel.Controllers
     {
         private CancellationTokenSource _source;
         private Task _task;
-        private LctpClient _client;
+        private readonly LctpClient _client;
         private readonly CMMotionManager _motionManager = MotionManager.Instance;
 
         private int _angle = 90;
@@ -56,10 +56,13 @@ namespace SteeringWheel.Controllers
                     break;
                 }
                 sw.Start();
-                await DoUpdate();
+                if (!await DoUpdate())
+                {
+                    await _client.Ping();
+                }
                 while (sw.ElapsedMilliseconds < 50)
                 {
-                    await Task.Delay(1);
+                    await Task.Delay(1, cancellationToken);
                 }
                 sw.Reset();
             }
@@ -76,25 +79,30 @@ namespace SteeringWheel.Controllers
             this.DismissViewController(true, null);
         }
 
-        private async Task DoUpdate()
+        private async Task<bool> DoUpdate()
         {
+            var updated = false;
             var attitude = _motionManager.DeviceMotion?.Attitude;
             if (attitude == null)
             {
-                return;
+                return updated;
             }
             var angle = 90 - _motionManager.DeviceMotion.Attitude.Pitch.ToDeg();
             if (angle != _angle)
             {
                 await _client.Set("steer/angle", $"{angle}");
                 _angle = angle;
+                updated = true;
             }
             var throttle = (int)Throttle.Value;
             if (throttle != _throttle)
             {
                 await _client.Set("motor/speed", $"{throttle}");
                 _throttle = throttle;
+                updated = true;
             }
+
+            return updated;
         }
 
         private void Disconnect()

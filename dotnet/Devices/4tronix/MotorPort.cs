@@ -4,7 +4,7 @@ using Unosquare.Swan;
 
 namespace Devices._4tronix
 {
-    public class MotorPort
+    public class MotorPort: IMotorPort
     {
         private int _speed;
         private readonly I2CDevice _device;

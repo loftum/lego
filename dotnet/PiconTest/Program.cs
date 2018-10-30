@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Devices._4tronix;
 using Terminal.Interactive;
-using Terminal.Interactive.PoorMans;
 using Unosquare.RaspberryIO;
 
 namespace PiconTest

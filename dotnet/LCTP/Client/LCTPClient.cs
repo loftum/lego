@@ -67,6 +67,17 @@ namespace LCTP.Client
             return ResponseMessage.Parse(response);
         }
 
+        public async Task<ResponseMessage> Ping()
+        {
+            var message = new RequestMessage
+            {
+                Method = "PING"
+            };
+            await _writer.WriteLineAndFlushAsync(message.Format());
+            var response = await _reader.ReadLineAsync();
+            return ResponseMessage.Parse(response);
+        }
+
         public void Dispose()
         {
             _socket?.Dispose();
