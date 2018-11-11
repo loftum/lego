@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using LCTP.Net;
 
 namespace LCTP.Server
 {
@@ -15,37 +16,40 @@ namespace LCTP.Server
         public const int DefaultPort = 5080;
 
         private readonly IController _controller;
-        private readonly IPEndPoint _localEndpoint;
         private readonly Socket _listener;
+        private readonly int _port;
 
         public LctpServer(int port, IController controller)
         {
             _controller = controller;
+            _port = port;
+            _listener = CreateListener(port);
+        }
 
-
+        private static Socket CreateListener(int port)
+        {
+            var listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             var hostname = Dns.GetHostName();
             Console.WriteLine($"hostname: {hostname}");
 
-            foreach(var address in Dns.GetHostAddresses("localhost").Select(a => a.ToString()).Distinct())
+            foreach (var address in HackyDns.GetHostAddresses(hostname).Where(a => a.AddressFamily == AddressFamily.InterNetwork).Distinct())
             {
                 Console.WriteLine($"Address: {address}");
             }
-            var ipHostInfo = Dns.GetHostEntry(hostname);
-            var ipAddress = ipHostInfo.AddressList.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
-            _localEndpoint = new IPEndPoint(ipAddress, port);
-            _listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            listener.Bind(new IPEndPoint(IPAddress.Any, port));
+
+            return listener;
         }
 
         public async Task Start(CancellationToken cancellationToken)
         {
             try
             {
-                _listener.Bind(_localEndpoint);
                 _listener.Listen(1);
                 
                 while (true)
                 {
-                    Console.WriteLine($"Listening for connections on port {_localEndpoint.Port}");
+                    Console.WriteLine($"Listening for connections on port {_port}");
                     using (var socket = await _listener.AcceptAsync())
                     {
                         Console.WriteLine($"Got connection from {socket.RemoteEndPoint}");
