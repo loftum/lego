@@ -1,0 +1,45 @@
+1) Useradmin
+- Add sudo user
+sudo adduser username
+usermod -aG sudo username
+
+- Delete user
+userdel -r pi
+
+2) Change hostname
+- sudo nano /etc/hostname
+set new name
+
+- sudo nano /etc/hosts
+map to 127.0.0.1
+
+
+3) Startup script
+- /etc/rc.local
+curl -X PATCH "http://ventanas.local:40575/$(hostname)"
+
+
+4) Add ssh key
+ssh-copy-id -i ~/.ssh/id_rsa.pub username@host
+
+
+5) Install Mono
+sudo apt-get install mono
+
+6) Install dotnet core (raspbian)
+
+# apt
+sudo apt-get update
+sudo apt-get install curl libunwind8 gettext apt-transport-https
+
+# apt packages for dotnet-sdk arm32 not available per nov 2018.
+# Download manually:
+wget https://dotnetcli.blob.core.windows.net/dotnet/Sdk/2.1.500/dotnet-sdk-2.1.500-linux-arm.tar.gz
+sudo mkdir -p /opt/dotnet/2.1.500
+sudo tar -xvf dotnet-sdk-2.1.500-linux-arm.tar.gz -C /opt/dotnet/2.1.500
+
+# Symlink to latest
+sudo ln -s /opt/dotnet/2.1.500 /opt/dotnet/latest
+
+sudo ln -s /opt/dotnet/latest/dotnet /usr/local/bin
+dotnet --info

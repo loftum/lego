@@ -14,6 +14,7 @@ namespace LegoCarServer
             Console.WriteLine("Lego Car Server v0.0");
             using (var source = new CancellationTokenSource())
             {
+                Console.WriteLine("Hello");
                 Console.CancelKeyPress += (s, e) => source.Cancel();
                 try
                 {

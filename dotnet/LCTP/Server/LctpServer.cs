@@ -22,8 +22,14 @@ namespace LCTP.Server
         {
             _controller = controller;
 
+
             var hostname = Dns.GetHostName();
             Console.WriteLine($"hostname: {hostname}");
+
+            foreach(var address in Dns.GetHostAddresses("localhost").Select(a => a.ToString()).Distinct())
+            {
+                Console.WriteLine($"Address: {address}");
+            }
             var ipHostInfo = Dns.GetHostEntry(hostname);
             var ipAddress = ipHostInfo.AddressList.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
             _localEndpoint = new IPEndPoint(ipAddress, port);

@@ -9,6 +9,12 @@ using UIKit;
 
 namespace SteeringWheel.Controllers
 {
+    public class Switch
+    {
+        public bool IsOn { get; set; }
+        public bool WasOn { get; set; }
+    }
+
     public partial class SteeringWheelViewController : UIViewController
     {
         private CancellationTokenSource _source;
@@ -17,11 +23,15 @@ namespace SteeringWheel.Controllers
         private readonly CMMotionManager _motionManager = MotionManager.Instance;
 
         private int _angle = 90;
-        private int _throttle = 0;
+        private int _backSpeed = 0;
+        private int _frontSpeed = 0;
+        private Switch _frontThrottleSwitch = new Switch();
 
-        public SteeringWheelViewController(string host,  int port) : base("SteeringWheelViewController", null)
+
+        public SteeringWheelViewController(string host, int port) : base("SteeringWheelViewController", null)
         {
             _client = new LctpClient(host, port);
+            _client.Connect();
         }
 
         public override void ViewDidLoad()
@@ -31,8 +41,10 @@ namespace SteeringWheel.Controllers
             Throttle.Transform = trans;
             Throttle.MinValue = -127;
             Throttle.MaxValue = 127;
+            FrontThrottle.Transform = trans;
+            FrontThrottle.MinValue = -127;
+            FrontThrottle.MaxValue = 127;
 
-            _client.Connect();
             _source = new CancellationTokenSource();
             _motionManager.DeviceMotionUpdateInterval = 0.1;
             _motionManager.StartDeviceMotionUpdates();
@@ -45,7 +57,6 @@ namespace SteeringWheel.Controllers
             // Release any cached data, images, etc that aren't in use.
         }
 
-
         private async Task Update(CancellationToken cancellationToken)
         {
             var sw = new Stopwatch();
@@ -55,22 +66,37 @@ namespace SteeringWheel.Controllers
                 {
                     break;
                 }
+                Console.WriteLine("Update");
                 sw.Start();
                 if (!await DoUpdate())
                 {
                     await _client.Ping();
                 }
-                while (sw.ElapsedMilliseconds < 50)
+                if (sw.ElapsedMilliseconds < 50)
                 {
-                    await Task.Delay(1, cancellationToken);
+                    await Task.Delay(50 - (int)sw.ElapsedMilliseconds, cancellationToken);
                 }
                 sw.Reset();
             }
+            Console.WriteLine("Update done");
         }
 
         partial void Throttle_Cancel(UISlider sender)
         {
             Throttle.Value = 0;
+        }
+
+        partial void FrontThrottle_Enable(UISlider sender)
+        {
+            _frontThrottleSwitch.IsOn = true;
+            View.BackgroundColor = UIColor.Cyan;
+        }
+
+        partial void FrontThrottle_Cancel(UISlider sender)
+        {
+            _frontThrottleSwitch.IsOn = false;
+            View.BackgroundColor = UIColor.White;
+            FrontThrottle.Value = 0;
         }
 
         partial void DisconnectButton_TouchUpInside(UIButton sender)
@@ -94,12 +120,37 @@ namespace SteeringWheel.Controllers
                 _angle = angle;
                 updated = true;
             }
-            var throttle = (int)Throttle.Value;
-            if (throttle != _throttle)
+
+            if (_frontThrottleSwitch.IsOn)
             {
-                await _client.Set("motor/speed", $"{throttle}");
-                _throttle = throttle;
-                updated = true;
+                var backThrottle = (int)Throttle.Value;
+                if (backThrottle != _backSpeed)
+                {
+                    await _client.Set("motor/0/speed", $"{backThrottle}");
+                    _backSpeed = backThrottle;
+                    updated = true;
+                }
+
+                var frontThrottle = (int)FrontThrottle.Value;
+                if (frontThrottle != _frontSpeed || !_frontThrottleSwitch.WasOn)
+                {
+                    _frontThrottleSwitch.WasOn = true;
+                    await _client.Set("motor/1/speed", $"{frontThrottle}");
+                    _frontSpeed = frontThrottle;
+                    updated = true;
+                }
+            }
+            else
+            {
+                var backSpeed = (int)Throttle.Value;
+                if (backSpeed != _backSpeed || _frontThrottleSwitch.WasOn)
+                {
+                    _frontThrottleSwitch.WasOn = false;
+                    await _client.Set("motor/speed", $"{backSpeed}");
+                    _backSpeed = backSpeed;
+                    _frontSpeed = backSpeed;
+                    updated = true;
+                }
             }
 
             return updated;

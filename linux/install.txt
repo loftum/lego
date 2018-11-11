@@ -1,2 +1,0 @@
-# Mono
-sudo apt-get install mono

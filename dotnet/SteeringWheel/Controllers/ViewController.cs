@@ -1,5 +1,4 @@
 ﻿using System;
-using CoreMotion;
 using Foundation;
 using LCTP.Server;
 using UIKit;

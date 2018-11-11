@@ -21,7 +21,7 @@ namespace Devices._4tronix
                 {
                     return;
                 }
-                Console.WriteLine($"Speed = {value}");
+                Console.WriteLine($"Motor {Number} Speed = {value}");
                 _device.WriteAddressByte(Number, (byte)value);
                 _speed = value;
             }

@@ -9,10 +9,25 @@ using LCTP.Extensions;
 
 namespace LCTP.Client
 {
+    public static class SocketExtensions
+    {
+        public static void Connect(this Socket socket, EndPoint endpoint, TimeSpan timeout)
+        {
+            var result = socket.BeginConnect(endpoint, null, null);
+            if (result.AsyncWaitHandle.WaitOne(timeout, true))
+            {
+                socket.EndConnect(result);
+                return;
+            }
+            socket.Close();
+            throw new SocketException((int)SocketError.TimedOut);
+        }
+    }
+
     /// <summary>
     /// Lego Command Transfer Protocol client
     /// </summary>
-    public class LctpClient: IDisposable
+    public class LctpClient : IDisposable
     {
         public bool Connected => _socket.Connected;
         private readonly Encoding _encoding = new UTF8Encoding();
@@ -35,11 +50,16 @@ namespace LCTP.Client
 
         public void Connect()
         {
+            Connect(TimeSpan.FromSeconds(5));
+        }
+
+        public void Connect(TimeSpan timeout)
+        {
             if (Connected)
             {
                 return;
             }
-            _socket.Connect(_remoteEp);
+            _socket.Connect(_remoteEp, timeout);
             var stream = new NetworkStream(_socket);
             _reader = new StreamReader(stream);
             _writer = new StreamWriter(stream, _encoding);
