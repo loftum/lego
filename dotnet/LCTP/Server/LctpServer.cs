@@ -15,7 +15,7 @@ namespace LCTP.Server
     {
         public const int DefaultPort = 5080;
 
-        private readonly IController _controller;0
+        private readonly IController _controller;
         private readonly Socket _listener;
         private readonly int _port;
 
