@@ -21,6 +21,13 @@
     <None Update="libwiringPi.so.2.44">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="libwiringPi.so.2.46">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Adafruit\BNO055\Datasheet\" />
   </ItemGroup>
 
 </Project>
