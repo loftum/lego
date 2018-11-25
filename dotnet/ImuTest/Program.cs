@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Devices;
 using Devices.Adafruit.LSM9DS1;
 using Devices.Adafruit.LSM9DS1.Accelerometer;
 using Unosquare.PiGpio;

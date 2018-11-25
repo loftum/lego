@@ -1,4 +1,4 @@
-﻿namespace Devices.Adafruit.LSM9DS1
+﻿namespace Devices
 {
     public struct Vector3
     {
