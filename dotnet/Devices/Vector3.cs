@@ -1,4 +1,6 @@
-﻿namespace Devices
+﻿using System;
+
+namespace Devices
 {
     public struct Vector3
     {
@@ -33,11 +35,22 @@
             return new Vector3(vector.X / f, vector.Y / f, vector.Z / f);
         }
 
-        public static Vector3 Empty => new Vector3();
+        public static implicit operator Vector3(double value)
+        {
+            return new Vector3(value, value, value);
+        }
+
+
+        public static Vector3 Zero => new Vector3();
 
         public override string ToString()
         {
-            return $"[{X}, {Y}, {Z}]";
+            return ToString(null);
+        }
+
+        public string ToString(string format)
+        {
+            return $"[{X.ToString(format)}, {Y.ToString(format)}, {Z.ToString(format)}]";
         }
     }
 }

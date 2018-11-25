@@ -29,5 +29,17 @@
         {
             return buffer[1] << 8 | buffer[0];
         }
+
+        public static byte Reverse(this byte b)
+        {
+            byte res = 0;
+            for (var ii = 0; ii < 8; ii++)
+            {
+                var mask = (byte) (1 << (7 - 2 * ii));
+                res |= mask;
+            }
+
+            return res;
+        }
     }
 }

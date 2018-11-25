@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Devices;
 using Devices.Adafruit.BNO055;
 using Unosquare.RaspberryIO;
 
@@ -16,6 +17,28 @@ namespace AbsOrientationTest
         }
     }
 
+    public class AbsArguments
+    {
+        public bool Temp { get; }
+        public bool Gyro { get; }
+        public bool LinearAccel { get; }
+        public bool Velocity { get; }
+        public bool Accel { get; }
+        public bool Euler { get; }
+        public bool Quaternion { get; }
+
+        public AbsArguments(string[] args)
+        {
+            Quaternion = args.Has("quaternion");
+            Euler = args.Has("euler");
+            Accel = args.Has("accel");
+            LinearAccel = args.Has("linear");
+            Velocity = args.Has("velocity");
+            Gyro = args.Has("gyro");
+            Temp = args.Has("temp");
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
@@ -25,13 +48,7 @@ namespace AbsOrientationTest
                 Console.CancelKeyPress += (s, e) => source.Cancel();
                 try
                 {
-                    var quaternion = args.Has("quaternion");
-                    var euler = args.Has("euler");
-                    var accel = args.Has("accel");
-                    var gyro = args.Has("gyro");
-                    var temp = args.Has("temp");
-
-                    Run(quaternion, euler, accel, gyro, temp, source.Token).Wait(source.Token);
+                    Run(new AbsArguments(args), source.Token).Wait(source.Token);
                 }
                 catch (Exception e)
                 {
@@ -43,8 +60,7 @@ namespace AbsOrientationTest
             Console.WriteLine("Bye!");
         }
 
-        private static async Task Run(bool quaternion, bool euler, bool accel, bool gyro, bool temp,
-            CancellationToken token)
+        private static async Task Run(AbsArguments args, CancellationToken token)
         {
             using (var bus = Pi.I2C)
             {
@@ -53,6 +69,9 @@ namespace AbsOrientationTest
                     var o = new AbsOrientation(bus);
                     o.Begin(OperationMode.NDOF);
 
+                    Vector3 velocity = 0;
+                    var last = DateTimeOffset.UtcNow;
+
                     while (true)
                     {
                         if (token.IsCancellationRequested)
@@ -60,27 +79,41 @@ namespace AbsOrientationTest
                             return;
                         }
 
-                        if (quaternion)
+                        if (args.Quaternion)
                         {
                             Console.WriteLine($"Quaternion: {o.ReadQuaternion()}");
                         }
 
-                        if (euler)
+                        if (args.Euler)
                         {
-                            Console.WriteLine($"Euler: {o.ReadEulerData()}");
+                            Console.WriteLine($"Euler: {o.ReadEulerData().ToString(" 000.00;-000.00")}");
                         }
 
-                        if (accel)
+                        if (args.Accel)
                         {
                             Console.WriteLine($"Accel: {o.ReadAccel()}");
                         }
 
-                        if (gyro)
+                        if (args.LinearAccel)
+                        {
+                            Console.WriteLine($"Linear Accel: {o.ReadLinearAccel()}");
+                        }
+
+                        if (args.Velocity)
+                        {
+                            var accel = o.ReadLinearAccel();
+                            var now = DateTimeOffset.UtcNow;
+                            velocity = velocity + accel * (now - last).TotalSeconds;
+                            last = now;
+                            Console.WriteLine($"Velocity: {velocity}");
+                        }
+
+                        if (args.Gyro)
                         {
                             Console.WriteLine($"Gyro: {o.ReadGyro()}");
                         }
 
-                        if (temp)
+                        if (args.Temp)
                         {
                             Console.WriteLine($"Temp: {o.ReadTemp()}");
                         }

@@ -32,7 +32,7 @@ namespace ImuTest
                 imu.Accel.Settings.Range = AccelRange._16G;
                 imu.Reset();
 
-                var cfAngle = Vector3.Empty;
+                var cfAngle = Vector3.Zero;
 
                 while (true)
                 {

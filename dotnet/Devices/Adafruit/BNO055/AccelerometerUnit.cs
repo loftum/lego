@@ -2,7 +2,7 @@
 {
     public enum AccelerometerUnit
     {
-        Mps2 = 0,
-        Mg = 1
+        MetersPerSquareSecond = 0,
+        MilliG = 1
     }
 }

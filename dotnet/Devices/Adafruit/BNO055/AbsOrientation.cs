@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using Unosquare.RaspberryIO.Gpio;
 
@@ -100,7 +101,27 @@ namespace Devices.Adafruit.BNO055
         public Vector3 ReadEulerData()
         {
             var bytes = ReadBytes(Registers.BNO055_EULER_H_LSB_ADDR, 6);
-            return bytes.ToVector3() / 16;
+            // Stupid bug in the chip.
+            // Whenever pitch > 0, pitch MSB is set erroneously
+
+
+            var msb = (short) (bytes[5] << 8 | bytes[4]);
+            var lsb = bytes[4];
+            if (msb > 2880 || msb < -2880)
+            //if (msb > 12 && msb < 139) // between 00001011 and 10001011
+            {
+                bytes[5] &= 0b0111_1111;
+            }
+
+            Console.WriteLine($"[{string.Join(", ", bytes.Select(b => Convert.ToString(b, 2)))}]");
+            var vector = bytes.ToVector3();
+            return bytes.ToVector3() / 16.0;
+        }
+
+        public Vector3 ReadLinearAccel()
+        {
+            var bytes = ReadBytes(Registers.BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, 6);
+            return bytes.ToVector3() / 100;
         }
 
         public Vector3 ReadAccel()
@@ -134,13 +155,12 @@ namespace Devices.Adafruit.BNO055
             RegisterPage = 0;
             UnitSelection = new UnitSelection
             {
-                AccelerometerUnit = AccelerometerUnit.Mps2,
-                AngularRate = AngularRate.DegreesPerSecond,
+                AccelerometerUnit = AccelerometerUnit.MetersPerSquareSecond,
+                AngularVelocityUnit = AngularRate.DegreesPerSecond,
                 EulerAngleUnit = EulerAngleUnit.Degrees,
                 TemperatureUnit = TemperatureUnit.Celsius,
-                FusionDataFormat = FusionDataFormat.Android
+                FusionDataFormat = FusionDataFormat.Windows
             };
-            Console.WriteLine(ReadByte(Registers.BNO055_SYS_TRIGGER_ADDR).ToString("X2"));
             ClockSelection = ClockSelection.External;
             OperationMode = mode;
         }
