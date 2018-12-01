@@ -103,10 +103,7 @@ namespace Devices.Adafruit.BNO055
             var bytes = ReadBytes(Registers.BNO055_EULER_H_LSB_ADDR, 6);
             // Stupid bug in the chip.
             // Whenever pitch > 0, pitch MSB is set erroneously
-
-
             var msb = (short) (bytes[5] << 8 | bytes[4]);
-            var lsb = bytes[4];
             if (msb > 2880 || msb < -2880)
             //if (msb > 12 && msb < 139) // between 00001011 and 10001011
             {
