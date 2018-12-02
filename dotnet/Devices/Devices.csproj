@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <Folder Include="Adafruit\BNO055\Datasheet\" />
+    <Folder Include="ThePiHut\ServoPWMPiZero\Datasheets\" />
   </ItemGroup>
 
 </Project>
