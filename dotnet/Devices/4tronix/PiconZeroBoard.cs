@@ -37,30 +37,6 @@ namespace Devices._4tronix
             return $"{value / 256} {value % 256}";
         }
 
-        public void SetMotor(int motor, int speed)
-        {
-            if (motor < 0 || motor > 1 || Math.Abs(speed) > 127)
-            {
-                return;
-            }
-            Try(() => Device.WriteAddressByte(motor, (byte)speed));
-        }
-
-        public void SetOutput(int channel, int value)
-        {
-            if (channel < 0 || channel > 5)
-            {
-                return;
-
-            }
-            Try(() => Device.WriteAddressByte(OUTPUT0 + channel, (byte)value));
-        }
-
-        public void Reset()
-        {
-            Try(() => Device.WriteAddressByte(RESET, 0));
-        }
-
         private void Try(Action action)
         {
             for (var ii = 0; ii < _retries; ii++)
@@ -76,22 +52,6 @@ namespace Devices._4tronix
             }
         }
 
-        private T Try<T>(Func<T> get)
-        {
-            for (var ii = 0; ii < _retries; ii++)
-            {
-                try
-                {
-                    return get();
-                }
-                catch
-                {
-                    //
-                }
-            }
-            return default(T);
-        }
-
         public void SetOutputConfig(int pin, OutputType type)
         {
             if (pin < 0 || pin > 5)
@@ -100,16 +60,6 @@ namespace Devices._4tronix
             }
             Try(() => Device.WriteAddressByte(OUTCFG0 + pin, (byte) type));
         }
-
-        public void SetInputConfig(int pin, InputType type)
-        {
-            if (pin < 0 || pin > 3)
-            {
-                throw new ArgumentException("Input pin must be 0-3", nameof(pin));
-            }
-            Try(() => Device.WriteAddressByte(INCFG0 + pin, (byte)type));
-        }
-
 
         public void Dispose()
         {

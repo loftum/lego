@@ -5,24 +5,30 @@ using Unosquare.RaspberryIO.Gpio;
 
 namespace Devices.ThePiHut.PWMServo
 {
-    public enum Registers
+    public class Servo
     {
-        MODE1 = 0x00,
-        MODE2 = 0x01,
-        SUABDR1 = 0x02,
-        SUBADR2 = 0x03,
-        ALLCALLADR = 0x05,
-        LED0_ON_L = 0x06,
-        LED0_ON_H = 0x07,
-        LED0_OFF_L = 0x08,
-        LED0_OFF_H = 0x09,
+        private readonly Pwm _pwm;
+        private int _value;
 
-        ALL_LED_ON_L = 0xFA,
-        ALL_LED_ON_H = 0xFB,
-        ALL_LED_OFF_L = 0xFC,
-        ALL_LED_OFF_H = 0xFD,
-        PRE_SCALE = 0xFE,
-        TestMode = 0xFF
+        public int MinValue { get; set; } = 20;
+        public int MaxValue { get; set; } = 170;
+
+        public int Value
+        {
+            get => _value;
+            set
+            {
+
+                _value = value;
+            }
+        }
+
+        public Servo(Pwm pwm)
+        {
+            _pwm = pwm;
+        }
+
+
     }
 
     public class ServoPwmBoard
@@ -37,38 +43,55 @@ namespace Devices.ThePiHut.PWMServo
         public const int DefaultAddress = 0x40;
 
         public I2CDevice Device { get; }
+        private readonly GpioController _gpio;
+        private bool _outputEnable;
 
         public Pwm[] Outputs { get; }
         public Pwm AllOutputs { get; }
+
+        public bool OutputEnable
+        {
+            get => _outputEnable;
+            set
+            {
+                _gpio.Pin07.Write(!value); // active LOW
+                _outputEnable = value;
+            }
+        }
 
         public void SetFrequency(int frequency, int calibration = 0)
         {
             if (frequency < 40 || frequency > 1000)
             {
-                throw new ArgumentException($"Frequency must be between 40 and 1000");
+                throw new ArgumentException("Frequency must be between 40 and 1000");
             }
 
-            var scaleVal = 25_000_000.0; // 25 MHz
-            scaleVal /= 4096; // 12 bit
-            scaleVal /= frequency;
-            scaleVal -= 1;
-            var prescale = Math.Floor(scaleVal + 0.5);
-            prescale = prescale + calibration;
+            // 25 MHz
+            var prescale = Math.Floor((double)25_000_000 / (4096 * frequency) - 1) + calibration;
+            
             var oldMode = Device.ReadAddressByte((int) Registers.MODE1);
-            var newMode = (oldMode & 0x7F) | 0x10;
+            var newMode = (oldMode & 0x7F) | 0x10; // sleep
             Device.WriteAddressByte((int)Registers.MODE1, (byte)newMode);
             Device.WriteAddressByte((int)Registers.PRE_SCALE, (byte)prescale);
             Device.WriteAddressByte((int)Registers.MODE1, oldMode);
             Thread.Sleep(TimeSpan.FromMilliseconds(5));
-            Device.WriteAddressByte((int) Registers.MODE1, (byte)(oldMode | 0x80));
+            Restart();
         }
 
-        public ServoPwmBoard(I2CBus bus) : this(bus, DefaultAddress)
+        private void Restart()
+        {
+            var oldMode = Device.ReadAddressByte((int)Registers.MODE1);
+            Device.WriteAddressByte((int)Registers.MODE1, (byte)(oldMode | 0x80));
+        }
+
+        public ServoPwmBoard(I2CBus bus, GpioController gpio) : this(bus, gpio, DefaultAddress)
         {
         }
 
-        public ServoPwmBoard(I2CBus bus, int address)
+        public ServoPwmBoard(I2CBus bus, GpioController gpio, int address)
         {
+            _gpio = gpio;
+            gpio.Pin07.PinMode = GpioPinDriveMode.Output;
             Device = bus.AddDevice(address);
             Outputs = Enumerable.Range(0, 16).Select(i => new Pwm(Device, i)).ToArray();
             AllOutputs = new Pwm(Device, ALL_LED_ON_L);

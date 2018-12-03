@@ -1,4 +1,5 @@
-﻿using Unosquare.RaspberryIO.Gpio;
+﻿using System;
+using Unosquare.RaspberryIO.Gpio;
 
 namespace Devices.ThePiHut.PWMServo
 {
@@ -14,6 +15,10 @@ namespace Devices.ThePiHut.PWMServo
             get => _onTime;
             set
             {
+                if (value < 0 || value > 4095)
+                {
+                    throw new ArgumentException("Value must be between 0 and 4096");
+                }
                 _device.WriteAddressByte(_address + 2, (byte)(value & 0xFF));
                 _device.WriteAddressByte(_address + 3, (byte)(value >> 8));
                 _onTime = value;
@@ -25,6 +30,10 @@ namespace Devices.ThePiHut.PWMServo
             get => _offTime;
             set
             {
+                if (value < 0 || value > 4095)
+                {
+                    throw new ArgumentException("Value must be between 0 and 4096");
+                }
                 _device.WriteAddressByte(_address, (byte)(value & 0xFF));
                 _device.WriteAddressByte(_address + 1, (byte)(value >> 8));
                 _offTime = value;
