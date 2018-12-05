@@ -11,7 +11,7 @@ namespace MotorTest
     {
         static int Main(string[] args)
         {
-            return ConsoleRunner.Run(() => Run(args));
+            return ConsoleRunner.Run(c => Run(args));
         }
 
         private static Task Run(string[] args)

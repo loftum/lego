@@ -6,14 +6,14 @@ namespace Shared
 {
     public class ConsoleRunner
     {
-        public static int Run(Func<Task> task)
+        public static int Run(Func<CancellationToken, Task> task)
         {
             using (var source = new CancellationTokenSource())
             {
                 Console.CancelKeyPress += (s, a) => source.Cancel();
                 try
                 {
-                    task().Wait(source.Token);
+                    task(source.Token).Wait(source.Token);
                     return 0;
                 }
                 catch (Exception e)
