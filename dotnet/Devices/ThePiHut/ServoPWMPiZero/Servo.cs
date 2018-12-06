@@ -38,7 +38,6 @@ namespace Devices.ThePiHut.ServoPWMPiZero
                 {
                     return;
                 }
-                Console.WriteLine($"Value: {value}");
                 var time = MinPos + (int) ((MaxPos - MinPos) * value / 180.0);
                 _pwm.OnTime = 0;
                 _pwm.OffTime = time;

@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="4tronix\Datasheets\" />
     <Folder Include="Adafruit\BNO055\Datasheet\" />
     <Folder Include="ThePiHut\MotoZero\Datasheets\" />
     <Folder Include="ThePiHut\ServoPWMPiZero\Datasheets\" />

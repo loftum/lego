@@ -25,8 +25,7 @@ namespace SteeringWheel.Controllers
         private int _angle = 90;
         private int _backSpeed = 0;
         private int _frontSpeed = 0;
-        private Switch _frontThrottleSwitch = new Switch();
-
+        private readonly Switch _frontThrottleSwitch = new Switch();
 
         public SteeringWheelViewController(string host, int port) : base("SteeringWheelViewController", null)
         {

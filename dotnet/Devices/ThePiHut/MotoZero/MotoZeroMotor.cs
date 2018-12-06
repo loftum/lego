@@ -13,11 +13,15 @@ namespace Devices.ThePiHut.MotoZero
 
         private const int Range = 255;
 
+        public int Number { get; }
+
         public bool Enabled
         {
             get => _enabled;
             set
             {
+                var state = value ? "enabled" : "disabled";
+                Console.WriteLine($"Motor {Number} {state}");
                 _enablePin.Write(value);
                 _enabled = value;
             }
@@ -28,11 +32,12 @@ namespace Devices.ThePiHut.MotoZero
             get => _speed;
             set
             {
-                var abs = Math.Abs(value);
-                if (abs > Range)
+                value = Sanize(value);
+                if (value == _speed)
                 {
                     return;
                 }
+                var abs = Math.Abs(value);
 
                 switch (value)
                 {
@@ -41,11 +46,11 @@ namespace Devices.ThePiHut.MotoZero
                         _minusPin.SoftPwmValue = 0;
                         break;
                     case int pos when pos > 0 && _speed >= 0:
-                        _plusPin.SoftPwmValue = value;
+                        _plusPin.SoftPwmValue = abs;
                         break;
                     case int pos when pos > 0 && _speed < 0:
                         _minusPin.SoftPwmValue = 0;
-                        _plusPin.SoftPwmValue = value;
+                        _plusPin.SoftPwmValue = abs;
                         break;
                     case int neg when neg < 0 && _speed <= 0:
                         _minusPin.SoftPwmValue = abs;
@@ -61,8 +66,22 @@ namespace Devices.ThePiHut.MotoZero
             }
         }
 
-        public MotoZeroMotor(GpioPin enablePin, GpioPin plusPin, GpioPin minusPin)
+        private static int Sanize(int value)
         {
+            if (value > Range)
+            {
+                return Range;
+            }
+            if (value < -Range)
+            {
+                return -Range;
+            }
+            return value;
+        }
+
+        public MotoZeroMotor(int number, GpioPin enablePin, GpioPin plusPin, GpioPin minusPin)
+        {
+            Number = number;
             enablePin.PinMode = GpioPinDriveMode.Output;
             plusPin.PinMode = GpioPinDriveMode.Output;
             plusPin.StartSoftPwm(0, Range);

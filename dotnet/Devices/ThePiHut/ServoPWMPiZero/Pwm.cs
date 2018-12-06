@@ -20,7 +20,6 @@ namespace Devices.ThePiHut.ServoPWMPiZero
                 {
                     throw new ArgumentException($"Value ({value}) must be between 0 and 4096");
                 }
-                Console.WriteLine($"OnTime: {value}");
                 _device.WriteAddressByte(_address, (byte)(value & 0xFF));
                 _device.WriteAddressByte(_address + 1, (byte)(value >> 8));
                 _onTime = value;
@@ -36,7 +35,6 @@ namespace Devices.ThePiHut.ServoPWMPiZero
                 {
                     throw new ArgumentException("Value must be between 0 and 4096");
                 }
-                Console.WriteLine($"OffTime: {value}");
                 _device.WriteAddressByte(_address + 2, (byte)(value & 0xFF));
                 _device.WriteAddressByte(_address + 3, (byte)(value >> 8));
                 _offTime = value;

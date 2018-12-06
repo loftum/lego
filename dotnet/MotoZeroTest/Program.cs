@@ -19,7 +19,6 @@ namespace MotoZeroTest
                 {
                     using (var motoZero = new MotoZeroBoard(gpio))
                     {
-                        Console.WriteLine(motoZero.Motors.Length);
                         var motor = motoZero.Motors[oneBasedMotorNumber -1];
                         motor.Enabled = true;
                         motor.Speed = 0;
@@ -57,7 +56,7 @@ namespace MotoZeroTest
         {
             if (!args.Any())
             {
-                return 0;
+                return 1;
             }
             return int.TryParse(args[0], out var number) && number >= 1 && number <= 4 ? number : 0;
         }
