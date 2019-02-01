@@ -10,22 +10,6 @@ namespace Devices.ThePiHut.ServoPWMPiZero
         public int MinPos {get; private set; }
         public int MaxPos { get; private set; }
 
-        public void SetPositionLimitsMs(double minMs, double maxMs)
-        {
-            MinPos = ToPosition(minMs);
-            MaxPos = ToPosition(maxMs);
-        }
-
-        private int ToPosition(double millis)
-        {
-            var value = (int) (4096.0 * millis / 1000 * _board.Frequency);
-            if (value < 0 || value > 4095)
-            {
-                throw new ArgumentOutOfRangeException($"{value} is out of range [0, 4096>");
-            }
-            return value;
-        }
-
         public int MinValue { get; set; } = 0;
         public int MaxValue { get; set; } = 180;
 
@@ -51,6 +35,22 @@ namespace Devices.ThePiHut.ServoPWMPiZero
             _board = board;
             SetPositionLimitsMs(0.7, 2.3); // pretty default for servos
             Value = 90;
+        }
+
+        public void SetPositionLimitsMs(double minMs, double maxMs)
+        {
+            MinPos = ToPosition(minMs);
+            MaxPos = ToPosition(maxMs);
+        }
+
+        private int ToPosition(double millis)
+        {
+            var value = (int)(4096.0 * millis / 1000 * _board.Frequency);
+            if (value < 0 || value > 4095)
+            {
+                throw new ArgumentOutOfRangeException($"{value} is out of range [0, 4096>");
+            }
+            return value;
         }
     }
 }

@@ -48,9 +48,7 @@ namespace Devices.ThePiHut.ServoPWMPiZero
             _address = (int)Registers.LED0_ON_L + 4 * outputNumber;
         }
 
-        public Servo AsServo()
-        {
-            return new Servo(this, _board);
-        }
+        public Servo AsServo() => new Servo(this, _board);
+        public Led AsLed() => new Led(this, _board);
     }
 }

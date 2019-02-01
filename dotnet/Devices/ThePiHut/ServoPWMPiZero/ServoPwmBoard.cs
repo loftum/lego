@@ -13,6 +13,9 @@ namespace Devices.ThePiHut.ServoPWMPiZero
         private readonly GpioController _gpio;
         private bool _outputEnable;
 
+        /// <summary>
+        /// in herz
+        /// </summary>
         public int Frequency { get; private set; }
         public Pwm[] Outputs { get; }
         public Pwm OutputAll { get; }

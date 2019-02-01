@@ -44,7 +44,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServoPwmTest", "ServoPwmTes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AbsOrientationTest", "AbsOrientationTest\AbsOrientationTest.csproj", "{A11DACFF-EE82-4424-8B5B-EBA2765E1E6C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LegoCarServer2", "LegoCarServer2\LegoCarServer2.csproj", "{1FEA28F5-42AA-4757-8433-7FCC83866CC2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LegoCarServer2", "LegoCarServer2\LegoCarServer2.csproj", "{1FEA28F5-42AA-4757-8433-7FCC83866CC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LedTest", "LedTest\LedTest.csproj", "{B85F446A-EA2A-4565-B11D-2458A78CEB5C}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -251,6 +253,18 @@ Global
 		{1FEA28F5-42AA-4757-8433-7FCC83866CC2}.Release|iPhone.Build.0 = Release|Any CPU
 		{1FEA28F5-42AA-4757-8433-7FCC83866CC2}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{1FEA28F5-42AA-4757-8433-7FCC83866CC2}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{B85F446A-EA2A-4565-B11D-2458A78CEB5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B85F446A-EA2A-4565-B11D-2458A78CEB5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B85F446A-EA2A-4565-B11D-2458A78CEB5C}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{B85F446A-EA2A-4565-B11D-2458A78CEB5C}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{B85F446A-EA2A-4565-B11D-2458A78CEB5C}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{B85F446A-EA2A-4565-B11D-2458A78CEB5C}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{B85F446A-EA2A-4565-B11D-2458A78CEB5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B85F446A-EA2A-4565-B11D-2458A78CEB5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B85F446A-EA2A-4565-B11D-2458A78CEB5C}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{B85F446A-EA2A-4565-B11D-2458A78CEB5C}.Release|iPhone.Build.0 = Release|Any CPU
+		{B85F446A-EA2A-4565-B11D-2458A78CEB5C}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{B85F446A-EA2A-4565-B11D-2458A78CEB5C}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -273,6 +287,7 @@ Global
 		{4FACFBC4-2BC6-4B72-B24E-149CE4B54E1C} = {5A141452-1CF5-4AFB-B2FF-5816C534AC3C}
 		{A11DACFF-EE82-4424-8B5B-EBA2765E1E6C} = {5A141452-1CF5-4AFB-B2FF-5816C534AC3C}
 		{1FEA28F5-42AA-4757-8433-7FCC83866CC2} = {EDF4BB25-BE69-4A2E-B168-8F3EA5FE1E50}
+		{B85F446A-EA2A-4565-B11D-2458A78CEB5C} = {5A141452-1CF5-4AFB-B2FF-5816C534AC3C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D8D2DC8C-6314-40BB-B8CE-597BF251B888}
