@@ -176,19 +176,19 @@ namespace SteeringWheel.Controllers
             }
             if (_headlightSwitch.HasChanged())
             {
-                await _client.Set("headlights", _headlightSwitch.IsOn ? "on" : "off");
+                await _client.Set("headlights", "toggle");
                 _headlightSwitch.UpdateWasOn();
                 updated = true;
             }
             if (_leftBlinkerSwitch.HasChanged())
             {
-                await _client.Set("blinker/left", _leftBlinkerSwitch.IsOn ? "on" : "off");
+                await _client.Set("blinker/left", "toggle");
                 _leftBlinkerSwitch.UpdateWasOn();
                 updated = true;
             }
             if (_rightBlinkerSwitch.HasChanged())
             {
-                await _client.Set("blinker/right", _rightBlinkerSwitch.IsOn ? "on" : "off");
+                await _client.Set("blinker/right", "toggle");
                 _rightBlinkerSwitch.UpdateWasOn();
                 updated = true;
             }
