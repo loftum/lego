@@ -38,11 +38,11 @@ namespace SteeringWheel.Controllers
             base.ViewDidLoad();
             CGAffineTransform trans = CGAffineTransform.MakeRotation((nfloat)(Math.PI * 1.5));
             Throttle.Transform = trans;
-            Throttle.MinValue = -127;
-            Throttle.MaxValue = 127;
+            Throttle.MinValue = -255;
+            Throttle.MaxValue = 255;
             FrontThrottle.Transform = trans;
-            FrontThrottle.MinValue = -127;
-            FrontThrottle.MaxValue = 127;
+            FrontThrottle.MinValue = -255;
+            FrontThrottle.MaxValue = 255;
 
             _source = new CancellationTokenSource();
             _motionManager.DeviceMotionUpdateInterval = 0.1;

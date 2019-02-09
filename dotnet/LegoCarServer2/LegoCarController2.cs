@@ -94,7 +94,7 @@ namespace LegoCarServer2
             {
                 return Task.FromResult(ResponseMessage.BadRequest("Bad motor speed"));
             }
-            _motoZero.Motors[number].Speed = speed * 2;
+            _motoZero.Motors[number].Speed = speed;
             return Task.FromResult(ResponseMessage.Ok(_motoZero.Motors[number].Speed));
         }
 
@@ -105,8 +105,8 @@ namespace LegoCarServer2
                 return Task.FromResult(ResponseMessage.BadRequest("Bad motor speed"));
             }
 
-            _motoZero.Motors[0].Speed = speed * 2;
-            _motoZero.Motors[1].Speed = speed * 2;
+            _motoZero.Motors[0].Speed = speed;
+            _motoZero.Motors[1].Speed = speed;
             return Task.FromResult(ResponseMessage.Ok(_motoZero.Motors[0].Speed));
         }
 
