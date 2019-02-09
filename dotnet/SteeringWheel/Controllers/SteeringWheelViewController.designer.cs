@@ -24,6 +24,18 @@ namespace SteeringWheel.Controllers
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIButton HeadlightsButton { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIButton LeftBlinkerButton { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIButton RightBlinkerButton { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UISlider Throttle { get; set; }
 
         [Action ("DisconnectButton_TouchUpInside:")]
@@ -37,6 +49,18 @@ namespace SteeringWheel.Controllers
         [Action ("FrontThrottle_Enable:")]
         [GeneratedCode ("iOS Designer", "1.0")]
         partial void FrontThrottle_Enable (UIKit.UISlider sender);
+
+        [Action ("HeadlightsButton_TouchUpInside:")]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        partial void HeadlightsButton_TouchUpInside (UIKit.UIButton sender);
+
+        [Action ("LeftBlinkerButton_TouchUpInside:")]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        partial void LeftBlinkerButton_TouchUpInside (UIKit.UIButton sender);
+
+        [Action ("RightBlinkerButton_TouchUpInside:")]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        partial void RightBlinkerButton_TouchUpInside (UIKit.UIButton sender);
 
         [Action ("Throttle_Cancel:")]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -52,6 +76,21 @@ namespace SteeringWheel.Controllers
             if (FrontThrottle != null) {
                 FrontThrottle.Dispose ();
                 FrontThrottle = null;
+            }
+
+            if (HeadlightsButton != null) {
+                HeadlightsButton.Dispose ();
+                HeadlightsButton = null;
+            }
+
+            if (LeftBlinkerButton != null) {
+                LeftBlinkerButton.Dispose ();
+                LeftBlinkerButton = null;
+            }
+
+            if (RightBlinkerButton != null) {
+                RightBlinkerButton.Dispose ();
+                RightBlinkerButton = null;
             }
 
             if (Throttle != null) {

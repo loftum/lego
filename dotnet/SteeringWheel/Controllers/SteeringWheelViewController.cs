@@ -13,6 +13,11 @@ namespace SteeringWheel.Controllers
     {
         public bool IsOn { get; set; }
         public bool WasOn { get; set; }
+        public bool HasChanged() => IsOn != WasOn;
+        public void UpdateWasOn()
+        {
+            WasOn = IsOn;
+        }
     }
 
     public partial class SteeringWheelViewController : UIViewController
@@ -26,6 +31,9 @@ namespace SteeringWheel.Controllers
         private int _backSpeed = 0;
         private int _frontSpeed = 0;
         private readonly Switch _frontThrottleSwitch = new Switch();
+        private readonly Switch _headlightSwitch = new Switch();
+        private readonly Switch _leftBlinkerSwitch = new Switch();
+        private readonly Switch _rightBlinkerSwitch = new Switch();
 
         public SteeringWheelViewController(string host, int port) : base("SteeringWheelViewController", null)
         {
@@ -50,10 +58,25 @@ namespace SteeringWheel.Controllers
             _task = Update(_source.Token);
         }
 
+        partial void HeadlightsButton_TouchUpInside(UIButton sender)
+        {
+            _headlightSwitch.IsOn = !_headlightSwitch.IsOn;
+        }
+
         public override void DidReceiveMemoryWarning()
         {
             base.DidReceiveMemoryWarning();
             // Release any cached data, images, etc that aren't in use.
+        }
+
+        partial void RightBlinkerButton_TouchUpInside(UIButton sender)
+        {
+            _rightBlinkerSwitch.IsOn = !_rightBlinkerSwitch.IsOn;
+        }
+
+        partial void LeftBlinkerButton_TouchUpInside(UIButton sender)
+        {
+            _leftBlinkerSwitch.IsOn = !_leftBlinkerSwitch.IsOn;
         }
 
         private async Task Update(CancellationToken cancellationToken)
@@ -150,6 +173,24 @@ namespace SteeringWheel.Controllers
                     _frontSpeed = backSpeed;
                     updated = true;
                 }
+            }
+            if (_headlightSwitch.HasChanged())
+            {
+                await _client.Set("headlights", _headlightSwitch.IsOn ? "on" : "off");
+                _headlightSwitch.UpdateWasOn();
+                updated = true;
+            }
+            if (_leftBlinkerSwitch.HasChanged())
+            {
+                await _client.Set("blinker/left", _leftBlinkerSwitch.IsOn ? "on" : "off");
+                _leftBlinkerSwitch.UpdateWasOn();
+                updated = true;
+            }
+            if (_rightBlinkerSwitch.HasChanged())
+            {
+                await _client.Set("blinker/right", _rightBlinkerSwitch.IsOn ? "on" : "off");
+                _rightBlinkerSwitch.UpdateWasOn();
+                updated = true;
             }
 
             return updated;
