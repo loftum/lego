@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Timers;
 using System.Threading.Tasks;
 using Devices.ThePiHut.MotoZero;
 using Devices.ThePiHut.ServoPWMPiZero;
@@ -9,6 +11,75 @@ using LCTP.Routing;
 
 namespace LegoCarServer2
 {
+    public class Blinker
+    {
+        public bool On
+        {
+            get => _on;
+            set
+            {
+                _on = value;
+                if (!_on)
+                {
+                    _led.Brightness = 0;
+                }
+            }
+        }
+
+        private bool _isLit;
+        private readonly Led _led;
+        private bool _on;
+
+        public Blinker(Led led)
+        {
+            _led = led;
+        }
+
+        public void Toggle()
+        {
+            if (!On)
+            {
+                return;
+            }
+            switch (_isLit)
+            {
+                case true:
+                    _led.Brightness = 0;
+                    _isLit = false;
+                    break;
+                case false:
+                    _led.Brightness = 1.0;
+                    _isLit = true;
+                    break;
+            }
+        }
+    }
+
+    public class Headlights
+    {
+        private readonly Led[] _leds;
+        private bool _on;
+
+        public Headlights(IEnumerable<Led> leds)
+        {
+            _leds = leds.ToArray();
+        }
+
+        public bool On
+        {
+            get => _on;
+            set
+            {
+                var brightness = value ? 1.0 : 0.0;
+                foreach (var led in _leds)
+                {
+                    led.Brightness = brightness;
+                }
+                _on = value;
+            }
+        }
+    }
+
     public class LegoCarController2 : BaseController
     {
         private readonly ServoPwmBoard _pwmBoard;
@@ -16,9 +87,10 @@ namespace LegoCarServer2
         private readonly Servo _steerFront;
         private readonly Servo _steerBack;
 
-        private readonly Led _leftBlinker;
-        private readonly Led[] _headlights;
-        private readonly Led _rightBlinker;
+        private readonly Blinker _leftBlinker;
+        private readonly Blinker _rightBlinker;
+        private readonly Headlights _headlights;
+        private readonly Timer _blinker = new Timer(2 * Math.PI * 100);
 
         public LegoCarController2(ServoPwmBoard pwmBoard, MotoZeroBoard motoZero)
         {
@@ -29,23 +101,50 @@ namespace LegoCarServer2
             _motoZero.Motors[1].Enabled = true;
             _steerFront = pwmBoard.Outputs[15].AsServo();
             _steerBack = pwmBoard.Outputs[0].AsServo();
-            _leftBlinker = pwmBoard.Outputs[1].AsLed();
-            _rightBlinker = pwmBoard.Outputs[4].AsLed();
-            _headlights = new[]
-            {
-                pwmBoard.Outputs[2],
-                pwmBoard.Outputs[3],
-                pwmBoard.Outputs[5],
-                pwmBoard.Outputs[6],
-            }.Select(o => o.AsLed()).ToArray();
+            _leftBlinker = new Blinker(pwmBoard.Outputs[1].AsLed());
+            _rightBlinker = new Blinker(pwmBoard.Outputs[4].AsLed());
+            _headlights = new Headlights(new[]
+                {
+                    pwmBoard.Outputs[2],
+                    pwmBoard.Outputs[3],
+                    pwmBoard.Outputs[5],
+                    pwmBoard.Outputs[6],
+                }.Select(o => o.AsLed())
+            );
             Reset();
-
+            Set("blinker/(.+)", SetBlinker);
             Set("headlights", SetHeadlights);
             Get("motor/speed", GetSpeed);
             Set("motor/speed", SetBothMotorsSpeed);
             Get("motor/(\\d{1})/speed", GetMotorSpeed);
             Set("motor/(\\d{1})/speed", SetMotorSpeed);
             Set("steer/angle", SetSteer);
+            _blinker.Elapsed += Blink;
+            _blinker.Start();
+        }
+
+        private Task<ResponseMessage> SetBlinker(RequestMessage request, Match match)
+        {
+            var which = match.Groups[1].Value;
+            switch (which)
+            {
+                case "left":
+                    _leftBlinker.On = request.Content == "on" || request.Content == "toggle" && !_leftBlinker.On;
+                    _rightBlinker.On = false;
+                    return Task.FromResult(ResponseMessage.Ok("on"));
+                case "right":
+                    _rightBlinker.On = request.Content == "on" || request.Content == "toggle" && !_rightBlinker.On;
+                    _leftBlinker.On = false;
+                    return Task.FromResult(ResponseMessage.Ok("on"));
+                default:
+                    return Task.FromResult(ResponseMessage.BadRequest($"Unknown blinker {which}"));
+            }
+        }
+
+        private void Blink(object sender, ElapsedEventArgs e)
+        {
+            _leftBlinker.Toggle();
+            _rightBlinker.Toggle();
         }
 
         private Task<ResponseMessage> SetHeadlights(RequestMessage request, Match match)
@@ -53,11 +152,15 @@ namespace LegoCarServer2
             switch (request.Content)
             {
                 case "on":
-                    SetHeadLights(1.0);
+                    _headlights.On = true;
+
                     return Task.FromResult(ResponseMessage.Ok("on"));
                 case "off":
-                    SetHeadLights(0);
+                    _headlights.On = false;
                     return Task.FromResult(ResponseMessage.Ok("off"));
+                case "toggle":
+                    _headlights.On = !_headlights.On;
+                    return Task.FromResult(ResponseMessage.Ok(_headlights.On ? "on" : "off"));
                 default:
                     return Task.FromResult(ResponseMessage.BadRequest($"Unknown state {request.Content}"));
             }
@@ -116,15 +219,8 @@ namespace LegoCarServer2
             _motoZero.Motors[1].Speed = 0;
             _steerFront.Value = 90;
             _steerBack.Value = 90;
-
-        }
-
-        private void SetHeadLights(double value)
-        {
-            foreach (var led in _headlights)
-            {
-                led.Brightness = value;
-            }
+            _leftBlinker.On = false;
+            _rightBlinker.On = false;
         }
 
         private Task<ResponseMessage> GetSpeed(RequestMessage arg1, Match arg2)
@@ -135,13 +231,13 @@ namespace LegoCarServer2
         public override void ConnectionClosed()
         {
             Reset();
-            SetHeadLights(0);
+            _headlights.On = false;
         }
 
         public override void ConnectionOpened()
         {
             Reset();
-            SetHeadLights(1.0);
+            _headlights.On = true;
         }
     }
 }
