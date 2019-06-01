@@ -1,13 +1,14 @@
-﻿using Unosquare.PiGpio.ManagedModel;
+﻿using Devices.Unosquare;
+using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.Adafruit.LSM9DS1.Accelerometer
 {
     public class Accel
     {
         public AccelSettings Settings { get; }
-        public I2cDevice Device { get; }
+        public II2CDevice Device { get; }
 
-        public Accel(I2cDevice device)
+        public Accel(II2CDevice device)
         {
             Device = device;
             Settings = new AccelSettings();
@@ -31,7 +32,7 @@ namespace Devices.Adafruit.LSM9DS1.Accelerometer
             {
                 regValue |= 1 << 3;
             }
-            Device.Write(AccelRegisters.CTRL_REG5_XL, (byte)regValue);
+            Device.WriteAddressByte(AccelRegisters.CTRL_REG5_XL, (byte)regValue);
 
             regValue = 0;
             if (Settings.Enabled)
@@ -59,7 +60,7 @@ namespace Devices.Adafruit.LSM9DS1.Accelerometer
                     regValue |= (int) Settings.Bandwidth & 0x03;
                     break;
             }
-            Device.Write(AccelRegisters.CTRL_REG6_XL, (byte)regValue);
+            Device.WriteAddressByte(AccelRegisters.CTRL_REG6_XL, (byte)regValue);
 
             regValue = 0;
             if (Settings.HighResEnable)
@@ -67,7 +68,7 @@ namespace Devices.Adafruit.LSM9DS1.Accelerometer
                 regValue |= 1 << 7;
                 regValue |= ((int) Settings.HighResBandwidth & 0x03) << 5;
             }
-            Device.Write(AccelRegisters.CTRL_REG7_XL, (byte) regValue);
+            Device.WriteAddressByte(AccelRegisters.CTRL_REG7_XL, (byte) regValue);
         }
 
         public Vector3 Read()

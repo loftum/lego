@@ -1,14 +1,15 @@
 ﻿using Devices.Adafruit.LSM9DS1.Accelerometer;
-using Unosquare.PiGpio.ManagedModel;
+using Devices.Unosquare;
+using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.Adafruit.LSM9DS1.Gyroscope
 {
     public class Gyro
     {
         public GyroSettings Settings { get; } = new GyroSettings();
-        public I2cDevice Device { get; }
+        public II2CDevice Device { get; }
 
-        public Gyro(I2cDevice device)
+        public Gyro(II2CDevice device)
         {
             Device = device;
             Init();
@@ -32,15 +33,15 @@ namespace Devices.Adafruit.LSM9DS1.Gyroscope
                     break;
             }
             regValue |= Settings.Bandwidth & 0x03;
-            Device.Write(AccelRegisters.CTRL_REG1_G, (byte)regValue);
-            Device.Write(AccelRegisters.CTRL_REG2_G, 0x00);
+            Device.WriteAddressByte(AccelRegisters.CTRL_REG1_G, (byte)regValue);
+            Device.WriteAddressByte(AccelRegisters.CTRL_REG2_G, 0x00);
 
             regValue = Settings.LowPowerEnable ? 1 << 7 : 0;
             if (Settings.HPFEnable)
             {
                 regValue |= 1 << 6 | (Settings.HPFCutoff & 0x0f);
             }
-            Device.Write(AccelRegisters.CTRL_REG3_G, (byte)regValue);
+            Device.WriteAddressByte(AccelRegisters.CTRL_REG3_G, (byte)regValue);
 
             regValue = 0;
             if (Settings.EnableZ)
@@ -62,7 +63,7 @@ namespace Devices.Adafruit.LSM9DS1.Gyroscope
             {
                 regValue |= 1 << 1;
             }
-            Device.Write(AccelRegisters.CTRL_REG4, (byte)regValue);
+            Device.WriteAddressByte(AccelRegisters.CTRL_REG4, (byte)regValue);
 
             regValue = 0;
             if (Settings.FlipX)
@@ -79,7 +80,7 @@ namespace Devices.Adafruit.LSM9DS1.Gyroscope
             {
                 regValue |= 1 << 3;
             }
-            Device.Write(AccelRegisters.ORIENT_CFG_G, (byte) regValue);
+            Device.WriteAddressByte(AccelRegisters.ORIENT_CFG_G, (byte) regValue);
         }
 
         public Vector3 Read()

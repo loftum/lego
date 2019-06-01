@@ -1,5 +1,5 @@
 ﻿using System;
-using Unosquare.RaspberryIO.Gpio;
+using Unosquare.RaspberryIO.Abstractions;
 using Unosquare.Swan;
 
 namespace Devices._4tronix
@@ -7,7 +7,7 @@ namespace Devices._4tronix
     public class MotorPort: IMotorPort
     {
         private int _speed;
-        private readonly I2CDevice _device;
+        private readonly II2CDevice _device;
         public int Number { get; }
         public int MinSpeed { get; set; } = -127;
         public int MaxSpeed { get; set; } = 127;
@@ -27,7 +27,7 @@ namespace Devices._4tronix
             }
         }
 
-        public MotorPort(I2CDevice device, int number)
+        public MotorPort(II2CDevice device, int number)
         {
             _device = device;
             Number = number;

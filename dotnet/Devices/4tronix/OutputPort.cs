@@ -1,4 +1,4 @@
-﻿using Unosquare.RaspberryIO.Gpio;
+﻿using Unosquare.RaspberryIO.Abstractions;
 using Unosquare.Swan;
 
 namespace Devices._4tronix
@@ -6,7 +6,7 @@ namespace Devices._4tronix
     public class OutputPort
     {
         public int Number { get; }
-        private readonly I2CDevice _device;
+        private readonly II2CDevice _device;
         private OutputType _type;
         private int _value;
         public int MinValue { get; set; } = 20;
@@ -36,7 +36,7 @@ namespace Devices._4tronix
             }
         }
 
-        public OutputPort(I2CDevice device, int number)
+        public OutputPort(II2CDevice device, int number)
         {
             _device = device;
             Number = number;

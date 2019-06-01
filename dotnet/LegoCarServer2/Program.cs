@@ -6,6 +6,7 @@ using Devices.ThePiHut.ServoPWMPiZero;
 using LCTP.Server;
 using Shared;
 using Unosquare.RaspberryIO;
+using Unosquare.WiringPi;
 
 namespace LegoCarServer2
 {
@@ -20,6 +21,7 @@ namespace LegoCarServer2
         {
             Console.WriteLine("LegoCar Server 2 v1.0");
 
+            Pi.Init<BootstrapWiringPi>();
             using (var pwm = new ServoPwmBoard(Pi.I2C, Pi.Gpio))
             {
                 using (var motoZero = new MotoZeroBoard(Pi.Gpio))

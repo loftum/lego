@@ -15,28 +15,25 @@ namespace MotoZeroTest
             
             try
             {
-                using (var gpio = Pi.Gpio)
+                using (var motoZero = new MotoZeroBoard(Pi.Gpio))
                 {
-                    using (var motoZero = new MotoZeroBoard(gpio))
+                    var motor = motoZero.Motors[oneBasedMotorNumber - 1];
+                    motor.Enabled = true;
+                    motor.Speed = 0;
+                    var running = true;
+                    Console.WriteLine("Enter motor speed");
+                    while (running)
                     {
-                        var motor = motoZero.Motors[oneBasedMotorNumber -1];
-                        motor.Enabled = true;
-                        motor.Speed = 0;
-                        var running = true;
-                        Console.WriteLine("Enter motor speed");
-                        while (running)
+                        Console.Write("> ");
+                        var text = Console.ReadLine();
+                        if (text == "quit")
                         {
-                            Console.Write("> ");
-                            var text = Console.ReadLine();
-                            if (text == "quit")
-                            {
-                                break;
-                            }
+                            break;
+                        }
 
-                            if (int.TryParse(text, out var speed))
-                            {
-                                motor.Speed = speed;
-                            }
+                        if (int.TryParse(text, out var speed))
+                        {
+                            motor.Speed = speed;
                         }
                     }
                 }

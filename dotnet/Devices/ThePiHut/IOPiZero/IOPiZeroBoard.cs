@@ -1,4 +1,4 @@
-﻿using Unosquare.RaspberryIO.Gpio;
+﻿using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.ThePiHut.IOPiZero
 {
@@ -6,13 +6,13 @@ namespace Devices.ThePiHut.IOPiZero
     {
         private const int DefaultAddress = 0x20;
 
-        public I2CDevice Device { get; }
+        public II2CDevice Device { get; }
 
-        public IOPiZeroBoard(I2CBus bus) : this(bus, DefaultAddress)
+        public IOPiZeroBoard(II2CBus bus) : this(bus, DefaultAddress)
         {
         }
 
-        public IOPiZeroBoard(I2CBus bus, int address)
+        public IOPiZeroBoard(II2CBus bus, int address)
         {
             Device = bus.AddDevice(address);
         }

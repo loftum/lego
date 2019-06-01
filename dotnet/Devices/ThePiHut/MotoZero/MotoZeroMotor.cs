@@ -1,5 +1,6 @@
 ﻿using System;
-using Unosquare.RaspberryIO.Gpio;
+using Unosquare.RaspberryIO.Abstractions;
+using Unosquare.WiringPi;
 
 namespace Devices.ThePiHut.MotoZero
 {

@@ -1,5 +1,6 @@
 ﻿using System;
-using Unosquare.RaspberryIO.Gpio;
+using Unosquare.RaspberryIO.Abstractions;
+using Unosquare.WiringPi;
 
 namespace Devices.ThePiHut.MotoZero
 {
@@ -7,14 +8,14 @@ namespace Devices.ThePiHut.MotoZero
     {
         public MotoZeroMotor[] Motors { get; }
 
-        public MotoZeroBoard(GpioController gpio)
+        public MotoZeroBoard(IGpioController gpio)
         {
             Motors = new[]
             {
-                new MotoZeroMotor(1, gpio.GetGpioPinByBcmPinNumber(5), gpio.GetGpioPinByBcmPinNumber(24), gpio.GetGpioPinByBcmPinNumber(27)),
-                new MotoZeroMotor(2, gpio.GetGpioPinByBcmPinNumber(17), gpio.GetGpioPinByBcmPinNumber(6), gpio.GetGpioPinByBcmPinNumber(22)),
-                new MotoZeroMotor(3, gpio.GetGpioPinByBcmPinNumber(12), gpio.GetGpioPinByBcmPinNumber(23), gpio.GetGpioPinByBcmPinNumber(16)),
-                new MotoZeroMotor(4, gpio.GetGpioPinByBcmPinNumber(25), gpio.GetGpioPinByBcmPinNumber(13), gpio.GetGpioPinByBcmPinNumber(18))
+                new MotoZeroMotor(1, (GpioPin)gpio[5], (GpioPin)gpio[24], (GpioPin)gpio[27]),
+                new MotoZeroMotor(2, (GpioPin)gpio[17], (GpioPin)gpio[6], (GpioPin)gpio[22]),
+                new MotoZeroMotor(3, (GpioPin)gpio[12], (GpioPin)gpio[23], (GpioPin)gpio[16]),
+                new MotoZeroMotor(4, (GpioPin)gpio[25], (GpioPin)gpio[13], (GpioPin)gpio[18])
             };
         }
 

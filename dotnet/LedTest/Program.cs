@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Devices.ThePiHut.ServoPWMPiZero;
 using Shared;
 using Unosquare.RaspberryIO;
-using Unosquare.RaspberryIO.Gpio;
 
 namespace LedTest
 {
@@ -20,7 +19,7 @@ namespace LedTest
         {
             Console.WriteLine("LED test");
             var number = GetPwmNumber(args);
-            using (var board = new ServoPwmBoard(I2CBus.Instance, Pi.Gpio))
+            using (var board = new ServoPwmBoard(Pi.I2C, Pi.Gpio))
             {
                 Console.WriteLine($"LED: {number}");
                 var led = board.Outputs[number - 1].AsLed();

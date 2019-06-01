@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Devices.Ultrasonic;
 using Devices._4tronix;
-using Unosquare.RaspberryIO.Gpio;
+using Unosquare.RaspberryIO.Abstractions;
 
 namespace LegoCar
 {
@@ -35,7 +35,7 @@ namespace LegoCar
     {
         private const double DistanceLimit = 75;
         private readonly HCSR04 _sonar;
-        private readonly GpioPin _lightPin;
+        private readonly IGpioPin _lightPin;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public double DistanceInMm { get; private set; }
@@ -44,14 +44,16 @@ namespace LegoCar
         private readonly OutputPort _steer;
         private readonly bool _enableDistanceGuard;
 
-        public Car(int steerPin, int motorPin, PiconZeroBoard picon, HCSR04 sonar, GpioPin lightPin, bool enableDistanceGuard = true)
+        public Car(int steerPin, int motorPin, PiconZeroBoard picon, HCSR04 sonar, IGpioPin lightPin, bool enableDistanceGuard = true)
         {
             _enableDistanceGuard = enableDistanceGuard;
             _steer = picon.Outputs[steerPin];
             _steer.Type = OutputType.Servo;
             _steer.Value = 90;
-            _motor = new BothMotors(picon.Motors[0], picon.Motors[1]);
-            _motor.Speed = 0;
+            _motor = new BothMotors(picon.Motors[0], picon.Motors[1])
+            {
+                Speed = 0
+            };
             _sonar = sonar;
             lightPin.PinMode = GpioPinDriveMode.Output;
             _lightPin = lightPin;

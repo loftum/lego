@@ -62,64 +62,61 @@ namespace AbsOrientationTest
 
         private static async Task Run(AbsArguments args, CancellationToken token)
         {
-            using (var bus = Pi.I2C)
+            while (true)
             {
+                var o = new AbsOrientation(Pi.I2C);
+                o.Begin(OperationMode.NDOF);
+
+                Vector3 velocity = 0;
+                var last = DateTimeOffset.UtcNow;
+
                 while (true)
                 {
-                    var o = new AbsOrientation(bus);
-                    o.Begin(OperationMode.NDOF);
-
-                    Vector3 velocity = 0;
-                    var last = DateTimeOffset.UtcNow;
-
-                    while (true)
+                    if (token.IsCancellationRequested)
                     {
-                        if (token.IsCancellationRequested)
-                        {
-                            return;
-                        }
-
-                        if (args.Quaternion)
-                        {
-                            Console.WriteLine($"Quaternion: {o.ReadQuaternion()}");
-                        }
-
-                        if (args.Euler)
-                        {
-                            Console.WriteLine($"Euler: {o.ReadEulerData().ToString(" 000.00;-000.00")}");
-                        }
-
-                        if (args.Accel)
-                        {
-                            Console.WriteLine($"Accel: {o.ReadAccel()}");
-                        }
-
-                        if (args.LinearAccel)
-                        {
-                            Console.WriteLine($"Linear Accel: {o.ReadLinearAccel()}");
-                        }
-
-                        if (args.Velocity)
-                        {
-                            var accel = o.ReadLinearAccel();
-                            var now = DateTimeOffset.UtcNow;
-                            velocity = velocity + accel * (now - last).TotalSeconds;
-                            last = now;
-                            Console.WriteLine($"Velocity: {velocity}");
-                        }
-
-                        if (args.Gyro)
-                        {
-                            Console.WriteLine($"Gyro: {o.ReadGyro()}");
-                        }
-
-                        if (args.Temp)
-                        {
-                            Console.WriteLine($"Temp: {o.ReadTemp()}");
-                        }
-                        
-                        await Task.Delay(10, token);
+                        return;
                     }
+
+                    if (args.Quaternion)
+                    {
+                        Console.WriteLine($"Quaternion: {o.ReadQuaternion()}");
+                    }
+
+                    if (args.Euler)
+                    {
+                        Console.WriteLine($"Euler: {o.ReadEulerData().ToString(" 000.00;-000.00")}");
+                    }
+
+                    if (args.Accel)
+                    {
+                        Console.WriteLine($"Accel: {o.ReadAccel()}");
+                    }
+
+                    if (args.LinearAccel)
+                    {
+                        Console.WriteLine($"Linear Accel: {o.ReadLinearAccel()}");
+                    }
+
+                    if (args.Velocity)
+                    {
+                        var accel = o.ReadLinearAccel();
+                        var now = DateTimeOffset.UtcNow;
+                        velocity = velocity + accel * (now - last).TotalSeconds;
+                        last = now;
+                        Console.WriteLine($"Velocity: {velocity}");
+                    }
+
+                    if (args.Gyro)
+                    {
+                        Console.WriteLine($"Gyro: {o.ReadGyro()}");
+                    }
+
+                    if (args.Temp)
+                    {
+                        Console.WriteLine($"Temp: {o.ReadTemp()}");
+                    }
+
+                    await Task.Delay(10, token);
                 }
             }
         }

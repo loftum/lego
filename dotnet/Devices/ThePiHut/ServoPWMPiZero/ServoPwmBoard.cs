@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using Unosquare.RaspberryIO.Gpio;
+using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.ThePiHut.ServoPWMPiZero
 {
@@ -9,8 +9,8 @@ namespace Devices.ThePiHut.ServoPWMPiZero
     {
         public const int DefaultAddress = 0x40;
 
-        public I2CDevice Device { get; }
-        private readonly GpioController _gpio;
+        public II2CDevice Device { get; }
+        private readonly IGpioController _gpio;
         private bool _outputEnable;
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace Devices.ThePiHut.ServoPWMPiZero
             get => _outputEnable;
             set
             {
-                _gpio.Pin07.Write(!value); // active LOW
+                _gpio[7].Write(!value); // active LOW
                 _outputEnable = value;
             }
         }
@@ -56,14 +56,14 @@ namespace Devices.ThePiHut.ServoPWMPiZero
             Device.WriteAddressByte((int)Registers.MODE1, (byte)(oldMode | 0x80));
         }
 
-        public ServoPwmBoard(I2CBus bus, GpioController gpio) : this(bus, gpio, DefaultAddress)
+        public ServoPwmBoard(II2CBus bus, IGpioController gpio) : this(bus, gpio, DefaultAddress)
         {
         }
 
-        public ServoPwmBoard(I2CBus bus, GpioController gpio, int address)
+        public ServoPwmBoard(II2CBus bus, IGpioController gpio, int address)
         {
             _gpio = gpio;
-            gpio.Pin07.PinMode = GpioPinDriveMode.Output;
+            gpio[7].PinMode = GpioPinDriveMode.Output;
             Device = bus.AddDevice(address);
             ConfigureMode1(0x00);
             Device.WriteAddressByte((int)Registers.MODE2, 0x0c);
@@ -86,7 +86,6 @@ namespace Devices.ThePiHut.ServoPWMPiZero
             }
 
             _isDisposed = true;
-            _gpio?.Dispose();
         }
     }
 

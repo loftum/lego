@@ -1,17 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Unosquare.Raspberry.IO" Version="0.17.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="pigpio-dotnet">
-      <HintPath>..\libs\pigpio-dotnet\pigpio-dotnet.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Unosquare.Raspberry.IO" Version="0.20.0" />
+    <PackageReference Include="Unosquare.WiringPi" Version="0.3.1" />
   </ItemGroup>
 
   <ItemGroup>
