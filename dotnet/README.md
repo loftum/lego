@@ -58,11 +58,11 @@ Deploying SteeringWheel requires a Mac with Visual Studio for Mac:
 ## LCTP (Lego Control Transfer Protocol)
 Anemic version of HTTP.
 ### Request message
-Messages end with CRLF
+Messages end with CRLF\
 `<method> <path> [content]\r\n`\
 e.g. `SET motor/speed 50\r\n`
 
-Method can be anything: GET, SET, DELETE etc
+Method can be anything which makes sense: GET, SET, DELETE etc
 
 ### Response message:
 `<status code> <message>`\
