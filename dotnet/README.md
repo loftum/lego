@@ -23,22 +23,17 @@ Raspberry pi 3 will run .net core apps.
 - Build
 
 ### Command line
-`$ dotnet restore`
-
+`$ dotnet restore`\
 `$ dotnet build`
 
 ## Deploy to raspberry pi
 ### .net core apps
-`.../lego/dotnet $ ./publish.sh <project> <framework> user@host`
-
-E.g.
-
+`.../lego/dotnet $ ./publish.sh <project> <framework> user@host`\
+E.g.\
 `.../lego/dotnet $ ./publish.sh LegoCarServer2 netcore2.0 user@pi`
 
 
 ### .net classic apps
-`.../lego/dotnet $ ./deploy.sh <project> user@host`
-
-E.g.
-
+`.../lego/dotnet $ ./deploy.sh <project> user@host`\
+E.g.\
 `.../lego/dotnet $ ./deploy.sh LegoCarServer user@pi`
