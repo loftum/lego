@@ -5,18 +5,40 @@ using UIKit;
 
 namespace SteeringWheel.Controllers
 {
-    public partial class ViewController : UIViewController
+    public class ViewController : UIViewController
     {
+        private readonly UITextField HostField;
+        private readonly UIButton ConnectButton;
         private readonly NSUserDefaults _userDefaults = new NSUserDefaults("app", NSUserDefaultsType.SuiteName);
 
-        public ViewController() : base("ViewController", null)
+        public ViewController()
         {
-        }
+            View.BackgroundColor = UIColor.White;
+            HostField = new UITextField
+            {
+                BorderStyle = UITextBorderStyle.RoundedRect,
+                Text = _userDefaults.StringForKey("host") ?? "host",
+                TextColor = UIColor.DarkGray
+            }
+            .WithParent(View)
+            .WithConstraints(v => new[]
+            {
+                v.TopAnchor.ConstraintEqualTo(View.TopAnchor, 100),
+                v.WidthAnchor.ConstraintGreaterThanOrEqualTo(200),
+                v.TrailingAnchor.ConstraintEqualTo(View.CenterXAnchor, 20),
+            })
+            .With(v => v.SpellCheckingType = UITextSpellCheckingType.No);
 
-        public override void ViewDidLoad()
-        {
-            base.ViewDidLoad();
-            HostField.Text = _userDefaults.StringForKey("host") ?? "host";
+            ConnectButton = new UIButton()
+            .WithParent(View)
+            .WithTitle("Connect")
+            .WithTitleColor(UIColor.Blue)
+            .WithTouchUpInside(ConnectButton_TouchUpInside)
+            .WithConstraints(v => new[]{
+                v.TopAnchor.ConstraintEqualTo(View.TopAnchor, 100),
+                v.LeadingAnchor.ConstraintEqualTo(View.CenterXAnchor, 20),
+                v.WidthAnchor.ConstraintGreaterThanOrEqualTo(100)
+            });
         }
 
         public override void DidReceiveMemoryWarning()
@@ -24,7 +46,7 @@ namespace SteeringWheel.Controllers
             base.DidReceiveMemoryWarning();
         }
 
-        partial void ConnectButton_TouchUpInside(UIButton sender)
+        private void ConnectButton_TouchUpInside(object sender, EventArgs e)
         {
             Connect();
         }
@@ -45,11 +67,15 @@ namespace SteeringWheel.Controllers
             }
             catch (Exception ex)
             {
-                var controller = new UIAlertController();
-                controller.AddAction(UIAlertAction.Create(ex.Message, UIAlertActionStyle.Default, null));
-                ShowViewController(controller, this);
+                using (var controller = new UIAlertController())
+                {
+                    using(var action = UIAlertAction.Create(ex.Message, UIAlertActionStyle.Default, null))
+                    {
+                        controller.AddAction(action);
+                        ShowViewController(controller, this);
+                    }
+                }
             }
         }
     }
 }
-

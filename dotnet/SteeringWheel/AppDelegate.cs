@@ -12,6 +12,7 @@ namespace SteeringWheel
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
+            Window.BackgroundColor = UIColor.White;
             var controller = new ViewController();
             Window.RootViewController = controller;
             Window.MakeKeyAndVisible();

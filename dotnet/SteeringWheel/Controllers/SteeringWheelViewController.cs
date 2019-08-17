@@ -9,20 +9,17 @@ using UIKit;
 
 namespace SteeringWheel.Controllers
 {
-    public class Switch
+    public class UIVerticalSlider : UISlider
     {
-        public bool IsOn { get; set; }
-        public bool WasOn { get; set; }
-        public bool HasChanged() => IsOn != WasOn;
-        public void UpdateWasOn()
+        public UIVerticalSlider()
         {
-            WasOn = IsOn;
+            Transform = CGAffineTransform.MakeRotation((nfloat) (- Math.PI / 2));
         }
     }
 
-    public partial class SteeringWheelViewController : UIViewController
+    public class SteeringWheelViewController : UIViewController
     {
-        private CancellationTokenSource _source;
+        private CancellationTokenSource _source = new CancellationTokenSource();
         private Task _task;
         private readonly LctpClient _client;
         private readonly CMMotionManager _motionManager = MotionManager.Instance;
@@ -35,30 +32,97 @@ namespace SteeringWheel.Controllers
         private readonly Switch _leftBlinkerSwitch = new Switch();
         private readonly Switch _rightBlinkerSwitch = new Switch();
 
-        public SteeringWheelViewController(string host, int port) : base("SteeringWheelViewController", null)
+        private readonly UISlider Throttle;
+        private readonly UISlider FrontThrottle;
+        private readonly UIButton HeadlightsButton;
+        private readonly UIButton LeftBlinkerButton;
+        private readonly UIButton RightBlinkerButton;
+        private readonly UIButton DisconnectButton;
+
+        public SteeringWheelViewController(string host, int port) : base(null, null)
         {
+            View.BackgroundColor = UIColor.White;   
+
+            FrontThrottle = new UISlider
+            {
+                MinValue = -255,
+                MaxValue = 255
+            }
+            .WithParent(View)
+            .Rotate(Math.PI * 3 / 2)
+            //.WithConstraints(v => new[] {
+            //    v.CenterYAnchor.ConstraintEqualTo(View.CenterYAnchor),
+            //    v.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor, 20),
+            //    v.BottomAnchor.ConstraintEqualTo(View.BottomAnchor, 20),
+            //    v.HeightAnchor.ConstraintGreaterThanOrEqualTo(1500)
+            //})
+            .WithTouchDown(FrontThrottle_Enable)
+            .WithTouchUpInside(FrontThrottle_Cancel);
+
+            Throttle = new UISlider
+            {
+                MinValue = -255,
+                MaxValue = 255,
+            }
+            .WithParent(View)
+            .Rotate(Math.PI * 3 / 2)
+            .WithTouchUpInside(Throttle_Cancel)
+            ;
+
+            HeadlightsButton = new UIButton()
+            .WithTitle("💡")
+            .WithParent(View)
+            .WithConstraints(v => new[] {
+                v.TopAnchor.ConstraintEqualTo(View.TopAnchor, 100),
+                v.CenterXAnchor.ConstraintEqualTo(View.CenterXAnchor)
+            })
+            .WithTouchUpInside(HeadlightsButton_TouchUpInside);
+
+            LeftBlinkerButton = new UIButton()
+            .WithTitle("⇦")
+            .WithTitleColor(UIColor.Green)
+            .WithParent(View)
+            .WithConstraints(v => new[] {
+                v.TopAnchor.ConstraintEqualTo(View.TopAnchor, 100),
+                v.TrailingAnchor.ConstraintEqualTo(HeadlightsButton.LeadingAnchor, -50),
+            })
+            .WithTouchUpInside(LeftBlinkerButton_TouchUpInside);
+
+            RightBlinkerButton = new UIButton()
+            .WithTitle("⇨")
+            .WithTitleColor(UIColor.Green)
+            .WithParent(View)
+            .WithConstraints(v => new[] {
+                v.TopAnchor.ConstraintEqualTo(View.TopAnchor, 100),
+                v.LeadingAnchor.ConstraintEqualTo(HeadlightsButton.TrailingAnchor, 50),
+            })
+            .WithTouchUpInside(RightBlinkerButton_TouchUpInside);
+
+            DisconnectButton = new UIButton()
+            .WithTitle("Disconnect")
+            .WithTitleColor(UIColor.Blue)
+            .WithParent(View)
+            .WithConstraints(v => new[] {
+                v.CenterXAnchor.ConstraintEqualTo(View.CenterXAnchor),
+                v.CenterYAnchor.ConstraintEqualTo(View.CenterYAnchor)
+            })
+            .WithTouchUpInside(DisconnectButton_TouchUpInside);
+
+            // Set throttle positions
+            var frame = View.GetFrame();
+            var width = 50;
+            var height = 200;
+            FrontThrottle.Frame = new CGRect(50, frame.Height / 2 - height / 2, width, height);
+            Throttle.Frame = new CGRect(frame.Width - 100, frame.Height / 2 - height / 2, width, height);
+
             _client = new LctpClient(host, port);
             _client.Connect();
-        }
-
-        public override void ViewDidLoad()
-        {
-            base.ViewDidLoad();
-            CGAffineTransform trans = CGAffineTransform.MakeRotation((nfloat)(Math.PI * 1.5));
-            Throttle.Transform = trans;
-            Throttle.MinValue = -255;
-            Throttle.MaxValue = 255;
-            FrontThrottle.Transform = trans;
-            FrontThrottle.MinValue = -255;
-            FrontThrottle.MaxValue = 255;
-
-            _source = new CancellationTokenSource();
             _motionManager.DeviceMotionUpdateInterval = 0.1;
             _motionManager.StartDeviceMotionUpdates();
             _task = Update(_source.Token);
         }
 
-        partial void HeadlightsButton_TouchUpInside(UIButton sender)
+        private void HeadlightsButton_TouchUpInside(object sender, EventArgs e)
         {
             _headlightSwitch.IsOn = !_headlightSwitch.IsOn;
         }
@@ -69,12 +133,12 @@ namespace SteeringWheel.Controllers
             // Release any cached data, images, etc that aren't in use.
         }
 
-        partial void RightBlinkerButton_TouchUpInside(UIButton sender)
+        private void RightBlinkerButton_TouchUpInside(object sender, EventArgs e)
         {
             _rightBlinkerSwitch.IsOn = !_rightBlinkerSwitch.IsOn;
         }
 
-        partial void LeftBlinkerButton_TouchUpInside(UIButton sender)
+        private void LeftBlinkerButton_TouchUpInside(object sender, EventArgs e)
         {
             _leftBlinkerSwitch.IsOn = !_leftBlinkerSwitch.IsOn;
         }
@@ -103,28 +167,27 @@ namespace SteeringWheel.Controllers
             Console.WriteLine("Update done");
         }
 
-        partial void Throttle_Cancel(UISlider sender)
+        private void Throttle_Cancel(object sender, EventArgs e)
         {
             Throttle.Value = 0;
         }
 
-        partial void FrontThrottle_Enable(UISlider sender)
+        private void FrontThrottle_Enable(object sender, EventArgs e)
         {
             _frontThrottleSwitch.IsOn = true;
             View.BackgroundColor = UIColor.Cyan;
         }
 
-        partial void FrontThrottle_Cancel(UISlider sender)
+        private void FrontThrottle_Cancel(object sender, EventArgs e)
         {
             _frontThrottleSwitch.IsOn = false;
             View.BackgroundColor = UIColor.White;
             FrontThrottle.Value = 0;
         }
-
-        partial void DisconnectButton_TouchUpInside(UIButton sender)
+        private void DisconnectButton_TouchUpInside(object sender, EventArgs e)
         {
             Disconnect();
-            this.DismissViewController(true, null);
+            DismissViewController(true, () => { });
         }
 
         private async Task<bool> DoUpdate()
@@ -148,6 +211,7 @@ namespace SteeringWheel.Controllers
                 var backThrottle = (int)Throttle.Value;
                 if (backThrottle != _backSpeed)
                 {
+                    Console.WriteLine($"Throttle: {backThrottle}");
                     await _client.Set("motor/0/speed", $"{backThrottle}");
                     _backSpeed = backThrottle;
                     updated = true;

@@ -18,7 +18,7 @@
     <DefineConstants>DEBUG;ENABLE_TEST_CLOUD;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodesignKey>iPhone Developer</CodesignKey>
+    <CodesignKey>iPhone Developer: Hans Olav Loftum (N2D7J3SP7F)</CodesignKey>
     <MtouchDebug>true</MtouchDebug>
     <MtouchNoSymbolStrip>true</MtouchNoSymbolStrip>
     <MtouchFastDev>true</MtouchFastDev>
@@ -38,7 +38,7 @@
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodesignKey>iPhone Developer</CodesignKey>
+    <CodesignKey>iPhone Developer: Hans Olav Loftum (N2D7J3SP7F)</CodesignKey>
     <MtouchUseLlvm>true</MtouchUseLlvm>
     <MtouchFloat32>true</MtouchFloat32>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
@@ -56,7 +56,7 @@
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodesignKey>iPhone Developer</CodesignKey>
+    <CodesignKey>iPhone Developer: Hans Olav Loftum (N2D7J3SP7F)</CodesignKey>
     <MtouchNoSymbolStrip>true</MtouchNoSymbolStrip>
     <MtouchLink>None</MtouchLink>
     <MtouchArch>x86_64</MtouchArch>
@@ -81,7 +81,7 @@
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <IOSDebuggerPort>52612</IOSDebuggerPort>
     <MtouchLink>SdkOnly</MtouchLink>
-    <MtouchArch>ARM64</MtouchArch>
+    <MtouchArch>ARMv7, ARM64</MtouchArch>
     <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
     <MtouchVerbosity>
     </MtouchVerbosity>
@@ -113,18 +113,12 @@
     <Compile Include="AppDelegate.cs" />
     <Compile Include="MotionManager.cs" />
     <Compile Include="Controllers\ViewController.cs" />
-    <Compile Include="Controllers\ViewController.designer.cs">
-      <DependentUpon>ViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controllers\SteeringWheelViewController.cs" />
-    <Compile Include="Controllers\SteeringWheelViewController.designer.cs">
-      <DependentUpon>SteeringWheelViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controllers\MathExtensions.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <InterfaceDefinition Include="Controllers\ViewController.xib" />
-    <InterfaceDefinition Include="Controllers\SteeringWheelViewController.xib" />
+    <Compile Include="Controllers\Switch.cs" />
+    <Compile Include="Controllers\UIButtonExtensions.cs" />
+    <Compile Include="Controllers\UIViewExtensions.cs" />
+    <Compile Include="Controllers\UISliderExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LCTP\LCTP.csproj">
