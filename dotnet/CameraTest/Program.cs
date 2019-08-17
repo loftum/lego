@@ -10,6 +10,7 @@ namespace CameraTest
             Console.WriteLine("Hello World!");
             using (var controller = CameraController.Instance)
             {
+                
                 Console.WriteLine("Nothing much here yet.");
             }
         }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Timers;
@@ -11,75 +10,6 @@ using LCTP.Routing;
 
 namespace LegoCarServer2
 {
-    public class Blinker
-    {
-        public bool On
-        {
-            get => _on;
-            set
-            {
-                _on = value;
-                if (!_on)
-                {
-                    _led.Brightness = 0;
-                }
-            }
-        }
-
-        private bool _isLit;
-        private readonly Led _led;
-        private bool _on;
-
-        public Blinker(Led led)
-        {
-            _led = led;
-        }
-
-        public void Toggle()
-        {
-            if (!On)
-            {
-                return;
-            }
-            switch (_isLit)
-            {
-                case true:
-                    _led.Brightness = 0;
-                    _isLit = false;
-                    break;
-                case false:
-                    _led.Brightness = 1.0;
-                    _isLit = true;
-                    break;
-            }
-        }
-    }
-
-    public class Headlights
-    {
-        private readonly Led[] _leds;
-        private bool _on;
-
-        public Headlights(IEnumerable<Led> leds)
-        {
-            _leds = leds.ToArray();
-        }
-
-        public bool On
-        {
-            get => _on;
-            set
-            {
-                var brightness = value ? 1.0 : 0.0;
-                foreach (var led in _leds)
-                {
-                    led.Brightness = brightness;
-                }
-                _on = value;
-            }
-        }
-    }
-
     public class LegoCarController2 : BaseController
     {
         private readonly ServoPwmBoard _pwmBoard;

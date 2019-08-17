@@ -1,5 +1,6 @@
 ﻿using Devices.Adafruit.LSM9DS1.Accelerometer;
-using Unosquare.PiGpio.ManagedModel;
+using Devices.Unosquare;
+using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.Adafruit.LSM9DS1
 {
@@ -14,9 +15,9 @@ namespace Devices.Adafruit.LSM9DS1
         public const int LSM9DS1_TEMP_LSB_DEGREE_CELSIUS = 8;  // 1°C = 8, 25° = 200, etc.
 
         public TempSettings Settings { get; } = new TempSettings();
-        public I2cDevice Device { get; }
+        public II2CDevice Device { get; }
 
-        public Thermometer(I2cDevice device)
+        public Thermometer(II2CDevice device)
         {
             Device = device;
         }

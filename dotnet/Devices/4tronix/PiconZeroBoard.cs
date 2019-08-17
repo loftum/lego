@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using Unosquare.RaspberryIO.Gpio;
+using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices._4tronix
 {
     public class PiconZeroBoard: IDisposable
     {
         public const int I2CAddress = 0x22;
-        public I2CDevice Device { get; }
+        public II2CDevice Device { get; }
 
-        private const int MOTORA = 0;
-        public const int OUTCFG0 = 2;
-        public const int OUTPUT0 = 8;
-        public const int INCFG0 = 14;
+        private const byte MOTORA = 0;
+        public const byte OUTCFG0 = 2;
+        public const byte OUTPUT0 = 8;
+        public const byte INCFG0 = 14;
         private const int SETBRIGHT = 18;
         private const int UPDATENOW = 19;
         private const int RESET = 20;
@@ -23,7 +23,7 @@ namespace Devices._4tronix
         public OutputPort[] Outputs { get; }
         public MotorPort[] Motors { get; }
 
-        public PiconZeroBoard(I2CBus bus)
+        public PiconZeroBoard(II2CBus bus)
         {
             Device = bus.AddDevice(I2CAddress);
             Inputs = Enumerable.Range(0, 4).Select(i => new InputPort(Device, i)).ToArray();

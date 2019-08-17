@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using Unosquare.RaspberryIO.Gpio;
+using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.Adafruit.BNO055
 {
@@ -11,7 +11,7 @@ namespace Devices.Adafruit.BNO055
         public const int DefaultI2CAddress = 0x28;
         public const int AlternativeI2CAddress = 0x29;
 
-        private readonly I2CDevice _device;
+        private readonly II2CDevice _device;
 
         /// <summary>
         /// 3.3 Operation modes
@@ -138,7 +138,7 @@ namespace Devices.Adafruit.BNO055
             return bytes;
         }
 
-        public AbsOrientation(I2CBus bus)
+        public AbsOrientation(II2CBus bus)
         {
             _device = bus.AddDevice(DefaultI2CAddress);
             VerifyId();

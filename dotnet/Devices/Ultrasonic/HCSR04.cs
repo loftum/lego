@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 using Unosquare.RaspberryIO;
-using Unosquare.RaspberryIO.Gpio;
+using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.Ultrasonic
 {
@@ -12,7 +12,7 @@ namespace Devices.Ultrasonic
     public class HCSR04
     {
         private const int SpeedOfSound = 340000; // mm/s
-        private readonly GpioPin _pin = Pi.Gpio.GetGpioPinByBcmPinNumber(20);
+        private readonly IGpioPin _pin = Pi.Gpio[20];
         private static readonly TimeSpan Delay = TimeSpan.FromTicks((long)(TimeSpan.TicksPerSecond * 0.00001));
 
         public double GetDistanceInMm()

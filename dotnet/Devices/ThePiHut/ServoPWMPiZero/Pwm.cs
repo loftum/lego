@@ -1,12 +1,12 @@
 ﻿using System;
-using Unosquare.RaspberryIO.Gpio;
+using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.ThePiHut.ServoPWMPiZero
 {
     public class Pwm
     {
         private readonly ServoPwmBoard _board;
-        private readonly I2CDevice _device;
+        private readonly II2CDevice _device;
         private readonly int _address;
         private int _onTime;
         private int _offTime;
@@ -41,7 +41,7 @@ namespace Devices.ThePiHut.ServoPWMPiZero
             }
         }
 
-        public Pwm(I2CDevice device, ServoPwmBoard board, int outputNumber)
+        public Pwm(II2CDevice device, ServoPwmBoard board, int outputNumber)
         {
             _board = board;
             _device = device;
