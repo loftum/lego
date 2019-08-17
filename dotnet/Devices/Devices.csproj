@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Unosquare.Raspberry.IO" Version="0.20.0" />
-    <PackageReference Include="Unosquare.WiringPi" Version="0.3.1" />
+    <PackageReference Include="Unosquare.Raspberry.IO" Version="0.24.0" />
+    <PackageReference Include="Unosquare.WiringPi" Version="0.4.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,6 +26,7 @@
     <Folder Include="Adafruit\BNO055\Datasheet\" />
     <Folder Include="ThePiHut\MotoZero\Datasheets\" />
     <Folder Include="ThePiHut\ServoPWMPiZero\Datasheets\" />
+    <Folder Include="ThePiHut\ADCPiZero\" />
   </ItemGroup>
 
 </Project>
