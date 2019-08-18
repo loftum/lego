@@ -30,14 +30,23 @@ namespace DistanceSensorTest
             }
         }
 
-        private static async Task Run(int input, CancellationToken token)
+        private static async Task Run(int inputNumber, CancellationToken token)
         {
             var board = new ADCPiZeroBoard(Pi.I2C);
+            var input = board.Inputs[inputNumber];
+            input.Bitrate = Bitrate._16;
+            input.ConversionMode = ConversionMode.Continuous;
+            
+
+            double lastRead = 0;
             while (!token.IsCancellationRequested)
             {
-                var read = board.Inputs[input].Read();
-                Console.WriteLine($"Read: {read}");
-                await Task.Delay(250);
+                var read = input.Read();
+                if (Math.Abs(read - lastRead) > .1)
+                {
+                    Console.WriteLine($"Read: {read}");
+                }
+                await Task.Delay(100);
             }
         }
     }

@@ -23,7 +23,7 @@ namespace Devices.ThePiHut.ADCPiZero
             for (var ii = 0; ii < 4; ii++)
             {
                 inputs[ii] = new ADCPiZeroInput(bus.GetDeviceById(address), ii + 1);
-                inputs[ii + 4] = new ADCPiZeroInput(bus.GetDeviceById(address + 1), ii + 5);
+                //inputs[ii + 4] = new ADCPiZeroInput(bus.GetDeviceById(address + 1), ii + 5);
             }
             Inputs = inputs;
         }
@@ -41,8 +41,6 @@ namespace Devices.ThePiHut.ADCPiZero
             set;
         }
         public ConversionMode ConversionMode { get; set; } = ConversionMode.Continuous;
-
-        private int _config = 0x9c;
 
         public ADCPiZeroInput(II2CDevice device, int input)
         {
@@ -112,7 +110,33 @@ namespace Devices.ThePiHut.ADCPiZero
             return config;
         }
 
-        public long Read()
+        private double GetLsb()
+        {
+            switch (Bitrate)
+            {
+                case Bitrate._12:
+                    return 0.0005;
+                case Bitrate._14:
+                    return 0.000125;
+                case Bitrate._16:
+                    return 0.00003125;
+                case Bitrate._18:
+                    return 0.0000078125;
+                default:
+                    return 9999;
+            }
+        }
+
+        public double Read()
+        {
+            var raw = ReadRaw();
+            var gain = 0.5;// 0.5 * ((int)Pga);
+            var lsb = GetLsb();
+            double voltage = raw * (lsb / gain) * 2.471;
+            return voltage;
+        }
+
+        private long ReadRaw()
         {
             var config = GetConfig();
             byte h = 0;
@@ -127,7 +151,7 @@ namespace Devices.ThePiHut.ADCPiZero
             {
                 if (Bitrate == Bitrate._18)
                 {
-                    var readbuffer = Device.ReadBlock(config, 3);
+                    var readbuffer = Device.ReadBlock(config, 4);
                     h = readbuffer[0];
                     m = readbuffer[1];
                     l = readbuffer[2];
