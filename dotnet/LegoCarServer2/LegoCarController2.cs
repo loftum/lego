@@ -7,11 +7,15 @@ using Devices.ThePiHut.MotoZero;
 using Devices.ThePiHut.ServoPWMPiZero;
 using LCTP;
 using LCTP.Routing;
+using Devices.ThePiHut.ADCPiZero;
+using System.Collections.Generic;
 
 namespace LegoCarServer2
 {
     public class LegoCarController2 : BaseController
     {
+        private const double DistanceLimit = 1.1;
+        private readonly ADCPiZeroBoard _adcBoard; 
         private readonly ServoPwmBoard _pwmBoard;
         private readonly MotoZeroBoard _motoZero;
         private readonly Servo _steerFront;
@@ -21,12 +25,20 @@ namespace LegoCarServer2
         private readonly Blinker _rightBlinker;
         private readonly Headlights _headlights;
         private readonly Timer _blinker = new Timer(2 * Math.PI * 100);
+        private readonly ADCPiZeroInput _frontDistance;
+        private readonly Task _distanceTask;
+        private double _lastDistance;
+        private double _distance;
 
-        public LegoCarController2(ServoPwmBoard pwmBoard, MotoZeroBoard motoZero)
+        public LegoCarController2(ServoPwmBoard pwmBoard, MotoZeroBoard motoZero, ADCPiZeroBoard adcBoard)
         {
+
             _pwmBoard = pwmBoard;
-            
             _motoZero = motoZero;
+            _adcBoard = adcBoard;
+            _frontDistance = adcBoard.Inputs[0];
+            _frontDistance.Bitrate = Bitrate._16;
+            _frontDistance.ConversionMode = ConversionMode.Continuous;
             _motoZero.Motors[0].Enabled = true;
             _motoZero.Motors[1].Enabled = true;
             _steerFront = pwmBoard.Outputs[15].AsServo();
@@ -51,6 +63,49 @@ namespace LegoCarServer2
             Set("steer/angle", SetSteer);
             _blinker.Elapsed += Blink;
             _blinker.Start();
+            _distanceTask = Task.Run(MeasureDistance);
+        }
+
+        private void SetMotorSpeed(int speed)
+        {
+            if (_distance > DistanceLimit && _lastDistance > DistanceLimit && speed >= 0)
+            {
+                if (_motoZero.Motors[0].Speed > 0)
+                {
+                    _motoZero.Motors[0].Speed = 0;
+                }
+                if (_motoZero.Motors[1].Speed > 0)
+                {
+                    _motoZero.Motors[1].Speed = 0;
+                }
+            }
+            else
+            {
+                _motoZero.Motors[0].Speed = speed;
+                _motoZero.Motors[1].Speed = speed;
+            }
+        }
+
+        private async Task MeasureDistance()
+        {
+            while(true)
+            {
+                _lastDistance = _distance;
+                _distance = _frontDistance.ReadVoltage();
+                if (_distance > DistanceLimit && _lastDistance > DistanceLimit)
+                {
+                    Console.WriteLine($"Distance: {_distance}");
+                    if (_motoZero.Motors[0].Speed > 0)
+                    {
+                        _motoZero.Motors[0].Speed = 0;
+                    }
+                    if (_motoZero.Motors[1].Speed > 0)
+                    {
+                        _motoZero.Motors[1].Speed = 0;
+                    }
+                }
+                await Task.Delay(75);
+            }
         }
 
         private Task<ResponseMessage> SetBlinker(RequestMessage request, Match match)
@@ -137,9 +192,7 @@ namespace LegoCarServer2
             {
                 return Task.FromResult(ResponseMessage.BadRequest("Bad motor speed"));
             }
-
-            _motoZero.Motors[0].Speed = speed;
-            _motoZero.Motors[1].Speed = speed;
+            SetMotorSpeed(speed);
             return Task.FromResult(ResponseMessage.Ok(_motoZero.Motors[0].Speed));
         }
 

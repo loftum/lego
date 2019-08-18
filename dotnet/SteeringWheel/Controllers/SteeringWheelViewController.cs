@@ -50,14 +50,9 @@ namespace SteeringWheel.Controllers
             }
             .WithParent(View)
             .Rotate(Math.PI * 3 / 2)
-            //.WithConstraints(v => new[] {
-            //    v.CenterYAnchor.ConstraintEqualTo(View.CenterYAnchor),
-            //    v.LeadingAnchor.ConstraintEqualTo(View.LeadingAnchor, 20),
-            //    v.BottomAnchor.ConstraintEqualTo(View.BottomAnchor, 20),
-            //    v.HeightAnchor.ConstraintGreaterThanOrEqualTo(1500)
-            //})
             .WithTouchDown(FrontThrottle_Enable)
-            .WithTouchUpInside(FrontThrottle_Cancel);
+            .WithTouchUpInside(FrontThrottle_Cancel)
+            .WithTouchUpOutside(FrontThrottle_Cancel);
 
             Throttle = new UISlider
             {
@@ -67,6 +62,7 @@ namespace SteeringWheel.Controllers
             .WithParent(View)
             .Rotate(Math.PI * 3 / 2)
             .WithTouchUpInside(Throttle_Cancel)
+            .WithTouchUpOutside(Throttle_Cancel)
             ;
 
             HeadlightsButton = new UIButton()

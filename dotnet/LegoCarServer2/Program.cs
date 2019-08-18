@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Devices.ThePiHut.ADCPiZero;
 using Devices.ThePiHut.MotoZero;
 using Devices.ThePiHut.ServoPWMPiZero;
 using LCTP.Server;
@@ -26,7 +27,8 @@ namespace LegoCarServer2
             {
                 using (var motoZero = new MotoZeroBoard(Pi.Gpio))
                 {
-                    var controller = new LegoCarController2(pwm, motoZero);
+                    var adcBoard = new ADCPiZeroBoard(Pi.I2C);
+                    var controller = new LegoCarController2(pwm, motoZero, adcBoard);
                     using (var server = new LctpServer(5080, controller))
                     {
                         await server.Start(cancellationToken);

@@ -33,14 +33,14 @@ namespace Devices.ThePiHut.MotoZero
             get => _speed;
             set
             {
-                value = Sanize(value);
-                if (value == _speed)
+                var newValue = Sanize(value);
+                if (newValue == _speed)
                 {
                     return;
                 }
-                var abs = Math.Abs(value);
+                var abs = Math.Abs(newValue);
 
-                switch (value)
+                switch (newValue)
                 {
                     case 0:
                         _plusPin.SoftPwmValue = 0;
@@ -62,8 +62,8 @@ namespace Devices.ThePiHut.MotoZero
                         break;
                 }
 
-                Console.WriteLine($"Speed={value}");
-                _speed = value;
+                Console.WriteLine($"Speed={newValue}");
+                _speed = newValue;
             }
         }
 

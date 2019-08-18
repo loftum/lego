@@ -41,7 +41,7 @@ namespace DistanceSensorTest
             double lastRead = 0;
             while (!token.IsCancellationRequested)
             {
-                var read = input.Read();
+                var read = input.ReadVoltage();
                 if (Math.Abs(read - lastRead) > .1)
                 {
                     Console.WriteLine($"Read: {read}");
