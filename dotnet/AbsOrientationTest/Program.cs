@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Devices;
 using Devices.Adafruit.BNO055;
 using Unosquare.RaspberryIO;
+using Unosquare.WiringPi;
 
 namespace AbsOrientationTest
 {
@@ -24,18 +25,22 @@ namespace AbsOrientationTest
         public bool LinearAccel { get; }
         public bool Velocity { get; }
         public bool Accel { get; }
+        public bool Mag { get; }
         public bool Euler { get; }
         public bool Quaternion { get; }
+        public bool Compass { get; }
 
         public AbsArguments(string[] args)
         {
             Quaternion = args.Has("quaternion");
             Euler = args.Has("euler");
             Accel = args.Has("accel");
+            Mag = args.Has("mag");
             LinearAccel = args.Has("linear");
             Velocity = args.Has("velocity");
             Gyro = args.Has("gyro");
             Temp = args.Has("temp");
+            Compass = args.Has("compass");
         }
     }
 
@@ -48,6 +53,7 @@ namespace AbsOrientationTest
                 Console.CancelKeyPress += (s, e) => source.Cancel();
                 try
                 {
+                    Pi.Init<BootstrapWiringPi>();
                     Run(new AbsArguments(args), source.Token).Wait(source.Token);
                 }
                 catch (Exception e)
@@ -91,10 +97,21 @@ namespace AbsOrientationTest
                     {
                         Console.WriteLine($"Accel: {o.ReadAccel()}");
                     }
+                    if (args.Mag)
+                    {
+                        Console.WriteLine($"Mag: {o.ReadMag()}");
+                    }
 
                     if (args.LinearAccel)
                     {
                         Console.WriteLine($"Linear Accel: {o.ReadLinearAccel()}");
+                    }
+
+                    if (args.Compass)
+                    {
+                        var mag = o.ReadMag();
+                        var yaw = Math.Atan2(mag.Y, mag.X);
+                        Console.WriteLine($"Compass: Rad:{yaw}, Deg:{yaw * 180 / Math.PI}");
                     }
 
                     if (args.Velocity)
@@ -116,7 +133,7 @@ namespace AbsOrientationTest
                         Console.WriteLine($"Temp: {o.ReadTemp()}");
                     }
 
-                    await Task.Delay(10, token);
+                    await Task.Delay(100, token);
                 }
             }
         }
