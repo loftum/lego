@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Devices;
@@ -30,6 +32,20 @@ namespace AbsOrientationTest
         public bool Quaternion { get; }
         public bool Compass { get; }
 
+        private static readonly PropertyInfo[] Properties = typeof(AbsArguments)
+            .GetProperties()
+            .ToArray();
+
+        public bool IsValid()
+        {
+            return Properties.Any(p => (bool)p.GetValue(this));
+        }
+
+        public IEnumerable<string> GetPossibleArgs()
+        {
+            return Properties.Select(p => p.Name);
+        }
+
         public AbsArguments(string[] args)
         {
             Quaternion = args.Has("quaternion");
@@ -48,13 +64,20 @@ namespace AbsOrientationTest
     {
         static void Main(string[] args)
         {
+            var a = new AbsArguments(args);
+            if (!a.IsValid())
+            {
+                Console.WriteLine($"Usage: {Process.GetCurrentProcess().ProcessName} <args>");
+                Console.WriteLine($"Possible args: {string.Join(", ", a.GetPossibleArgs())}");
+                return;
+            }
             using (var source = new CancellationTokenSource())
             {
                 Console.CancelKeyPress += (s, e) => source.Cancel();
                 try
                 {
                     Pi.Init<BootstrapWiringPi>();
-                    Run(new AbsArguments(args), source.Token).Wait(source.Token);
+                    Run(a, source.Token).Wait(source.Token);
                 }
                 catch (Exception e)
                 {
