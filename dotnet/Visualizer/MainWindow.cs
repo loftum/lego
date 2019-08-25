@@ -35,8 +35,9 @@ namespace Visualizer
         {
             Title = "Hest";
             Game = new MonoMacGameView(ContentView.Frame);
-            //ContentView = Game;
-            ContentView.AddSubview(Game);
+            Game.Bounds = Frame;
+            ContentView = Game;
+            //ContentView.AddSubview(Game);
         }
 
         public override void AwakeFromNib()
