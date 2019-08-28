@@ -1,10 +1,21 @@
-﻿using CoreGraphics;
+﻿using System;
+using System.Linq;
+using CoreGraphics;
 using Metal;
 using MetalKit;
 using OpenTK;
 
 namespace MetalTest
 {
+    public static class FloatExtensions
+    {
+        public static byte[] ToBytes(this float[] floats)
+        {
+            return floats.SelectMany(BitConverter.GetBytes)
+                .ToArray();
+        }
+    }
+
     public struct Vertex
     {
         public Vector4 Color { get; }
@@ -79,7 +90,6 @@ namespace MetalTest
 
         public override void DrawableSizeWillChange(MTKView view, CGSize size)
         {
-
 
         }
     }
