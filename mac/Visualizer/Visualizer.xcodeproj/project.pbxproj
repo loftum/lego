@@ -16,6 +16,16 @@
 		BE97BEF90DC72476D2BF6083 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE97B089CA46090D5C0DA3CC /* Renderer.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		0E35F59723185698009BB13A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0E35F59323185696009BB13A /* Game.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0E35F57B23185696009BB13A;
+			remoteInfo = Game;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		0E228FB32314709400B8ECFC /* Visualizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Visualizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0E228FB62314709400B8ECFC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -23,6 +33,7 @@
 		0E228FBB2314709400B8ECFC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		0E228FBD2314709400B8ECFC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0E228FBE2314709400B8ECFC /* Visualizer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Visualizer.entitlements; sourceTree = "<group>"; };
+		0E35F59323185696009BB13A /* Game.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Game.xcodeproj; path = Game/Game.xcodeproj; sourceTree = "<group>"; };
 		0EDE4234231518C500E0A585 /* Visualizer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Visualizer-Bridging-Header.h"; sourceTree = "<group>"; };
 		0EDE42372315195E00E0A585 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		BE97B089CA46090D5C0DA3CC /* Renderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
@@ -45,6 +56,7 @@
 		0E228FAA2314709400B8ECFC = {
 			isa = PBXGroup;
 			children = (
+				0E35F59323185696009BB13A /* Game.xcodeproj */,
 				0E228FB52314709400B8ECFC /* Visualizer */,
 				0E228FB42314709400B8ECFC /* Products */,
 			);
@@ -74,6 +86,14 @@
 				0EDE42372315195E00E0A585 /* Shaders.metal */,
 			);
 			path = Visualizer;
+			sourceTree = "<group>";
+		};
+		0E35F59423185696009BB13A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0E35F59823185698009BB13A /* Game.app */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -123,12 +143,28 @@
 			mainGroup = 0E228FAA2314709400B8ECFC;
 			productRefGroup = 0E228FB42314709400B8ECFC /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 0E35F59423185696009BB13A /* Products */;
+					ProjectRef = 0E35F59323185696009BB13A /* Game.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				0E228FB22314709400B8ECFC /* Visualizer */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		0E35F59823185698009BB13A /* Game.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = Game.app;
+			remoteRef = 0E35F59723185698009BB13A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		0E228FB12314709400B8ECFC /* Resources */ = {
