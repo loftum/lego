@@ -53,7 +53,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Mac" />
-    <Reference Include="OpenTK" />
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
@@ -81,6 +80,8 @@
     <Compile Include="AppDelegate.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="MainWindowController.cs" />
+    <Compile Include="ViewController.cs" />
+    <Compile Include="Renderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />
