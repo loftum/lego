@@ -30,15 +30,15 @@ namespace MetalTest
 
     public class Renderer : MTKViewDelegate
     {
-        private readonly IMTLDevice _gpu;
+        private readonly IMTLDevice _device;
         private readonly IMTLCommandQueue _commandQueue;
         private readonly IMTLRenderPipelineState _pipelineState;
         private readonly IMTLBuffer _vertexBuffer;
 
         public Renderer(MTKView view)
         {
-            _gpu = view.Device;
-            _commandQueue = _gpu.CreateCommandQueue();
+            _device = view.Device;
+            _commandQueue = _device.CreateCommandQueue();
             _pipelineState = BuildRenderPipeline(view.Device, view);
 
             var vertices = new[]
@@ -47,7 +47,7 @@ namespace MetalTest
                 new Vertex(new Vector4(0, 1, 0, 1), new Vector2(0, 1)),
                 new Vertex(new Vector4(0, 0, 1, 1), new Vector2(1, -1)),
             };
-            _vertexBuffer = _gpu.CreateBuffer(vertices, 0);
+            _vertexBuffer = _device.CreateBuffer(vertices, 0);
         }
 
         private static IMTLRenderPipelineState BuildRenderPipeline(IMTLDevice device, MTKView view)
@@ -62,7 +62,7 @@ namespace MetalTest
             var result = device.CreateRenderPipelineState(pipelineDescriptor, out var error);
             if (error != null)
             {
-                throw new System.Exception($"Building pipeline failed: {error}");
+                throw new Exception($"Building pipeline failed: {error}");
             }
             return result;
         }
@@ -70,7 +70,7 @@ namespace MetalTest
         public override void Draw(MTKView view)
         {
             var renderPassDescriptor = view.CurrentRenderPassDescriptor;
-            renderPassDescriptor.ColorAttachments[0].ClearColor = new MTLClearColor(0, 0, 0, 1);
+            renderPassDescriptor.ColorAttachments[0].ClearColor = new MTLClearColor(1, 0, 0, 1);
             var commandBuffer = _commandQueue.CommandBuffer();
             var renderEncoder = commandBuffer.CreateRenderCommandEncoder(renderPassDescriptor);
             // more commands to come

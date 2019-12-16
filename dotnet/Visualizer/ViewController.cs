@@ -13,6 +13,7 @@ namespace Visualizer
 
         public ViewController()
         {
+            Console.WriteLine("ViewController ctor");
             var device = MTLDevice.SystemDefault;
             if (device == null)
             {
@@ -25,6 +26,7 @@ namespace Visualizer
                 DepthStencilPixelFormat = MTLPixelFormat.Depth32Float
             };
             renderer = new Renderer(mtkView);
+            mtkView.Delegate = renderer;
             View = mtkView;
         }
     }

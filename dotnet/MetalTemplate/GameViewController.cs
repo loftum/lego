@@ -20,7 +20,7 @@ namespace MetalTemplate
         }
 
         // The max number of command buffers in flight
-        const int MaxInflightBuffers = 3;
+        const int MaxInflightBuffers = 1;
 
         // Max API memory buffer size.
         const int MaxBytesPerFrame = 1024 * 1024;
@@ -86,7 +86,10 @@ namespace MetalTemplate
         void LoadAssets()
         {
             // Generate meshes
-            MDLMesh mdl = MDLMesh.CreateBox(new Vector3(2f, 2f, 2f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, new MTKMeshBufferAllocator(device));
+            //MDLMesh mdl = MDLMesh.CreateBox(new Vector3(2f, 2f, 2f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, new MTKMeshBufferAllocator(device));
+            //MDLMesh mdl = MDLMesh.CreateBox(new Vector3(1f, 2f, 2f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, new MTKMeshBufferAllocator(device));
+            //var mdl = MDLMesh.CreateCylinder(new Vector3(2f, 2f, 2f), new Vector2i(1, 1), true, true, true, MDLGeometryType.Triangles, new MTKMeshBufferAllocator(device));
+            var mdl = MDLMesh.CreateEllipsoid(new Vector3(2f, 2f, 2f), 1, 1, MDLGeometryType.Triangles, true, true, new MTKMeshBufferAllocator(device));
 
             NSError error;
             boxMesh = new MTKMesh(mdl, device, out error);
@@ -159,7 +162,6 @@ namespace MetalTemplate
         void Render()
         {
             inflightSemaphore.WaitOne();
-
             Update();
 
             // Create a new command buffer for each renderpass to the current drawable
@@ -171,7 +173,7 @@ namespace MetalTemplate
             commandBuffer.AddCompletedHandler(buffer =>
             {
                 drawable.Dispose();
-                inflightSemaphore.Release();
+                var count = inflightSemaphore.Release();
             });
 
             // Obtain a renderPassDescriptor generated from the view's drawable textures
@@ -189,7 +191,9 @@ namespace MetalTemplate
                 renderEncoder.PushDebugGroup("DrawCube");
                 renderEncoder.SetRenderPipelineState(pipelineState);
                 renderEncoder.SetVertexBuffer(boxMesh.VertexBuffers[0].Buffer, boxMesh.VertexBuffers[0].Offset, 0);
-                renderEncoder.SetVertexBuffer(dynamicConstantBuffer, (nuint)Marshal.SizeOf<Uniforms>(), 1);
+                //renderEncoder.SetVertexBuffer(dynamicConstantBuffer, (nuint)Marshal.SizeOf<Uniforms>(), 1);
+                var offset = Marshal.SizeOf<Uniforms>() * constantDataBufferIndex;
+                renderEncoder.SetVertexBuffer(dynamicConstantBuffer, (nuint)offset, 1);
 
                 MTKSubmesh submesh = boxMesh.Submeshes[0];
                 // Tell the render context we want to draw our primitives
@@ -229,6 +233,8 @@ namespace MetalTemplate
             pinnedUniforms.Free();
 
             Marshal.Copy(rawdata, 0, dynamicConstantBuffer.Contents + rawsize * constantDataBufferIndex, rawsize);
+            //Marshal.Copy(rawdata, 0, dynamicConstantBuffer.Contents, rawsize);
+
             rotation += .01f;
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using CoreGraphics;
 using CoreText;
 using Foundation;
@@ -15,20 +16,22 @@ namespace Visualizer
 {
     struct Uniforms
     {
-        public Matrix4 modelMatrix { get; }
-        public Matrix4 viewProjectionMatrix { get; }
-        public Matrix3 normalMatrix { get; }
+        public Matrix4 ModelMatrix { get; }
+        public Matrix4 ViewProjectionMatrix { get; }
+        public Matrix3 NormalMatrix { get; }
 
         public Uniforms(Matrix4 modelMatrix, Matrix4 viewProjectionMatrix, Matrix3 normalMatrix)
         {
-            this.modelMatrix = modelMatrix;
-            this.viewProjectionMatrix = viewProjectionMatrix;
-            this.normalMatrix = normalMatrix;
+            this.ModelMatrix = modelMatrix;
+            this.ViewProjectionMatrix = viewProjectionMatrix;
+            this.NormalMatrix = normalMatrix;
         }
     }
 
     public class Renderer: MTKViewDelegate
     {
+        private readonly Semaphore _inflightSemaphore = new Semaphore(MaxInflightBuffers, MaxInflightBuffers);
+        private const int MaxInflightBuffers = 3;
         private readonly MTKView mtkView;
         private readonly IMTLDevice device;
         private readonly IMTLCommandQueue commandQueue;
@@ -39,21 +42,28 @@ namespace Visualizer
         private MTKMesh[] meshes = new MTKMesh[0];
         private float time;
 
-        private readonly IMTLTexture baseColorTexture;
+        //private readonly IMTLTexture baseColorTexture;
         private readonly IMTLSamplerState samplerState;
+        private readonly IMTLBuffer _uniformsBuffer;
+        private static readonly int UniformsSize = Marshal.SizeOf<Uniforms>();
+        private int _uniformsBufferIndex;
+        private int _uniformsOffset;
 
 
         public Renderer(MTKView view)
         {
+            Console.WriteLine("Renderer ctor");
             mtkView = view;
             device = view.Device;
             commandQueue = device.CreateCommandQueue();
             vertexDescriptor = CreateVertexDescriptor();
             renderPipeline = BuildPipeline(device, view, vertexDescriptor);
             meshes = LoadResources(device, vertexDescriptor);
-            baseColorTexture = LoadTexture(device);
+            //baseColorTexture = LoadTexture(device);
             depthStencilState = CreateDepthStencilState(device);
             samplerState = CreateSamplerState(device);
+            _uniformsBuffer = device.CreateBuffer((nuint)UniformsSize * MaxInflightBuffers, 0);
+            _uniformsBuffer.Label = "UniformsBuffer";    
         }
 
         private static MDLVertexDescriptor CreateVertexDescriptor()  {
@@ -88,23 +98,20 @@ namespace Visualizer
             return samplerState;
         }
 
-        private static IMTLTexture LoadTexture(IMTLDevice device)
-        {
-            var textureLoader = new MTKTextureLoader(device);
-            var options = new MTKTextureLoaderOptions(new NSDictionary
-            {
-                ["MTKTextureLoaderOptionGenerateMipmaps"] = NSObject.FromObject(true),
-                ["MTKTextureLoaderOptionSRGB"] = NSObject.FromObject(true)
-            });
+        //private static IMTLTexture LoadTexture(IMTLDevice device)
+        //{
+        //    var textureLoader = new MTKTextureLoader(device);
+        //    var options = new MTKTextureLoaderOptions();
+        //    options.Srgb = true;
             
-            var texture = textureLoader.FromName("tiles_baseColor", (nfloat) 1.0, null, options, out var error);
-            if (error != null)
-            {
-                throw new NSErrorException(error);
-            }
+        //    var texture = textureLoader.FromName("tiles_baseColor", (nfloat) 1.0, null, options, out var error);
+        //    if (error != null)
+        //    {
+        //        throw new NSErrorException(error);
+        //    }
 
-            return texture;
-        }
+        //    return texture;
+        //}
 
         private static IMTLDepthStencilState CreateDepthStencilState(IMTLDevice device)
         {
@@ -125,19 +132,38 @@ namespace Visualizer
         
         private static MTKMesh[] LoadResources(IMTLDevice device, MDLVertexDescriptor vertexDescriptor)
         {
-            //var url = NSBundle.GetUrlForResource("teapot", "obj", AppDomain.CurrentDomain.BaseDirectory, null);
-            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "teapot.obj");
-            var modelURL = new NSUrl($"file://{file}");
+            //var modelURL = NSBundle.MainBundle.GetUrlForResource("teapot.obj", string.Empty);
+            //var modelURL = NSBundle.GetUrlForResource("teapot", "obj", AppDomain.CurrentDomain.BaseDirectory);
+            //var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "teapot.obj");
+            //var modelURL = new NSUrl($"file://{file}");
 
-            var bufferAllocator = new MTKMeshBufferAllocator(device);
-            var asset = new MDLAsset(modelURL, vertexDescriptor, bufferAllocator);
-            var meshes = MTKMesh.FromAsset(asset, device, out _, out var error);
+            //var bufferAllocator = new MTKMeshBufferAllocator(device);
+            //Console.WriteLine("Newing up asset");
+            //var asset = new MDLAsset(modelURL, vertexDescriptor, bufferAllocator);
+            //Console.WriteLine("Creating meshes");
+            //var meshes = MTKMesh.FromAsset(asset, device, out _, out var error);
+            //if (error != null)
+            //{
+            //    throw new NSErrorException(error);
+            //}
+            //Console.WriteLine("Loaded resources");
+
+            //return meshes;
+
+            MDLMesh mdl = MDLMesh.CreateBox(new Vector3(2f, 2f, 2f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, new MTKMeshBufferAllocator(device));
+
+            NSError error;
+            var boxMesh = new MTKMesh(mdl, device, out error);
             if (error != null)
             {
                 throw new NSErrorException(error);
             }
 
-            return meshes;
+            return new[]
+            {
+                boxMesh
+            };
+
         }
 
         private static IMTLRenderPipelineState BuildPipeline(IMTLDevice device, MTKView view, MDLVertexDescriptor vertexDescriptor)
@@ -191,39 +217,51 @@ namespace Visualizer
         
         public override void Draw(MTKView view)
         {
+            _inflightSemaphore.WaitOne();
             time += 1 / mtkView.PreferredFramesPerSecond;
 
             var commandBuffer = commandQueue.CommandBuffer();
             if (commandBuffer == null)
             {
-                return;
-            }
-
-            // tells Metal which textures we will actually be drawing to.
-            var renderPassDescriptor = view.CurrentRenderPassDescriptor;
-            if (renderPassDescriptor == null)
-            {
+                Console.WriteLine("oh noes 1");
                 return;
             }
             var drawable = view.CurrentDrawable;
             if (drawable == null)
             {
+                Console.WriteLine("oh noes 3");
                 return;
             }
+
+            commandBuffer.AddCompletedHandler(buffer =>
+            {
+                drawable.Dispose();
+                _inflightSemaphore.Release();
+            });
+
+            // tells Metal which textures we will actually be drawing to.
+            var renderPassDescriptor = view.CurrentRenderPassDescriptor;
+            if (renderPassDescriptor == null)
+            {
+                Console.WriteLine("oh noes 2");
+                return;
+            }
+            
+            
             var commandEncoder = commandBuffer.CreateRenderCommandEncoder(renderPassDescriptor);
             if (commandEncoder == null)
             {
+                Console.WriteLine("oh noes 4");
                 return;
             }
-
-            var uniforms = CreateUniforms(view, time);
-            IntPtr intptr;
-            Marshal.StructureToPtr(uniforms, intptr, false);
+            UpdateUniforms(view);
 
             commandEncoder.SetRenderPipelineState(renderPipeline);
             commandEncoder.SetDepthStencilState(depthStencilState);
-            commandEncoder.SetVertexBytes(Marshal.StructureToPtr(uniforms, ), (nuint)Marshal.SizeOf<Uniforms>(), 1);
-            commandEncoder.SetFragmentTexture(baseColorTexture, 0);
+            commandEncoder.SetVertexBuffer(_uniformsBuffer, (nuint) _uniformsOffset, 1);
+            //commandEncoder.SetVertexBytes(ptr, (nuint)Marshal.SizeOf<Uniforms>(), 1);
+            //commandEncoder.SetVertexBuffer Bytes(&uniforms, Marshal.StructureToPtr(uniforms, ), (nuint)Marshal.SizeOf<Uniforms>(), 1);
+            //commandEncoder.SetFragmentTexture(baseColorTexture, 0);
             commandEncoder.SetFragmentSamplerState(samplerState, 0);
 
             foreach (var mesh in meshes)
@@ -238,21 +276,37 @@ namespace Visualizer
 
                 foreach(var submesh in mesh.Submeshes)
                 {
-                    commandEncoder.draw(submesh);
+                    commandEncoder.Draw(submesh);
                 }
             }
             // tell encoder we will not be drawing any more things
             commandEncoder.EndEncoding();
             // callback to present the result
             commandBuffer.PresentDrawable(drawable);
+
+            _uniformsBufferIndex = (_uniformsBufferIndex + 1) % MaxInflightBuffers;
+            _uniformsOffset = UniformsSize * _uniformsBufferIndex;
             // ship commands to GPU
             commandBuffer.Commit();
+        }
+
+        private void UpdateUniforms(MTKView view)
+        {
+            var uniforms = CreateUniforms(view, time);
+            var rawData = new byte[UniformsSize];
+            GCHandle pinnedUniforms = GCHandle.Alloc(uniforms, GCHandleType.Pinned);
+            var ptr = pinnedUniforms.AddrOfPinnedObject();
+            Marshal.Copy(ptr, rawData, 0, UniformsSize);
+            pinnedUniforms.Free();
+
+
+            Marshal.Copy(rawData, 0, _uniformsBuffer.Contents + _uniformsOffset, UniformsSize);
         }
     }
     
     public static class MTLRenderCommandEncoderExtensions {
         // tells Metal to render a sequence of primitivies (shapes)
-        public static void draw(this IMTLRenderCommandEncoder self, MTKSubmesh submesh)
+        public static void Draw(this IMTLRenderCommandEncoder self, MTKSubmesh submesh)
         {
             self.DrawIndexedPrimitives(submesh.PrimitiveType, // triangle, line, point etc
                 indexCount: submesh.IndexCount,
