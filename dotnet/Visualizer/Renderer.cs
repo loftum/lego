@@ -28,7 +28,7 @@ namespace Visualizer
         private readonly IMTLDevice _device;
         private readonly IMTLCommandQueue _commandQueue;
         private IMTLRenderPipelineState _pipelineState;
-        private IMTLDepthStencilState _depthStaencilState;
+        private readonly IMTLDepthStencilState _depthStaencilState;
 
         // uniforms
         private Matrix4 _projectionMatrix;
