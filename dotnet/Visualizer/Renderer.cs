@@ -32,7 +32,7 @@ namespace Visualizer
         private readonly IMTLCommandQueue _commandQueue;
         private readonly IMTLLibrary _defaultLibrary;
         private IMTLRenderPipelineState _pipelineState;
-        private IMTLDepthStencilState _depthState;
+        private IMTLDepthStencilState _depthStaencilState;
 
         // uniforms
         private Matrix4 _projectionMatrix;
@@ -125,7 +125,7 @@ namespace Visualizer
                 DepthWriteEnabled = true
             };
 
-            _depthState = _device.CreateDepthStencilState(depthStateDesc);
+            _depthStaencilState = _device.CreateDepthStencilState(depthStateDesc);
         }
 
         public override void DrawableSizeWillChange(MTKView view, CoreGraphics.CGSize size)
@@ -156,7 +156,7 @@ namespace Visualizer
                 // Create a render command encoder so we can render into something
                 IMTLRenderCommandEncoder renderEncoder = commandBuffer.CreateRenderCommandEncoder(renderPassDescriptor);
                 renderEncoder.Label = "MyRenderEncoder";
-                renderEncoder.SetDepthStencilState(_depthState);
+                renderEncoder.SetDepthStencilState(_depthStaencilState);
 
                 // Set context state
                 renderEncoder.PushDebugGroup("DrawCube");
