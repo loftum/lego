@@ -87,24 +87,19 @@ namespace Visualizer
             {
                 throw new NSErrorException(error);
             }
-            // Load the fragment program into the library
-            var fragmentProgram = library.CreateFunction("lighting_fragment");
-
-            // Load the vertex program into the library
-            var vertexProgram = library.CreateFunction("lighting_vertex");
-
+            
+            
             // Create a vertex descriptor from the MTKMesh
             var vertexDescriptor = MTLVertexDescriptor.FromModelIO(boxMesh.VertexDescriptor);
             vertexDescriptor.Layouts[0].StepRate = 1;
             vertexDescriptor.Layouts[0].StepFunction = MTLVertexStepFunction.PerVertex;
 
-            // Create a reusable pipeline state
             var pipelineStateDescriptor = new MTLRenderPipelineDescriptor
             {
                 Label = "MyPipeline",
                 SampleCount = _view.SampleCount,
-                VertexFunction = vertexProgram,
-                FragmentFunction = fragmentProgram,
+                VertexFunction = library.CreateFunction("lighting_vertex"),
+                FragmentFunction = library.CreateFunction("lighting_fragment"),
                 VertexDescriptor = vertexDescriptor,
                 DepthAttachmentPixelFormat = _view.DepthStencilPixelFormat,
                 StencilAttachmentPixelFormat = _view.DepthStencilPixelFormat
