@@ -93,6 +93,7 @@
     <Compile Include="ViewController.cs" />
     <Compile Include="Renderer.cs" />
     <Compile Include="MatrixExtensions.cs" />
+    <Compile Include="Uniforms.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />

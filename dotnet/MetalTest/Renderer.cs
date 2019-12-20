@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using CoreGraphics;
 using Metal;
 using MetalKit;
@@ -48,6 +49,19 @@ namespace MetalTest
                 new Vertex(new Vector4(0, 0, 1, 1), new Vector2(1, -1)),
             };
             _vertexBuffer = _device.CreateBuffer(vertices, 0);
+            
+            var rawsize = Marshal.SizeOf<Vertex>();
+            for (var ii = 0; ii < vertices.Length; ii++)
+            {
+                var vertex = vertices[ii];
+                var rawdata = new byte[rawsize];
+                var pinnedUniforms = GCHandle.Alloc(vertex, GCHandleType.Pinned);
+                var ptr = pinnedUniforms.AddrOfPinnedObject();
+                Marshal.Copy(ptr, rawdata, 0, rawsize);
+                pinnedUniforms.Free();
+
+                Marshal.Copy(rawdata, 0, _vertexBuffer.Contents + rawsize * ii, rawsize);
+            }
         }
 
         private static IMTLRenderPipelineState BuildRenderPipeline(IMTLDevice device, MTKView view)

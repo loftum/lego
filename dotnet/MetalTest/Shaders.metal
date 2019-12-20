@@ -19,6 +19,21 @@ vertex VertexOut vertexShader(const device vertex_t *vertexArray [[buffer(0)]], 
     VertexOut out;
     out.color = in.color;
     out.pos = float4(in.pos.x, in.pos.y, 0, 1);
+    switch(vid){
+        case 0:
+            out.color = float4(1, 0, 0, 1);
+            out.pos = float4(-1, -1, 0, 1);
+            break;
+        case 1:
+            out.color = float4(0, 1, 0, 1);
+            out.pos = float4(0, 1, 0, 1);
+            break;
+        case 2:
+            out.color = float4(0, 0, 1, 1);
+            out.pos = float4(1, -1, 0, 1);
+            break;
+    }
+    
     return out;
 }
 

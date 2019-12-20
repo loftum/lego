@@ -1,86 +1,49 @@
 #include <metal_stdlib>
+#include <simd/simd.h>
+
 using namespace metal;
 
-struct Uniforms {
-    // transforms vertices and normals of the model into camera coordinates
-    float4x4 modelMatrix;
-    //
-    float4x4 viewProjectionMatrix;
-    float3x3 normalMatrix;
+// Variables in constant address space
+constant float3 light_position = float3(0.0, 1.0, -1.0);
+constant float4 ambient_color  = float4(0.18, 0.24, 0.8, 1.0);
+constant float4 diffuse_color  = float4(0.4, 0.4, 1.0, 1.0);
+
+struct uniforms_t
+{
+    float4x4 modelview_projection_matrix;
+    float4x4 normal_matrix;
 };
 
-struct VertexIn {
+typedef struct
+{
     float3 position [[attribute(0)]];
     float3 normal [[attribute(1)]];
-    float2 textCoords [[attribute(2)]];
-};
+} vertex_t;
 
-struct VertexOut {
-    // position in clip-space
+typedef struct {
     float4 position [[position]];
-    // surface normal in world coordinates
-    float3 worldNormal;
-    // position of vertex in world coordinates
-    float3 worldPosition;
-    // texture coordinates
-    //float2 textCoords;
-};
+    half4  color;
+} ColorInOut;
 
-vertex VertexOut vertex_main(
-     VertexIn in [[stage_in]], // stage_in: built for us by loading data according to vertexDescriptor
-     constant Uniforms &uniforms [[buffer(1)]]
-)
+// Vertex shader function
+vertex ColorInOut lighting_vertex(vertex_t vertex_array [[stage_in]],
+                                  constant uniforms_t& uniforms [[ buffer(1) ]])
 {
-    // Matrix multiplication is read from right to left
-    float4 worldPosition = uniforms.modelMatrix * float4(in.position, 1);
+    ColorInOut out;
     
-    VertexOut out;
+    float4 in_position = float4(vertex_array.position, 1.0);
+    out.position = uniforms.modelview_projection_matrix * in_position;
     
-    // position -> clip space
-    out.position = uniforms.viewProjectionMatrix * worldPosition;
+    float4 eye_normal = normalize(uniforms.normal_matrix * float4(vertex_array.normal, 0.0));
+    float n_dot_l = dot(eye_normal.rgb, normalize(light_position));
+    n_dot_l = fmax(0.0, n_dot_l);
     
-    // position -> world space
-    out.worldPosition = worldPosition.xyz;
-    
-    // normal -> world space, for calculating lighting and reflections
-    out.worldNormal = uniforms.normalMatrix * in.normal;
-    
-    //out.textCoords = in.textCoords;
+    out.color = half4(ambient_color + diffuse_color * n_dot_l);
     return out;
 }
 
-constant float3 ambientIntensity = 0.2;
-constant float3 lightPosition(2, 2, 2); // Light position in world space
-constant float3 lightColor(1, 1, 1);
-constant float3 baseColor(1.0, 0, 0);
-constant float3 worldCameraPosition(0, 0, 2);
-constant float specularPower = 200;
-
-fragment float4 fragment_main(VertexOut fragmentIn [[stage_in]],
-                              texture2d<float, access::sample> baseColorTexture [[texture(0)]],
-                              sampler baseColorSampler [[sampler(0)]])
+// Fragment shader function
+fragment half4 lighting_fragment(ColorInOut in [[stage_in]])
 {
-    // color from texture (jpg)
-    //float3 color = baseColorTexture.sample(baseColorSampler, fragmentIn.textCoords).rgb;
-    
-    //return float4(1, 0, 0, 1);
-    //float3 normal = normalize(fragmentIn.eyeNormal.xyz);
-    //return float4(abs(normal), 1);
-    
-    float3 normal = normalize(fragmentIn.worldNormal.xyz);
-    float3 color = abs(normal);
-    
-    float3 N = normalize(fragmentIn.worldNormal.xyz);
-    float3 L = normalize(lightPosition - fragmentIn.worldPosition.xyz);
-    float3 diffuseIntensity = saturate(dot(N, L));
-    
-    float3 V = normalize(worldCameraPosition - fragmentIn.worldPosition);
-    float3 H = normalize(L + V);
-    float specularBase = saturate(dot(N, H));
-    float specularIntensity = powr(specularBase, specularPower);
-    
-    
-    //float3 finalColor = saturate(ambientIntensity + diffuseIntensity) * lightColor * baseColor;
-    float3 finalColor = saturate(ambientIntensity + diffuseIntensity) * lightColor * color + specularIntensity * lightColor;
-    return float4(finalColor, 1);
+    return in.color;
 }
