@@ -14,89 +14,87 @@ namespace Visualizer
         // The max number of command buffers in flight
         private const int MaxInflightBuffers = 1;
 
-        // Max API memory buffer size.
-        private const int MaxBytesPerFrame = 1024 * 1024;
-
         // view
         private readonly MTKView _view;
 
         // controller
         private readonly Semaphore _inflightSemaphore;
         private static readonly int UniformsSize = Marshal.SizeOf<Uniforms>();
-        IMTLBuffer _uniformsBuffer;
+        private readonly IMTLBuffer _uniformsBuffer;
         private int _uniformsIndex;
         private int _offset;
 
         // renderer
         private readonly IMTLDevice _device;
         private readonly IMTLCommandQueue _commandQueue;
-        private readonly IMTLLibrary _defaultLibrary;
         private IMTLRenderPipelineState _pipelineState;
         private IMTLDepthStencilState _depthStaencilState;
 
         // uniforms
         private Matrix4 _projectionMatrix;
         private Matrix4 _viewMatrix;
-        float _rotation;
-
-        // meshes
-        MTKMesh _boxMesh;
+        private float _rotation;
+        private readonly MTKMesh[] _meshes;
 
         public Renderer(MTKView view)
         {
-            
-            _uniformsIndex = 0;
-            _inflightSemaphore = new Semaphore(MaxInflightBuffers, MaxInflightBuffers);
-
             // Set the view to use the default device
-            _device = MTLDevice.SystemDefault;
-            if (_device == null)
+            var device = MTLDevice.SystemDefault;
+            if (device == null)
             {
                 throw new Exception("Metal is not supported on this device");
             }
 
+            _uniformsIndex = 0;
+            _inflightSemaphore = new Semaphore(MaxInflightBuffers, MaxInflightBuffers);
+
+            _uniformsBuffer = device.CreateBuffer((nuint)UniformsSize * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault);
+            _uniformsBuffer.Label = "UniformBuffer";
+
             // Create a new command queue
-            _commandQueue = _device.CreateCommandQueue();
-
-            // Load all the shader files with a metal file extension in the project
-            _defaultLibrary = _device.CreateDefaultLibrary();
-
+            _commandQueue = device.CreateCommandQueue();
             view.Delegate = this;
-            view.Device = _device;
+            view.Device = device;
 
+            
             // Setup the render target, choose values based on your app
             view.SampleCount = 4;
             view.DepthStencilPixelFormat = MTLPixelFormat.Depth32Float_Stencil8;
+            
             _view = view;
-            LoadAssets();
+            _device = device;
+            var depthStateDesc = new MTLDepthStencilDescriptor
+            {
+                DepthCompareFunction = MTLCompareFunction.Less,
+                DepthWriteEnabled = true
+            };
+
+            _depthStaencilState = _device.CreateDepthStencilState(depthStateDesc);
+            var library = device.CreateDefaultLibrary();
+            _meshes = LoadAssets(library);
             Reshape();
         }
 
-        void LoadAssets()
+        private MTKMesh[] LoadAssets(IMTLLibrary library)
         {
             // Generate meshes
             //MDLMesh mdl = MDLMesh.CreateBox(new Vector3(2f, 2f, 2f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, new MTKMeshBufferAllocator(device));
             //MDLMesh mdl = MDLMesh.CreateBox(new Vector3(1f, 2f, 2f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, new MTKMeshBufferAllocator(device));
             //var mdl = MDLMesh.CreateCylinder(new Vector3(2f, 2f, 2f), new Vector2i(1, 1), true, true, true, MDLGeometryType.Triangles, new MTKMeshBufferAllocator(device));
             var mdl = MDLMesh.CreateEllipsoid(new Vector3(2f, 2f, 2f), 1, 1, MDLGeometryType.Triangles, true, true, new MTKMeshBufferAllocator(_device));
-            _boxMesh = new MTKMesh(mdl, _device, out var error);
+            var boxMesh = new MTKMesh(mdl, _device, out var error);
             if (error != null)
             {
                 throw new NSErrorException(error);
             }
-
-            // Allocate one region of memory for the uniform buffer
-            _uniformsBuffer = _device.CreateBuffer(MaxBytesPerFrame, (MTLResourceOptions)0);
-            _uniformsBuffer.Label = "UniformBuffer";
-
             // Load the fragment program into the library
-            var fragmentProgram = _defaultLibrary.CreateFunction("lighting_fragment");
+            var fragmentProgram = library.CreateFunction("lighting_fragment");
 
             // Load the vertex program into the library
-            var vertexProgram = _defaultLibrary.CreateFunction("lighting_vertex");
+            var vertexProgram = library.CreateFunction("lighting_vertex");
 
             // Create a vertex descriptor from the MTKMesh
-            var vertexDescriptor = MTLVertexDescriptor.FromModelIO(_boxMesh.VertexDescriptor);
+            var vertexDescriptor = MTLVertexDescriptor.FromModelIO(boxMesh.VertexDescriptor);
             vertexDescriptor.Layouts[0].StepRate = 1;
             vertexDescriptor.Layouts[0].StepFunction = MTLVertexStepFunction.PerVertex;
 
@@ -114,18 +112,12 @@ namespace Visualizer
 
             pipelineStateDescriptor.ColorAttachments[0].PixelFormat = _view.ColorPixelFormat;
             _pipelineState = _device.CreateRenderPipelineState(pipelineStateDescriptor, out error);
+
             if (error != null)
             {
                 throw new NSErrorException(error);
             }
-
-            var depthStateDesc = new MTLDepthStencilDescriptor
-            {
-                DepthCompareFunction = MTLCompareFunction.Less,
-                DepthWriteEnabled = true
-            };
-
-            _depthStaencilState = _device.CreateDepthStencilState(depthStateDesc);
+            return new[] { boxMesh };
         }
 
         public override void DrawableSizeWillChange(MTKView view, CoreGraphics.CGSize size)
@@ -161,13 +153,17 @@ namespace Visualizer
                 // Set context state
                 renderEncoder.PushDebugGroup("DrawCube");
                 renderEncoder.SetRenderPipelineState(_pipelineState);
-                renderEncoder.SetVertexBuffer(_boxMesh.VertexBuffers[0].Buffer, _boxMesh.VertexBuffers[0].Offset, 0);
-                
-                renderEncoder.SetVertexBuffer(_uniformsBuffer, (nuint)_offset, 1);
+                foreach(var mesh in _meshes)
+                {
+                    renderEncoder.SetVertexBuffer(mesh.VertexBuffers[0].Buffer, mesh.VertexBuffers[0].Offset, 0);
 
-                MTKSubmesh submesh = _boxMesh.Submeshes[0];
-                // Tell the render context we want to draw our primitives
-                renderEncoder.DrawIndexedPrimitives(submesh.PrimitiveType, submesh.IndexCount, submesh.IndexType, submesh.IndexBuffer.Buffer, submesh.IndexBuffer.Offset);
+                    renderEncoder.SetVertexBuffer(_uniformsBuffer, (nuint)_offset, 1);
+
+                    var submesh = mesh.Submeshes[0];
+                    // Tell the render context we want to draw our primitives
+                    renderEncoder.DrawIndexedPrimitives(submesh.PrimitiveType, submesh.IndexCount, submesh.IndexType, submesh.IndexBuffer.Buffer, submesh.IndexBuffer.Offset);
+                }
+
                 renderEncoder.PopDebugGroup();
 
                 // We're done encoding commands
