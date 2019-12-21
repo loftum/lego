@@ -1,8 +1,10 @@
 ﻿using System;
 using AppKit;
 using CoreGraphics;
+using Foundation;
 using Metal;
 using MetalKit;
+using ObjCRuntime;
 
 namespace Visualizer
 {
@@ -27,7 +29,48 @@ namespace Visualizer
             };
             renderer = new Renderer(mtkView);
             mtkView.Delegate = renderer;
-            View = mtkView;
+
+            var view = new NSView();
+
+            view.AddSubview(mtkView);
+            mtkView.TranslatesAutoresizingMaskIntoConstraints = false;
+            NSLayoutConstraint.ActivateConstraints(new []
+            {
+                mtkView.LeadingAnchor.ConstraintEqualToAnchor(view.LeadingAnchor),
+                mtkView.TopAnchor.ConstraintEqualToAnchor(view.TopAnchor),
+                mtkView.TrailingAnchor.ConstraintEqualToAnchor(view.TrailingAnchor),
+                mtkView.BottomAnchor.ConstraintEqualToAnchor(view.BottomAnchor)
+            });
+            
+            var slider = new NSSlider();
+            slider.Action = new Selector("Hest");
+            view.AddSubview(slider);
+            slider.TranslatesAutoresizingMaskIntoConstraints = false;
+            slider.MinValue = 0;
+            slider.MaxValue = 2 * Math.PI;
+            NSNotificationCenter.DefaultCenter.AddObserver(null, Notified, slider);
+            
+            
+            NSLayoutConstraint.ActivateConstraints(new []
+            {
+                slider.LeadingAnchor.ConstraintEqualToAnchor(view.LeadingAnchor),
+                slider.TrailingAnchor.ConstraintEqualToAnchor(view.TrailingAnchor),
+                slider.BottomAnchor.ConstraintEqualToAnchor(view.BottomAnchor)
+            });
+
+
+            View = view;
+        }
+
+        [Export("Hest", Selector = "Hest")]
+        private void Hest()
+        {
+            Console.WriteLine("Hest");
+        }
+
+        private void Notified(NSNotification obj)
+        {
+            Console.WriteLine($"Notified: {obj.Name}");
         }
     }
 }

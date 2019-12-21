@@ -19,7 +19,7 @@ namespace SteeringWheel.Controllers
 
     public class SteeringWheelViewController : UIViewController
     {
-        private CancellationTokenSource _source = new CancellationTokenSource();
+        private readonly CancellationTokenSource _source = new CancellationTokenSource();
         private Task _task;
         private readonly LctpClient _client;
         private readonly CMMotionManager _motionManager = MotionManager.Instance;
