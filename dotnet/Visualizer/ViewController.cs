@@ -4,20 +4,21 @@ using CoreGraphics;
 using Foundation;
 using Metal;
 using MetalKit;
-using ObjCRuntime;
+using OpenTK;
 
 namespace Visualizer
 {
     public interface IRotationProvider
     {
-        float GetRotation();
+        Vector3 GetRotation();
     }
 
     public class ViewController: NSViewController, IRotationProvider
     {
         private readonly MTKView mtkView;
         private readonly Renderer renderer;
-        private readonly NSSlider _slider;
+        private readonly NSSlider _xSlider;
+        private readonly NSSlider _ySlider;
 
         public ViewController()
         {
@@ -48,31 +49,41 @@ namespace Visualizer
                 mtkView.BottomAnchor.ConstraintEqualToAnchor(view.BottomAnchor)
             });
 
-            var slider = new NSSlider
+            var xSlider = new NSSlider
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                IsVertical = 1,
+                MinValue = 0,
+                MaxValue = 2 * Math.PI
+            };
+            view.AddSubview(xSlider);
+            NSLayoutConstraint.ActivateConstraints(new[]
+            {
+                xSlider.TopAnchor.ConstraintEqualToAnchor(view.TopAnchor, 40),
+                xSlider.TrailingAnchor.ConstraintEqualToAnchor(view.TrailingAnchor, -10),
+                xSlider.BottomAnchor.ConstraintEqualToAnchor(view.BottomAnchor, -40)
+            });
+
+            var ySlider = new NSSlider
             {
                 TranslatesAutoresizingMaskIntoConstraints = false,
                 MinValue = 0,
                 MaxValue = 2 * Math.PI
             };
-            view.AddSubview(slider);
-            NSNotificationCenter.DefaultCenter.AddObserver(null, Notified, slider);
+            view.AddSubview(ySlider);
             
             NSLayoutConstraint.ActivateConstraints(new []
             {
-                slider.LeadingAnchor.ConstraintEqualToAnchor(view.LeadingAnchor, 10),
-                slider.TrailingAnchor.ConstraintEqualToAnchor(view.TrailingAnchor, -10),
-                slider.BottomAnchor.ConstraintEqualToAnchor(view.BottomAnchor, -10)
+                ySlider.LeadingAnchor.ConstraintEqualToAnchor(view.LeadingAnchor, 40),
+                ySlider.TrailingAnchor.ConstraintEqualToAnchor(view.TrailingAnchor, -40),
+                ySlider.BottomAnchor.ConstraintEqualToAnchor(view.BottomAnchor, -10)
             });
 
-            _slider = slider;
+            _xSlider = xSlider;
+            _ySlider = ySlider;
             View = view;
         }
 
-        public float GetRotation() => _slider.FloatValue;
-
-        private void Notified(NSNotification obj)
-        {
-            Console.WriteLine($"Notified: {obj.Name}");
-        }
+        public Vector3 GetRotation() => new Vector3(_xSlider.FloatValue, -_ySlider.FloatValue, 0);
     }
 }

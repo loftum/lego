@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Foundation;
@@ -79,10 +81,10 @@ namespace Visualizer
         private MTKMesh[] LoadAssets(IMTLLibrary library)
         {
             // Generate meshes
-            //MDLMesh mdl = MDLMesh.CreateBox(new Vector3(2f, 2f, 2f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, new MTKMeshBufferAllocator(device));
+            MDLMesh mdl = MDLMesh.CreateBox(new Vector3(2f, 2f, 2f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, new MTKMeshBufferAllocator(_device));
             //MDLMesh mdl = MDLMesh.CreateBox(new Vector3(1f, 2f, 2f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, new MTKMeshBufferAllocator(device));
             //var mdl = MDLMesh.CreateCylinder(new Vector3(2f, 2f, 2f), new Vector2i(1, 1), true, true, true, MDLGeometryType.Triangles, new MTKMeshBufferAllocator(device));
-            var mdl = MDLMesh.CreateEllipsoid(new Vector3(2f, 2f, 2f), 1, 1, MDLGeometryType.Triangles, true, true, new MTKMeshBufferAllocator(_device));
+            //var mdl = MDLMesh.CreateEllipsoid(new Vector3(2f, 2f, 2f), 1, 1, MDLGeometryType.Triangles, true, true, new MTKMeshBufferAllocator(_device));
             var boxMesh = new MTKMesh(mdl, _device, out var error);
             if (error != null)
             {
@@ -178,9 +180,11 @@ namespace Visualizer
         void UpdateUniforms()
         {
             var rotation = _positionProvider.GetRotation();
-            var baseModel = Matrix4.Mult(CreateMatrixFromTranslation(0f, 0f, 5f), CreateMatrixFromRotation(rotation, 0f, 1f, 0f));
+
+            //var baseModel = Matrix4.Mult(M.CreateMatrixFromTranslation(0f, 0f, 5f), M.CreateMatrixFromRotation(rotation, 1f, 0f, 0f));
+            var baseModel = M.CreateMatrixFromTranslation(0f, 0f, 5f).Rotate(rotation);
             var baseMv = Matrix4.Mult(_viewMatrix, baseModel);
-            var modelViewMatrix = Matrix4.Mult(baseMv, CreateMatrixFromRotation(rotation, 1f, 1f, 1f));
+            var modelViewMatrix = Matrix4.Mult(baseMv, M.CreateMatrixFromRotation(0, 1f, 1f, 1f));
 
             var uniforms = new Uniforms
             {
@@ -198,16 +202,34 @@ namespace Visualizer
 
             Marshal.Copy(rawdata, 0, _uniformsBuffer.Contents + _offset, UniformsSize);
         }
+        
+        
 
         private void Reshape()
         {
             // When reshape is called, update the view and projection matricies since this means the view orientation or size changed
             var aspect = (float)(_view.Bounds.Size.Width / _view.Bounds.Size.Height);
-            _projectionMatrix = CreateMatrixFromPerspective(65f * ((float)Math.PI / 180f), aspect, .1f, 100f);
+            _projectionMatrix = M.CreateMatrixFromPerspective(65f * ((float)Math.PI / 180f), aspect, .1f, 100f);
 
             _viewMatrix = Matrix4.Identity;
         }
 
+        
+    }
+
+    public static class M
+    {
+        public static Matrix4 Rotate(this Matrix4 matrix, Vector3 angles)
+        {
+            var rotations = new[]
+            {
+                CreateMatrixFromRotation(angles.X, 1, 0, 0),
+                CreateMatrixFromRotation(angles.Y, 0, 1, 0),
+                CreateMatrixFromRotation(angles.Z, 0, 0, 1)
+            };
+            return rotations.Aggregate(matrix, Matrix4.Mult);
+        }
+        
         public static Matrix4 CreateMatrixFromRotation(float radians, float x, float y, float z)
         {
             Vector3 v = Vector3.Normalize(new Vector3(x, y, z));
