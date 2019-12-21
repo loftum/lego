@@ -33,11 +33,12 @@ namespace Visualizer
         // uniforms
         private Matrix4 _projectionMatrix;
         private Matrix4 _viewMatrix;
-        private float _rotation;
         private readonly MTKMesh[] _meshes;
+        private readonly IRotationProvider _positionProvider;
 
-        public Renderer(MTKView view)
+        public Renderer(MTKView view, IRotationProvider positionProvider)
         {
+            _positionProvider = positionProvider;
             // Set the view to use the default device
             var device = MTLDevice.SystemDefault;
             if (device == null)
@@ -176,9 +177,10 @@ namespace Visualizer
 
         void UpdateUniforms()
         {
-            var baseModel = Matrix4.Mult(CreateMatrixFromTranslation(0f, 0f, 5f), CreateMatrixFromRotation(_rotation, 0f, 1f, 0f));
+            var rotation = _positionProvider.GetRotation();
+            var baseModel = Matrix4.Mult(CreateMatrixFromTranslation(0f, 0f, 5f), CreateMatrixFromRotation(rotation, 0f, 1f, 0f));
             var baseMv = Matrix4.Mult(_viewMatrix, baseModel);
-            var modelViewMatrix = Matrix4.Mult(baseMv, CreateMatrixFromRotation(_rotation, 1f, 1f, 1f));
+            var modelViewMatrix = Matrix4.Mult(baseMv, CreateMatrixFromRotation(rotation, 1f, 1f, 1f));
 
             var uniforms = new Uniforms
             {
@@ -195,8 +197,6 @@ namespace Visualizer
             _offset = UniformsSize * _uniformsIndex;
 
             Marshal.Copy(rawdata, 0, _uniformsBuffer.Contents + _offset, UniformsSize);
-
-            _rotation += .02f;
         }
 
         private void Reshape()

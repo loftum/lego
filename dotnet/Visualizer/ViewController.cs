@@ -8,10 +8,16 @@ using ObjCRuntime;
 
 namespace Visualizer
 {
-    public class ViewController: NSViewController
+    public interface IRotationProvider
+    {
+        float GetRotation();
+    }
+
+    public class ViewController: NSViewController, IRotationProvider
     {
         private readonly MTKView mtkView;
         private readonly Renderer renderer;
+        private readonly NSSlider _slider;
 
         public ViewController()
         {
@@ -27,7 +33,7 @@ namespace Visualizer
                 ColorPixelFormat = MTLPixelFormat.BGRA8Unorm,
                 DepthStencilPixelFormat = MTLPixelFormat.Depth32Float
             };
-            renderer = new Renderer(mtkView);
+            renderer = new Renderer(mtkView, this);
             mtkView.Delegate = renderer;
 
             var view = new NSView();
@@ -41,32 +47,28 @@ namespace Visualizer
                 mtkView.TrailingAnchor.ConstraintEqualToAnchor(view.TrailingAnchor),
                 mtkView.BottomAnchor.ConstraintEqualToAnchor(view.BottomAnchor)
             });
-            
-            var slider = new NSSlider();
-            slider.Action = new Selector("Hest");
+
+            var slider = new NSSlider
+            {
+                TranslatesAutoresizingMaskIntoConstraints = false,
+                MinValue = 0,
+                MaxValue = 2 * Math.PI
+            };
             view.AddSubview(slider);
-            slider.TranslatesAutoresizingMaskIntoConstraints = false;
-            slider.MinValue = 0;
-            slider.MaxValue = 2 * Math.PI;
             NSNotificationCenter.DefaultCenter.AddObserver(null, Notified, slider);
-            
             
             NSLayoutConstraint.ActivateConstraints(new []
             {
-                slider.LeadingAnchor.ConstraintEqualToAnchor(view.LeadingAnchor),
-                slider.TrailingAnchor.ConstraintEqualToAnchor(view.TrailingAnchor),
-                slider.BottomAnchor.ConstraintEqualToAnchor(view.BottomAnchor)
+                slider.LeadingAnchor.ConstraintEqualToAnchor(view.LeadingAnchor, 10),
+                slider.TrailingAnchor.ConstraintEqualToAnchor(view.TrailingAnchor, -10),
+                slider.BottomAnchor.ConstraintEqualToAnchor(view.BottomAnchor, -10)
             });
 
-
+            _slider = slider;
             View = view;
         }
 
-        [Export("Hest", Selector = "Hest")]
-        private void Hest()
-        {
-            Console.WriteLine("Hest");
-        }
+        public float GetRotation() => _slider.FloatValue;
 
         private void Notified(NSNotification obj)
         {
