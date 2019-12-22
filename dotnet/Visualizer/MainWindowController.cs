@@ -2,6 +2,7 @@
 using Foundation;
 using AppKit;
 using CoreGraphics;
+using Visualizer.ViewControllers;
 
 namespace Visualizer
 {

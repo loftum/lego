@@ -1,7 +1,7 @@
 ﻿using System;
 using OpenTK;
 
-namespace Visualizer
+namespace Visualizer.Rendering
 {
     public static class MatrixExtensions
     {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -8,8 +7,9 @@ using Metal;
 using MetalKit;
 using ModelIO;
 using OpenTK;
+using Visualizer.ViewControllers;
 
-namespace Visualizer
+namespace Visualizer.Rendering
 {
     public class Renderer : MTKViewDelegate
     {

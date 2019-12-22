@@ -80,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
+    <Folder Include="ViewControllers\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -90,10 +91,11 @@
     <Compile Include="AppDelegate.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="MainWindowController.cs" />
-    <Compile Include="ViewController.cs" />
-    <Compile Include="Renderer.cs" />
-    <Compile Include="MatrixExtensions.cs" />
-    <Compile Include="Uniforms.cs" />
+    <Compile Include="Rendering\IRotationProvider.cs" />
+    <Compile Include="Rendering\MatrixExtensions.cs" />
+    <Compile Include="Rendering\Renderer.cs" />
+    <Compile Include="Rendering\Uniforms.cs" />
+    <Compile Include="ViewControllers\ViewController.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />

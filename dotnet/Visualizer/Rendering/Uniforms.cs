@@ -1,6 +1,6 @@
 ﻿using OpenTK;
 
-namespace Visualizer
+namespace Visualizer.Rendering
 {
     public struct Uniforms
     {

@@ -1,18 +1,21 @@
 ﻿using System;
 using AppKit;
 using CoreGraphics;
-using Foundation;
 using Metal;
 using MetalKit;
 using OpenTK;
+using Visualizer.Rendering;
 
-namespace Visualizer
+namespace Visualizer.ViewControllers
 {
-    public interface IRotationProvider
+    public class ConnectViewController : NSViewController
     {
-        Vector3 GetRotation();
+        public ConnectViewController()
+        {
+            
+        }
     }
-
+    
     public class ViewController: NSViewController, IRotationProvider
     {
         private readonly MTKView mtkView;
