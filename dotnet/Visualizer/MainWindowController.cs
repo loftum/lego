@@ -10,6 +10,7 @@ namespace Visualizer
     public class MainWindowController : NSWindowController
     {
         private readonly ViewController _vc = new ViewController();
+        private readonly ConnectViewController _connectViewController = new ConnectViewController();
 
         public MainWindowController(IntPtr handle) : base(handle)
         {
@@ -22,9 +23,9 @@ namespace Visualizer
 
         public MainWindowController() : base("MainWindow")
         {
-            CGRect contentRect = new CGRect(0, 0, 1000, 500);
+            var contentRect = new CGRect(0, 0, 1000, 500);
             base.Window = new MainWindow(contentRect, NSWindowStyle.Titled | NSWindowStyle.Closable | NSWindowStyle.Miniaturizable | NSWindowStyle.Resizable, NSBackingStore.Buffered, false);
-            Window.ContentView = _vc.View;
+            Window.ContentView = _connectViewController.View;
         }
 
         public new MainWindow Window => (MainWindow)base.Window;
