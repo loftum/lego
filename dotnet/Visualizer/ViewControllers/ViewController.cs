@@ -8,17 +8,9 @@ using Visualizer.Rendering;
 
 namespace Visualizer.ViewControllers
 {
-    public class ConnectViewController : NSViewController
-    {
-        public ConnectViewController()
-        {
-            
-        }
-    }
-    
     public class ViewController: NSViewController, IRotationProvider
     {
-        private readonly MTKView mtkView;
+        private readonly MTKView _mtkView;
         private readonly Renderer renderer;
         private readonly NSSlider _xSlider;
         private readonly NSSlider _ySlider;
@@ -32,59 +24,47 @@ namespace Visualizer.ViewControllers
                 throw new Exception("Metal is not supported on this device");
             }
 
-            mtkView = new MTKView(new CGRect(), device)
+            _mtkView = new MTKView(new CGRect(), device)
             {
                 ColorPixelFormat = MTLPixelFormat.BGRA8Unorm,
                 DepthStencilPixelFormat = MTLPixelFormat.Depth32Float
             };
-            renderer = new Renderer(mtkView, this);
-            mtkView.Delegate = renderer;
+            renderer = new Renderer(_mtkView, this);
+            _mtkView.Delegate = renderer;
 
-            var view = new NSView();
-
-            view.AddSubview(mtkView);
-            mtkView.TranslatesAutoresizingMaskIntoConstraints = false;
-            NSLayoutConstraint.ActivateConstraints(new []
+            _xSlider = new NSSlider
             {
-                mtkView.LeadingAnchor.ConstraintEqualToAnchor(view.LeadingAnchor),
-                mtkView.TopAnchor.ConstraintEqualToAnchor(view.TopAnchor),
-                mtkView.TrailingAnchor.ConstraintEqualToAnchor(view.TrailingAnchor),
-                mtkView.BottomAnchor.ConstraintEqualToAnchor(view.BottomAnchor)
-            });
-
-            var xSlider = new NSSlider
-            {
-                TranslatesAutoresizingMaskIntoConstraints = false,
                 IsVertical = 1,
                 MinValue = 0,
                 MaxValue = 2 * Math.PI
             };
-            view.AddSubview(xSlider);
-            NSLayoutConstraint.ActivateConstraints(new[]
-            {
-                xSlider.TopAnchor.ConstraintEqualToAnchor(view.TopAnchor, 40),
-                xSlider.TrailingAnchor.ConstraintEqualToAnchor(view.TrailingAnchor, -10),
-                xSlider.BottomAnchor.ConstraintEqualToAnchor(view.BottomAnchor, -40)
-            });
 
-            var ySlider = new NSSlider
+            _ySlider = new NSSlider
             {
-                TranslatesAutoresizingMaskIntoConstraints = false,
                 MinValue = 0,
                 MaxValue = 2 * Math.PI
             };
-            view.AddSubview(ySlider);
             
-            NSLayoutConstraint.ActivateConstraints(new []
-            {
-                ySlider.LeadingAnchor.ConstraintEqualToAnchor(view.LeadingAnchor, 40),
-                ySlider.TrailingAnchor.ConstraintEqualToAnchor(view.TrailingAnchor, -40),
-                ySlider.BottomAnchor.ConstraintEqualToAnchor(view.BottomAnchor, -10)
-            });
-
-            _xSlider = xSlider;
-            _ySlider = ySlider;
-            View = view;
+            View = new NSView()
+                .WithSubview(_mtkView, (c, p) => new []
+                {
+                    c.LeadingAnchor.ConstraintEqualToAnchor(p.LeadingAnchor),
+                    c.TopAnchor.ConstraintEqualToAnchor(p.TopAnchor),
+                    c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor),
+                    c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor)
+                })
+                .WithSubview(_xSlider, (c, p) => new[]
+                {
+                    c.TopAnchor.ConstraintEqualToAnchor(p.TopAnchor, 40),
+                    c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor, -10),
+                    c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor, -40)
+                })
+                .WithSubview(_ySlider, (c, p) => new[]
+                {
+                    c.LeadingAnchor.ConstraintEqualToAnchor(p.LeadingAnchor, 40),
+                    c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor, -40),
+                    c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor, -10)
+                });
         }
 
         public Vector3 GetRotation() => new Vector3(_xSlider.FloatValue, -_ySlider.FloatValue, 0);
