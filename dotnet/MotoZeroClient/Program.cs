@@ -4,8 +4,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LCTP;
-using LCTP.Client;
-using LCTP.Server;
+using LCTP.Core;
+using LCTP.Core.Client;
+using LCTP.Core.Server;
 
 namespace MotoZeroClient
 {

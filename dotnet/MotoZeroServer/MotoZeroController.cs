@@ -2,7 +2,8 @@
 using System.Threading.Tasks;
 using Devices.ThePiHut.MotoZero;
 using LCTP;
-using LCTP.Routing;
+using LCTP.Core;
+using LCTP.Core.Routing;
 
 namespace MotoZeroServer
 {

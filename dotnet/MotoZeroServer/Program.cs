@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Devices.ThePiHut.MotoZero;
-using LCTP.Server;
+using LCTP.Core.Server;
 using Unosquare.RaspberryIO;
 
 namespace MotoZeroServer

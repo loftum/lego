@@ -4,9 +4,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using LCTP.Net;
+using LCTP.Core.Net;
 
-namespace LCTP.Server
+namespace LCTP.Core.Server
 {
     /// <summary>
     /// Lego Command Transfer Protocol Server

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace LCTP.Routing
+namespace LCTP.Core.Routing
 {
     public abstract class BaseController: IController
     {

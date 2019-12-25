@@ -4,9 +4,9 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using LCTP.Extensions;
+using LCTP.Core.Extensions;
 
-namespace LCTP.Server
+namespace LCTP.Core.Server
 {
     public class ClientHandler: IDisposable
     {

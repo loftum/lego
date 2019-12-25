@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 
-namespace LCTP.Extensions
+namespace LCTP.Core.Extensions
 {
     public static class StreamWriterExtensions
     {

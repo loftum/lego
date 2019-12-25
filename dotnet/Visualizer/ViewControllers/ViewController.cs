@@ -1,9 +1,10 @@
 ﻿using System;
 using AppKit;
 using CoreGraphics;
+using Devices;
+using Lego.Car;
 using Metal;
 using MetalKit;
-using OpenTK;
 using Visualizer.Rendering;
 
 namespace Visualizer.ViewControllers
@@ -11,13 +12,12 @@ namespace Visualizer.ViewControllers
     public class ViewController: NSViewController, IRotationProvider
     {
         private readonly MTKView _mtkView;
-        private readonly Renderer renderer;
+        private readonly Renderer _renderer;
         private readonly NSSlider _xSlider;
         private readonly NSSlider _ySlider;
 
         public ViewController()
         {
-            Console.WriteLine("ViewController ctor");
             var device = MTLDevice.SystemDefault;
             if (device == null)
             {
@@ -29,8 +29,8 @@ namespace Visualizer.ViewControllers
                 ColorPixelFormat = MTLPixelFormat.BGRA8Unorm,
                 DepthStencilPixelFormat = MTLPixelFormat.Depth32Float
             };
-            renderer = new Renderer(_mtkView, this);
-            _mtkView.Delegate = renderer;
+            _renderer = new Renderer(_mtkView, this);
+            _mtkView.Delegate = _renderer;
 
             _xSlider = new NSSlider
             {
@@ -67,6 +67,9 @@ namespace Visualizer.ViewControllers
                 });
         }
 
-        public Vector3 GetRotation() => new Vector3(_xSlider.FloatValue, -_ySlider.FloatValue, 0);
+        public Vector3 GetRotation()
+        {
+            return new Vector3(_xSlider.FloatValue, -_ySlider.FloatValue, 0);
+        }
     }
 }

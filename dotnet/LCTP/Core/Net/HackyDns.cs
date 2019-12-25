@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Net;
 
-namespace LCTP.Net
+namespace LCTP.Core.Net
 {
     public static class HackyDns
     {

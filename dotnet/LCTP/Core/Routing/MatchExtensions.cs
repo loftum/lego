@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace LCTP.Routing
+namespace LCTP.Core.Routing
 {
     public static class MatchExtensions
     {

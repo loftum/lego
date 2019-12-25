@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace LCTP
+namespace LCTP.Core
 {
     public interface IController
     {

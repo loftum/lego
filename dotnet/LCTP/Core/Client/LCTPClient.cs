@@ -5,9 +5,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using LCTP.Extensions;
+using LCTP.Core.Extensions;
 
-namespace LCTP.Client
+namespace LCTP.Core.Client
 {
     public static class SocketExtensions
     {

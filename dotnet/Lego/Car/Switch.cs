@@ -1,4 +1,4 @@
-﻿namespace SteeringWheel.Controllers
+﻿namespace Lego.Car
 {
     public class Switch
     {
@@ -8,6 +8,11 @@
         public void UpdateWasOn()
         {
             WasOn = IsOn;
+        }
+
+        public void Toggle()
+        {
+            IsOn = !IsOn;
         }
     }
 }

@@ -8,7 +8,4 @@
     <Compile Remove="Client\SocketExtensions.cs" />
     <Compile Remove="Net\IfConfig.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Net\" />
-  </ItemGroup>
 </Project>

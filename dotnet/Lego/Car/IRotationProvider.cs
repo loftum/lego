@@ -1,6 +1,6 @@
-using OpenTK;
+using Devices;
 
-namespace Visualizer.Rendering
+namespace Lego.Car
 {
     public interface IRotationProvider
     {

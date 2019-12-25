@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Devices._4tronix;
-using LCTP.Server;
+using LCTP.Core.Server;
 using Unosquare.RaspberryIO;
 
 namespace LegoCarServer

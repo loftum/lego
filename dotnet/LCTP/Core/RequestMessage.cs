@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace LCTP
+namespace LCTP.Core
 {
     public class RequestMessage
     {

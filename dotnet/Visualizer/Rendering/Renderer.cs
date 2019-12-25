@@ -3,11 +3,11 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Foundation;
+using Lego.Car;
 using Metal;
 using MetalKit;
 using ModelIO;
 using OpenTK;
-using Visualizer.ViewControllers;
 
 namespace Visualizer.Rendering
 {
@@ -177,9 +177,15 @@ namespace Visualizer.Rendering
             commandBuffer.Commit();
         }
 
-        void UpdateUniforms()
+        private Vector3 GetRotation()
         {
             var rotation = _positionProvider.GetRotation();
+            return new Vector3((float)rotation.X, (float)rotation.Y, (float)rotation.Z);
+        }
+
+        private void UpdateUniforms()
+        {
+            var rotation = GetRotation();
 
             //var baseModel = Matrix4.Mult(M.CreateMatrixFromTranslation(0f, 0f, 5f), M.CreateMatrixFromRotation(rotation, 1f, 0f, 0f));
             var baseModel = M.CreateMatrixFromTranslation(0f, 0f, 5f).Rotate(rotation);

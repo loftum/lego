@@ -91,13 +91,13 @@
     <Compile Include="AppDelegate.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="MainWindowController.cs" />
-    <Compile Include="Rendering\IRotationProvider.cs" />
     <Compile Include="Rendering\MatrixExtensions.cs" />
     <Compile Include="Rendering\Renderer.cs" />
     <Compile Include="Rendering\Uniforms.cs" />
     <Compile Include="ViewControllers\ConnectViewController.cs" />
     <Compile Include="ViewControllers\NSViewExtensions.cs" />
     <Compile Include="ViewControllers\ViewController.cs" />
+    <Compile Include="ViewControllers\VisualizerViewController.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />
@@ -109,6 +109,20 @@
     <BundleResource Include="Resources\teapot.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </BundleResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Devices\Devices.csproj">
+      <Project>{769d26e4-3d86-4edd-aeb7-02fa327d9021}</Project>
+      <Name>Devices</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LCTP\LCTP.csproj">
+      <Project>{527620e6-f1cf-4368-b45e-831a3d6b92b2}</Project>
+      <Name>LCTP</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Lego\Lego.csproj">
+      <Project>{cf2492f8-a1f2-41a5-b319-db2c19662a0c}</Project>
+      <Name>Lego</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>
