@@ -14,9 +14,8 @@ namespace Lego.Core
         private readonly ADCPiZeroBoard _adcBoard; 
         private readonly ServoPwmBoard _pwmBoard;
         private readonly MotoZeroBoard _motoZero;
-        public IServo SteerFront {get; }
-        public IServo SteerBack {get; }
-
+        public IServo SteerFront { get; }
+        public IServo SteerBack { get; }
         public ILight LeftBlinker { get; }
         public ILight RightBlinker { get; }
         public ILight Headlights { get; }

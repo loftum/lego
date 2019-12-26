@@ -4,7 +4,12 @@ using Unosquare.WiringPi;
 
 namespace Devices.ThePiHut.MotoZero
 {
-    public class MotoZeroMotor
+    public interface IMotor
+    {
+        int Speed { get; set; }
+    }
+    
+    public class MotoZeroMotor : IMotor
     {
         private readonly GpioPin _enablePin;
         private readonly GpioPin _plusPin;
