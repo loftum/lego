@@ -2,7 +2,7 @@
 using System.Linq;
 using Devices.ThePiHut.ServoPWMPiZero;
 
-namespace LegoCarServer2
+namespace LegoCarServer
 {
     public class Headlights
     {

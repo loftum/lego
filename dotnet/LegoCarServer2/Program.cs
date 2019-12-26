@@ -5,7 +5,6 @@ using Devices.ThePiHut.ADCPiZero;
 using Devices.ThePiHut.MotoZero;
 using Devices.ThePiHut.ServoPWMPiZero;
 using LCTP.Core.Server;
-using Shared;
 using Unosquare.RaspberryIO;
 using Unosquare.WiringPi;
 
