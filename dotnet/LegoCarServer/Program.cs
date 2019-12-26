@@ -28,7 +28,7 @@ namespace LegoCarServer
                 using (var motoZero = new MotoZeroBoard(Pi.Gpio))
                 {
                     var adcBoard = new ADCPiZeroBoard(Pi.I2C);
-                    var controller = new LegoCarController2(pwm, motoZero, adcBoard);
+                    var controller = new LegoCarController(pwm, motoZero, adcBoard);
                     using (var server = new LctpServer(5080, controller))
                     {
                         await server.Start(cancellationToken);

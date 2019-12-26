@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Devices\Devices.csproj" />
     <ProjectReference Include="..\LCTP\LCTP.csproj" />
+    <ProjectReference Include="..\Lego\Lego.csproj" />
   </ItemGroup>
 
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />

@@ -1,6 +1,6 @@
 ﻿using Devices.ThePiHut.ServoPWMPiZero;
 
-namespace LegoCarServer
+namespace Lego.Core
 {
     public class Blinker
     {

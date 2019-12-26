@@ -8,10 +8,11 @@ using Devices.ThePiHut.MotoZero;
 using Devices.ThePiHut.ServoPWMPiZero;
 using LCTP.Core;
 using LCTP.Core.Routing;
+using Lego.Core;
 
 namespace LegoCarServer
 {
-    public class LegoCarController2 : BaseController
+    public class LegoCarController : BaseController
     {
         private const double DistanceLimit = 1.1;
         private readonly ADCPiZeroBoard _adcBoard; 
@@ -29,7 +30,7 @@ namespace LegoCarServer
         private double _lastDistance;
         private double _distance;
 
-        public LegoCarController2(ServoPwmBoard pwmBoard, MotoZeroBoard motoZero, ADCPiZeroBoard adcBoard)
+        public LegoCarController(ServoPwmBoard pwmBoard, MotoZeroBoard motoZero, ADCPiZeroBoard adcBoard)
         {
             _pwmBoard = pwmBoard;
             _motoZero = motoZero;

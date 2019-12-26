@@ -2,7 +2,7 @@
 using System.Linq;
 using Devices.ThePiHut.ServoPWMPiZero;
 
-namespace LegoCarServer
+namespace Lego.Core
 {
     public class Headlights
     {
@@ -12,6 +12,11 @@ namespace LegoCarServer
         public Headlights(IEnumerable<Led> leds)
         {
             _leds = leds.ToArray();
+        }
+
+        public void Toggle()
+        {
+            On = !On;
         }
 
         public bool On
