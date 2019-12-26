@@ -2,7 +2,12 @@
 
 namespace Devices.ThePiHut.ServoPWMPiZero
 {
-    public class Servo
+    public interface IServo
+    {
+        int Value { get; set; }
+    }
+    
+    public class Servo : IServo
     {
         private readonly ServoPwmBoard _board;
         private readonly Pwm _pwm;

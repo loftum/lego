@@ -2,7 +2,7 @@
 
 namespace Lego.Core
 {
-    public class Blinker
+    public class Blinker : ILight
     {
         public bool On
         {

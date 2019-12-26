@@ -8,18 +8,18 @@ using Devices.ThePiHut.ServoPWMPiZero;
 
 namespace Lego.Core
 {
-    public class LegoCar
+    public class LegoCar : ILegoCar
     {
         private const double DistanceLimit = 1.1;
         private readonly ADCPiZeroBoard _adcBoard; 
         private readonly ServoPwmBoard _pwmBoard;
         private readonly MotoZeroBoard _motoZero;
-        public Servo SteerFront {get; }
-        public Servo SteerBack {get; }
+        public IServo SteerFront {get; }
+        public IServo SteerBack {get; }
 
-        public Blinker LeftBlinker { get; }
-        public Blinker RightBlinker { get; }
-        public Headlights Headlights { get; }
+        public ILight LeftBlinker { get; }
+        public ILight RightBlinker { get; }
+        public ILight Headlights { get; }
         private readonly Timer _blinker = new Timer(2 * Math.PI * 100);
         private readonly ADCPiZeroInput _frontDistance;
         private readonly Task _distanceTask;
@@ -53,7 +53,38 @@ namespace Lego.Core
             _blinker.Start();
             _distanceTask = Task.Run(MeasureDistance);
         }
+
+        public int GetMotorSpeed(int motorNumber)
+        {
+            return _motoZero.Motors[motorNumber].Speed;
+        }
+
+        public void SetMotorSpeed(int motorNumber, int speed)
+        {
+            var motor = _motoZero.Motors[motorNumber];
+            motor.Speed = speed;
+        }
         
+        public void SetMotorSpeed(int speed)
+        {
+            if (Distance > DistanceLimit && _lastDistance > DistanceLimit && speed >= 0)
+            {
+                if (_motoZero.Motors[0].Speed > 0)
+                {
+                    _motoZero.Motors[0].Speed = 0;
+                }
+                if (_motoZero.Motors[1].Speed > 0)
+                {
+                    _motoZero.Motors[1].Speed = 0;
+                }
+            }
+            else
+            {
+                _motoZero.Motors[0].Speed = speed;
+                _motoZero.Motors[1].Speed = speed;
+            }
+        }
+
         private void Blink(object sender, ElapsedEventArgs e)
         {
             LeftBlinker.Toggle();
@@ -80,6 +111,16 @@ namespace Lego.Core
                 }
                 await Task.Delay(75);
             }
+        }
+
+        public void Reset()
+        {
+            _motoZero.Motors[0].Speed = 0;
+            _motoZero.Motors[1].Speed = 0;
+            SteerFront.Value = 90;
+            SteerBack.Value = 90;
+            LeftBlinker.On = false;
+            RightBlinker.On = false;
         }
     }
 }

@@ -7,30 +7,6 @@ using LCTP.Core.Client;
 
 namespace Lego.Car
 {
-    public interface ICarInput
-    {
-        int GetThrottle();
-        int GetSteerAngleDeg();
-    }
-
-    public struct Sampled<T> where T : struct
-    {
-        private T _value;
-        public T LastValue { get; private set; }
-
-        public T Value
-        {
-            get => _value;
-            set
-            {
-                LastValue = _value;
-                _value = value;
-            }
-        }
-
-        public bool HasChanged => !LastValue.Equals(Value);
-    }
-    
     public class CarClient : IRotationProvider, IDisposable
     {
         private Sampled<int> _throttle;

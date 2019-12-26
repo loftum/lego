@@ -4,7 +4,7 @@ using Devices.ThePiHut.ServoPWMPiZero;
 
 namespace Lego.Core
 {
-    public class Headlights
+    public class Headlights : ILight
     {
         private readonly Led[] _leds;
         private bool _on;
