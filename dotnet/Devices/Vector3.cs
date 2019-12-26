@@ -47,7 +47,7 @@
 
         public string ToString(string format)
         {
-            return $"[{X.ToString(format)}, {Y.ToString(format)}, {Z.ToString(format)}]";
+            return $"[{X.ToString(format)},{Y.ToString(format)},{Z.ToString(format)}]";
         }
 
         public static bool TryParse(string stringValue, out Vector3 result)

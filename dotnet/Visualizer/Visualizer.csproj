@@ -111,10 +111,6 @@
     </BundleResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Devices\Devices.csproj">
-      <Project>{769d26e4-3d86-4edd-aeb7-02fa327d9021}</Project>
-      <Name>Devices</Name>
-    </ProjectReference>
     <ProjectReference Include="..\LCTP\LCTP.csproj">
       <Project>{527620e6-f1cf-4368-b45e-831a3d6b92b2}</Project>
       <Name>LCTP</Name>

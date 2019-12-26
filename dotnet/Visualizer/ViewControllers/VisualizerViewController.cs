@@ -10,6 +10,9 @@ namespace Visualizer.ViewControllers
 {
     public class VisualizerViewController : NSViewController, ICarInput
     {
+        private readonly NSSlider _throttleSlider;
+        private readonly NSSlider _steerSlider;
+        
         private readonly CarClient _client;
         private readonly Renderer _renderer;
         private readonly MTKView _mtkView;
@@ -32,6 +35,42 @@ namespace Visualizer.ViewControllers
             };
             _renderer = new Renderer(_mtkView, _client);
             _mtkView.Delegate = _renderer;
+            
+            _throttleSlider = new NSSlider
+            {
+                IsVertical = 1,
+                MinValue = -255,
+                MaxValue = 255,
+                IntValue = 0
+            };
+
+            _steerSlider = new NSSlider
+            {
+                MinValue = -90,
+                MaxValue = 90,
+                IntValue = 0
+            };
+            
+            View = new NSView()
+                .WithSubview(_mtkView, (c, p) => new []
+                {
+                    c.LeadingAnchor.ConstraintEqualToAnchor(p.LeadingAnchor),
+                    c.TopAnchor.ConstraintEqualToAnchor(p.TopAnchor),
+                    c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor),
+                    c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor)
+                })
+                .WithSubview(_throttleSlider, (c, p) => new[]
+                {
+                    c.TopAnchor.ConstraintEqualToAnchor(p.TopAnchor, 40),
+                    c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor, -10),
+                    c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor, -40)
+                })
+                .WithSubview(_steerSlider, (c, p) => new[]
+                {
+                    c.LeadingAnchor.ConstraintEqualToAnchor(p.LeadingAnchor, 40),
+                    c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor, -40),
+                    c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor, -10)
+                });
         }
 
         protected override void Dispose(bool disposing)
@@ -48,12 +87,12 @@ namespace Visualizer.ViewControllers
 
         public int GetThrottle()
         {
-            return 0;
+            return _throttleSlider.IntValue;
         }
 
         public int GetSteerAngleDeg()
         {
-            return 0;
+            return _steerSlider.IntValue;
         }
     }
 }

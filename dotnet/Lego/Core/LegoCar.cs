@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
+using Devices;
 using Devices.ThePiHut.ADCPiZero;
 using Devices.ThePiHut.MotoZero;
 using Devices.ThePiHut.ServoPWMPiZero;
@@ -51,6 +52,12 @@ namespace Lego.Core
             _blinker.Elapsed += Blink;
             _blinker.Start();
             _distanceTask = Task.Run(MeasureDistance);
+        }
+
+        public Vector3 GetOrientation()
+        {
+            // Not implemented
+            return Vector3.Zero;
         }
 
         public int GetMotorSpeed(int motorNumber)

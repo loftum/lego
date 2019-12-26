@@ -5,8 +5,21 @@ using LCTP.Core.Server;
 
 namespace Visualizer.ViewControllers
 {
+    public class ConnectEventArgs : EventArgs
+    {
+        public string Host { get; }
+        public int Port { get; }
+
+        public ConnectEventArgs(string host, int port)
+        {
+            Host = host;
+            Port = port;
+        }
+    }
+    
     public class ConnectViewController : NSViewController
     {
+        public event EventHandler<ConnectEventArgs> OnConnect; 
         private readonly NSTextField _hostField;
         private readonly NSTextField _errorField;
         private readonly NSButton _connectButton;
@@ -72,7 +85,7 @@ namespace Visualizer.ViewControllers
             var port = parts.Length > 1 && int.TryParse(parts[1], out var v) ? v : LctpServer.DefaultPort;
             try
             {
-                //PresentViewController(new ViewController());
+                OnConnect?.Invoke(this, new ConnectEventArgs(host, port));
                 _userDefaults.SetString(_hostField.StringValue, "host");
             }
             catch (Exception ex)

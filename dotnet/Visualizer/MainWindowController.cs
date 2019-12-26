@@ -26,6 +26,13 @@ namespace Visualizer
             var contentRect = new CGRect(0, 0, 1000, 500);
             base.Window = new MainWindow(contentRect, NSWindowStyle.Titled | NSWindowStyle.Closable | NSWindowStyle.Miniaturizable | NSWindowStyle.Resizable, NSBackingStore.Buffered, false);
             Window.ContentView = _connectViewController.View;
+            _connectViewController.OnConnect += OnConnect;
+        }
+
+        private void OnConnect(object sender, ConnectEventArgs e)
+        {
+            var visualizer = new VisualizerViewController(e.Host, e.Port);
+            Window.ContentView = visualizer.View;
         }
 
         public new MainWindow Window => (MainWindow)base.Window;

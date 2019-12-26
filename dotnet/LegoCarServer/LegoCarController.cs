@@ -20,6 +20,12 @@ namespace LegoCarServer
             Get("motor/(\\d{1})/speed", GetMotorSpeed);
             Set("motor/(\\d{1})/speed", SetMotorSpeed);
             Set("steer/angle", SetSteer);
+            Get("orientation", GetOrientation);
+        }
+
+        private Task<ResponseMessage> GetOrientation(RequestMessage request, Match match)
+        {
+            return Task.FromResult(ResponseMessage.Ok(_car.GetOrientation()));
         }
 
         private Task<ResponseMessage> SetBlinker(RequestMessage request, Match match)
