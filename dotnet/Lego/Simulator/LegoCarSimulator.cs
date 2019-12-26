@@ -16,7 +16,12 @@ namespace Lego.Simulator
 
         public LegoCarSimulator(int motors)
         {
-            Motors = Enumerable.Range(0, motors).Select(i => new MotorSimulator()).ToArray();
+            LeftBlinker = new LightSimulator("Left blinker");
+            RightBlinker = new LightSimulator("Right blinker");
+            Headlights = new LightSimulator("Headlights");
+            SteerFront = new ServoSimulator("Steer front");
+            SteerBack = new ServoSimulator("Steer back");
+            Motors = Enumerable.Range(0, motors).Select(i => new MotorSimulator($"Motor {i}")).ToArray();
         }
         
         public int GetMotorSpeed(int motorNumber)

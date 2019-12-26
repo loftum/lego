@@ -32,7 +32,9 @@ namespace LCTP.Core.Server
             var hostname = Dns.GetHostName();
             Console.WriteLine($"hostname: {hostname}");
 
-            foreach (var address in HackyDns.GetHostAddresses(hostname).Where(a => a.AddressFamily == AddressFamily.InterNetwork).Distinct())
+            foreach (var address in HackyDns.GetLocalAddresses()
+                .Where(a => a.AddressFamily == AddressFamily.InterNetwork)
+                .Distinct())
             {
                 Console.WriteLine($"Address: {address}");
             }
