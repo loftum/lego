@@ -6,6 +6,7 @@ using Devices;
 using Devices.ThePiHut.ADCPiZero;
 using Devices.ThePiHut.MotoZero;
 using Devices.ThePiHut.ServoPWMPiZero;
+using Maths;
 
 namespace Lego.Core
 {

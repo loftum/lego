@@ -125,9 +125,9 @@
       <Project>{527620E6-F1CF-4368-B45E-831A3D6B92B2}</Project>
       <Name>LCTP</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Lego\Lego.csproj">
-      <Project>{cf2492f8-a1f2-41a5-b319-db2c19662a0c}</Project>
-      <Name>Lego</Name>
+    <ProjectReference Include="..\Lego.Client\Lego.Client.csproj">
+      <Project>{938afe20-be61-44b5-bf69-05e95056189e}</Project>
+      <Name>Lego.Client</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

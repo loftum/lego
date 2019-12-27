@@ -1,7 +1,7 @@
 using System;
 using AppKit;
 using CoreGraphics;
-using Lego.Car;
+using Lego.Client;
 using Metal;
 using MetalKit;
 using Visualizer.Rendering;

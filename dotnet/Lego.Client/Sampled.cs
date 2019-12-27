@@ -1,4 +1,4 @@
-namespace Lego.Car
+namespace Lego.Client
 {
     public struct Sampled<T> where T : struct
     {

@@ -1,4 +1,4 @@
-﻿namespace Lego.Car
+﻿namespace Lego.Client
 {
     public class Switch
     {

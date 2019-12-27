@@ -5,8 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Devices;
 using Devices.Adafruit.BNO055;
+using Maths;
 using Unosquare.RaspberryIO;
 using Unosquare.WiringPi;
 

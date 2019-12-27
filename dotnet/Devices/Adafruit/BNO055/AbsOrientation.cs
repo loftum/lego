@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using Maths;
 using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.Adafruit.BNO055

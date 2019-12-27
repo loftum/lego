@@ -1,4 +1,4 @@
-﻿namespace Devices
+﻿namespace Maths
 {
     public struct Vector3
     {

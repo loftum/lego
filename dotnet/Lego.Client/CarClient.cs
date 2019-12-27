@@ -2,10 +2,10 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Devices;
 using LCTP.Core.Client;
+using Maths;
 
-namespace Lego.Car
+namespace Lego.Client
 {
     public class CarClient : IRotationProvider, IDisposable
     {

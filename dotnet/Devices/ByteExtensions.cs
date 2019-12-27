@@ -1,4 +1,6 @@
-﻿namespace Devices
+﻿using Maths;
+
+namespace Devices
 {
     public static class ByteExtensions
     {

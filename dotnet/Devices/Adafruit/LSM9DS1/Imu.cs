@@ -3,6 +3,7 @@ using System.Threading;
 using Devices.Adafruit.LSM9DS1.Accelerometer;
 using Devices.Adafruit.LSM9DS1.Gyroscope;
 using Devices.Adafruit.LSM9DS1.Magnetometer;
+using Maths;
 using Unosquare.RaspberryIO.Abstractions;
 
 

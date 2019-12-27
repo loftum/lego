@@ -1,6 +1,6 @@
-using Devices;
+using Maths;
 
-namespace Lego.Car
+namespace Lego.Client
 {
     public interface IRotationProvider
     {

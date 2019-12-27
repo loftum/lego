@@ -4,6 +4,7 @@ using Devices;
 using Devices.ThePiHut.MotoZero;
 using Devices.ThePiHut.ServoPWMPiZero;
 using Lego.Core;
+using Maths;
 
 namespace Lego.Simulator
 {

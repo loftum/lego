@@ -36,4 +36,8 @@
     <Folder Include="Distance\Sharp\GP2Y0A41SK0F\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Maths\Maths.csproj" />
+  </ItemGroup>
+
 </Project>
