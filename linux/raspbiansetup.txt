@@ -1,3 +1,7 @@
+0) Raspi Config
+raspi-config
+Enable: I2C, SPI, SSH, change keyboard, etc
+
 1) Useradmin
 - Add sudo user
 sudo adduser username
