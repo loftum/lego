@@ -38,12 +38,12 @@ sudo apt-get install curl libunwind8 gettext apt-transport-https
 
 # apt packages for dotnet-sdk arm32 not available per nov 2018.
 # Download manually:
-wget https://dotnetcli.blob.core.windows.net/dotnet/Sdk/2.1.500/dotnet-sdk-2.1.500-linux-arm.tar.gz
-sudo mkdir -p /opt/dotnet/2.1.500
-sudo tar -xvf dotnet-sdk-2.1.500-linux-arm.tar.gz -C /opt/dotnet/2.1.500
+wget https://dotnetcli.blob.core.windows.net/dotnet/Sdk/3.1.100/dotnet-sdk-3.1.100-linux-arm.tar.gz
+sudo mkdir -p /opt/dotnet/3.1.100
+sudo tar -xvf dotnet-sdk-3.1.100-linux-arm.tar.gz -C /opt/dotnet/3.1.100
 
 # Symlink to latest
-sudo ln -s /opt/dotnet/2.1.500 /opt/dotnet/latest
+sudo ln -s /opt/dotnet/3.1.100 /opt/dotnet/latest
 
 sudo ln -s /opt/dotnet/latest/dotnet /usr/local/bin
 dotnet --info
