@@ -2,6 +2,11 @@
 raspi-config
 Enable: I2C, SPI, SSH, change keyboard, etc
 
+0.1)
+Case insensitive autocomplete (God, I don't know how anybody can surive without that)
+echo 'set completion-ignore-case On' | sudo tee -a /etc/inputrc
+
+
 1) Useradmin
 - Add sudo user
 sudo adduser username
