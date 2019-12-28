@@ -41,7 +41,7 @@ namespace LegoCarServer
 
         private static async Task Run(CancellationToken cancellationToken)
         {
-            Console.WriteLine("LegoCar Server Simulator v1.0");
+            Console.WriteLine("LegoCar Server v1.0");
 
             Pi.Init<BootstrapWiringPi>();
             using (var pwm = new ServoPwmBoard(Pi.I2C, Pi.Gpio))

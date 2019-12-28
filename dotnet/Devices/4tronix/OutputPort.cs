@@ -1,5 +1,5 @@
-﻿using Unosquare.RaspberryIO.Abstractions;
-using Unosquare.Swan;
+﻿using Swan;
+using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices._4tronix
 {
