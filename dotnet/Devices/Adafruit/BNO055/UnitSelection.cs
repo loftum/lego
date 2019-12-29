@@ -1,43 +1,113 @@
-﻿namespace Devices.Adafruit.BNO055
-{
-    public struct UnitSelection
-    {
-        public FusionDataFormat FusionDataFormat { get; set; }
-        public TemperatureUnit TemperatureUnit { get; set; }
-        public EulerAngleUnit EulerAngleUnit { get; set; }
-        public AngularRate AngularVelocityUnit { get; set; }
-        public AccelerometerUnit AccelerometerUnit { get; set; }
+﻿using System.Text;
+using Unosquare.RaspberryIO.Abstractions;
 
-        public byte GetRegisterValue()
+namespace Devices.Adafruit.BNO055
+{
+    public class UnitSelection
+    {
+        private readonly II2CDevice _device;
+        private FusionDataFormat _fusionDataFormat;
+        private TemperatureUnit _temperatureUnit;
+        private EulerAngleUnit _eulerAngleUnit;
+        private AngularRate _angularVelocityUnit;
+        private AccelerometerUnit _accelerometerUnit;
+
+        public UnitSelection(II2CDevice device)
         {
-            var i = (byte) FusionDataFormat << 7 |
-                    (byte) TemperatureUnit << 4 |
-                    (byte) EulerAngleUnit << 2 |
-                    (byte) AngularVelocityUnit << 1 |
-                    (byte) AccelerometerUnit << 0;
+            _device = device;
+            Load();
+        }
+
+        public FusionDataFormat FusionDataFormat
+        {
+            get => _fusionDataFormat;
+            set
+            {
+                _fusionDataFormat = value;
+                Save();
+            }
+        }
+
+        public TemperatureUnit TemperatureUnit
+        {
+            get => _temperatureUnit;
+            set
+            {
+                _temperatureUnit = value;
+                Save();
+            }
+        }
+
+        public EulerAngleUnit EulerAngleUnit
+        {
+            get => _eulerAngleUnit;
+            set
+            {
+                _eulerAngleUnit = value;
+                Save();
+            }
+        }
+
+        public AngularRate AngularVelocityUnit
+        {
+            get => _angularVelocityUnit;
+            set
+            {
+                _angularVelocityUnit = value;
+                Save();
+            }
+        }
+
+        public AccelerometerUnit AccelerometerUnit
+        {
+            get => _accelerometerUnit;
+            set
+            {
+                _accelerometerUnit = value;
+                Save();
+            }
+        }
+
+        private byte GetRegisterValue()
+        {
+            var i = (byte) _fusionDataFormat << 7 |
+                    (byte) _temperatureUnit << 4 |
+                    (byte) _eulerAngleUnit << 2 |
+                    (byte) _angularVelocityUnit << 1 |
+                    (byte) _accelerometerUnit << 0;
             return (byte) i;
         }
 
-        public static UnitSelection FromRegisterValue(byte val)
+        private void ParseRegisterValue(byte val)
         {
-            return new UnitSelection
-            {
-                FusionDataFormat = (FusionDataFormat)(val & 0b1000_0000),
-                TemperatureUnit = (TemperatureUnit)(val & 0b0000_1000),
-                EulerAngleUnit = (EulerAngleUnit)(val & 0b0000_0010),
-                AngularVelocityUnit = (AngularRate)(val & 0b0000_0001),
-                AccelerometerUnit = (AccelerometerUnit)(val & 0b0000_0001),
-            };
+            _fusionDataFormat = (FusionDataFormat) ((val & 0b_1000_0000) >> 7);
+            _temperatureUnit = (TemperatureUnit) ((val & 0b_0001_0000) >> 4);
+            _eulerAngleUnit = (EulerAngleUnit) ((val & 0b_0000_0100) >> 2);
+            _angularVelocityUnit = (AngularRate) ((val & 0b_0000_0010) >> 1);
+            _accelerometerUnit = (AccelerometerUnit) (val & 0b_0000_0001);
+        }
+        
+        private void Load()
+        {
+            var raw = _device.ReadAddressByte((int) Registers.BNO055_UNIT_SEL_ADDR);
+            ParseRegisterValue(raw);
         }
 
-        public static implicit operator byte(UnitSelection sel)
+        private void Save()
         {
-            return sel.GetRegisterValue();
+            var raw = GetRegisterValue();
+            _device.WriteAddressByte((int)Registers.BNO055_UNIT_SEL_ADDR, raw);
         }
 
-        public static implicit operator UnitSelection(byte val)
+        public override string ToString()
         {
-            return FromRegisterValue(val);
+            return new StringBuilder()
+                .AppendLine($"Fusion data format: {FusionDataFormat.ToString()}")
+                .AppendLine($"Temperature unit: {TemperatureUnit.ToString()}")
+                .AppendLine($"Euler angle unit: {EulerAngleUnit.ToString()}")
+                .AppendLine($"Angular velocity unit: {AngularVelocityUnit.ToString()}")
+                .AppendLine($"Accelerometer unit: {AccelerometerUnit.ToString()}")
+                .ToString();
         }
     }
 }

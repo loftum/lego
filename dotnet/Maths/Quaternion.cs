@@ -14,6 +14,11 @@
             Y = y;
             Z = z;
         }
+        
+        public static Quaternion operator /(Quaternion vector, double f)
+        {
+            return new Quaternion(vector.W / f, vector.X / f, vector.Y / f, vector.Z / f);
+        }
 
         public override string ToString()
         {

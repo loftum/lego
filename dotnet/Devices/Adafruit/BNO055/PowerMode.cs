@@ -4,6 +4,6 @@
     {
         POWER_MODE_NORMAL = 0X00,
         POWER_MODE_LOWPOWER = 0X01,
-        POWER_MODE_SUSPEND
+        POWER_MODE_SUSPEND = 0x02
     }
 }

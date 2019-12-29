@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using Maths;
 using Unosquare.RaspberryIO.Abstractions;
@@ -50,11 +49,7 @@ namespace Devices.Adafruit.BNO055
             private set => WriteByte(Registers.BNO055_AXIS_MAP_SIGN_ADDR, (byte)value);
         }
 
-        public UnitSelection UnitSelection
-        {
-            get => ReadByte(Registers.BNO055_UNIT_SEL_ADDR);
-            private set => WriteByte(Registers.BNO055_UNIT_SEL_ADDR, value);
-        }
+        public UnitSelection UnitSelection { get; }
 
         public ClockSelection ClockSelection
         {
@@ -96,7 +91,7 @@ namespace Devices.Adafruit.BNO055
         public Quaternion ReadQuaternion()
         {
             var bytes = ReadBytes(Registers.BNO055_QUATERNION_DATA_W_LSB_ADDR, 8);
-            return bytes.ToQuaternion();
+            return bytes.ToQuaternion() / 16384; // 2 ^ 14 LSB
         }
 
         public Vector3 ReadEulerData()
@@ -104,28 +99,81 @@ namespace Devices.Adafruit.BNO055
             var bytes = ReadBytes(Registers.BNO055_EULER_H_LSB_ADDR, 6);
             // Stupid bug in the chip.
             // Whenever pitch > 0, pitch MSB is set erroneously
-            var msb = (short) (bytes[5] << 8 | bytes[4]);
-            if (msb > 2880 || msb < -2880)
-            //if (msb > 12 && msb < 139) // between 00001011 and 10001011
-            {
-                bytes[5] &= 0b0111_1111;
-            }
-
-            Console.WriteLine($"[{string.Join(", ", bytes.Select(b => Convert.ToString(b, 2)))}]");
+            // for (var ii = 0; ii < 6; ii+=2)
+            // {
+            //     var msb = (short) (bytes[ii + 1] << 8 | bytes[ii]);
+            //     if (msb > 2880 || msb < -2880)
+            //     if (msb > 12 && msb < 139) // between 00001011 and 10001011
+            //     {
+            //         bytes[ii +1] &= 0b0111_1111;
+            //     }   
+            // }
+            // var msb = (short) (bytes[5] << 8 | bytes[4]);
+            // if (msb > 2880 || msb < -2880)
+            // if (msb > 12 && msb < 139) // between 00001011 and 10001011
+            // {
+            //     bytes[5] &= 0b0111_1111;
+            // }
             var vector = bytes.ToVector3();
-            return bytes.ToVector3() / 16.0;
+            switch (UnitSelection.EulerAngleUnit)
+            {
+                case EulerAngleUnit.Radians:
+                    vector /= 900;
+                    return vector;
+                case EulerAngleUnit.Degrees:
+                    vector /= 16;
+                    return vector;
+                default:
+                    throw new InvalidOperationException($"Unknown euler angle unit {UnitSelection.EulerAngleUnit}");
+            }
         }
 
         public Vector3 ReadLinearAccel()
         {
             var bytes = ReadBytes(Registers.BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, 6);
-            return bytes.ToVector3() / 100;
+            var vector = bytes.ToVector3();
+            switch (UnitSelection.AccelerometerUnit)
+            {
+                case AccelerometerUnit.MetersPerSquareSecond:
+                    return vector / 100;
+                case AccelerometerUnit.MilliG:
+                    return vector;
+                default:
+                    throw new InvalidOperationException($"Unknown accel unit");
+            }
+        }
+
+        /// <summary>
+        /// Returns [roll, pitch, yaw] in radians
+        /// </summary>
+        /// <returns></returns>
+        public Vector3 ReadRollPitchYaw()
+        {
+            var quaternion = ReadQuaternion();
+            
+            var w = quaternion.W;
+            var x = quaternion.X;
+            var y = quaternion.Y;
+            var z = quaternion.Z;
+
+            var roll = Math.Atan2(2 * y * w - 2 * x * z, 1 - 2 * y * y - 2 * z * z);
+            var pitch = Math.Atan2(2 * x * w - 2 * y * z, 1 - 2 * x * x - 2 * z * z);
+            var yaw = Math.Asin(2 * x * y + 2 * z * w);
+            return new Vector3(roll, pitch, yaw);
         }
 
         public Vector3 ReadAccel()
         {
-            var bytes = ReadBytes(Registers.BNO055_ACCEL_DATA_X_LSB_ADDR, 6);
-            return bytes.ToVector3() / 100;
+            var vector = ReadBytes(Registers.BNO055_ACCEL_DATA_X_LSB_ADDR, 6).ToVector3();
+            switch (UnitSelection.AccelerometerUnit)
+            {
+                case AccelerometerUnit.MetersPerSquareSecond:
+                    return vector / 100;
+                case AccelerometerUnit.MilliG:
+                    return vector;
+                default:
+                    throw new InvalidCastException("Unknown accel unit");
+            }
         }
 
         private byte[] ReadBytes(Registers register, int length)
@@ -139,10 +187,12 @@ namespace Devices.Adafruit.BNO055
             return bytes;
         }
 
-        public AbsOrientation(II2CBus bus)
+        public AbsOrientation(II2CBus bus, OperationMode mode)
         {
             _device = bus.AddDevice(DefaultI2CAddress);
             VerifyId();
+            UnitSelection = new UnitSelection(_device);
+            Begin(mode);
         }
 
         public void Begin(OperationMode mode)
@@ -151,14 +201,6 @@ namespace Devices.Adafruit.BNO055
             Reset();
             PowerMode = PowerMode.POWER_MODE_NORMAL;
             RegisterPage = 0;
-            UnitSelection = new UnitSelection
-            {
-                AccelerometerUnit = AccelerometerUnit.MetersPerSquareSecond,
-                AngularVelocityUnit = AngularRate.DegreesPerSecond,
-                EulerAngleUnit = EulerAngleUnit.Degrees,
-                TemperatureUnit = TemperatureUnit.Celsius,
-                FusionDataFormat = FusionDataFormat.Windows
-            };
             ClockSelection = ClockSelection.External;
             OperationMode = mode;
         }
@@ -199,7 +241,16 @@ namespace Devices.Adafruit.BNO055
 
         public double ReadTemp()
         {
-            return ReadByte(Registers.BNO055_TEMP_ADDR);  
+            var raw = ReadByte(Registers.BNO055_TEMP_ADDR);
+            switch (UnitSelection.TemperatureUnit)
+            {
+                case TemperatureUnit.Celsius:
+                    return raw;
+                case TemperatureUnit.Fahrenheit:
+                    return 2 * raw;
+                default:
+                    throw new InvalidOperationException($"Unknown temperature unit");
+            }
         }
     }
 }

@@ -13,7 +13,7 @@ namespace LegoCarServer
         public LegoCarController(ILegoCar car)
         {
             _car = car;
-            _car.Reset();
+            //_car.Reset();
             Set("blinker/(.+)", SetBlinker);
             Set("headlights", SetHeadlights);
             Set("motor/speed", SetBothMotorsSpeed);

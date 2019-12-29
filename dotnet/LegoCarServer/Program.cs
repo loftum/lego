@@ -16,19 +16,17 @@ namespace LegoCarServer
 {
     class Program
     {
-        static void Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
             if (args.Contains("-simulator"))
             {
-                ConsoleRunner.Run(RunSimulator);    
+                return await ConsoleRunner.RunAsync(RunSimulatorAsync);    
             }
-            else
-            {
-                ConsoleRunner.Run(Run);    
-            }
+
+            return await ConsoleRunner.RunAsync(RunAsync);
         }
 
-        private static async Task RunSimulator(CancellationToken cancellationToken)
+        private static async Task RunSimulatorAsync(CancellationToken cancellationToken)
         {
             Console.WriteLine("LegoCar Server Simulator v1.0");
             var car = new LegoCarSimulator(2);
@@ -39,7 +37,7 @@ namespace LegoCarServer
             }
         }
 
-        private static async Task Run(CancellationToken cancellationToken)
+        private static async Task RunAsync(CancellationToken cancellationToken)
         {
             Console.WriteLine("LegoCar Server v1.0");
 

@@ -31,6 +31,7 @@ namespace AbsOrientationTest
         public bool Euler { get; }
         public bool Quaternion { get; }
         public bool Compass { get; }
+        public bool RollPitchYaw { get; }
 
         private static readonly PropertyInfo[] Properties = typeof(AbsArguments)
             .GetProperties()
@@ -49,6 +50,7 @@ namespace AbsOrientationTest
         public AbsArguments(string[] args)
         {
             Quaternion = args.Has("quaternion");
+            RollPitchYaw = args.Has("rpy") || args.Has("rollpitchyaw");
             Euler = args.Has("euler");
             Accel = args.Has("accel");
             Mag = args.Has("mag");
@@ -62,14 +64,14 @@ namespace AbsOrientationTest
 
     class Program
     {
-        static void Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
             var a = new AbsArguments(args);
             if (!a.IsValid())
             {
                 Console.WriteLine($"Usage: {Process.GetCurrentProcess().ProcessName} <args>");
                 Console.WriteLine($"Possible args: {string.Join(", ", a.GetPossibleArgs())}");
-                return;
+                return -1;
             }
             using (var source = new CancellationTokenSource())
             {
@@ -77,24 +79,23 @@ namespace AbsOrientationTest
                 try
                 {
                     Pi.Init<BootstrapWiringPi>();
-                    Run(a, source.Token).Wait(source.Token);
+                    await RunAsync(a, source.Token);
+                    return 0;
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-                    return;
+                    return -1;
                 }
             }
-
-            Console.WriteLine("Bye!");
         }
 
-        private static async Task Run(AbsArguments args, CancellationToken token)
+        private static async Task RunAsync(AbsArguments args, CancellationToken token)
         {
             while (true)
             {
-                var o = new AbsOrientation(Pi.I2C);
-                o.Begin(OperationMode.NDOF);
+                var chip = new AbsOrientation(Pi.I2C, OperationMode.NDOF);
+                Console.WriteLine(chip.UnitSelection);
 
                 Vector3 velocity = 0;
                 var last = DateTimeOffset.UtcNow;
@@ -108,38 +109,44 @@ namespace AbsOrientationTest
 
                     if (args.Quaternion)
                     {
-                        Console.WriteLine($"Quaternion: {o.ReadQuaternion()}");
+                        Console.WriteLine($"Quaternion: {chip.ReadQuaternion()}");
+                    }
+                    
+                    if (args.RollPitchYaw)
+                    {
+                        var rpy = chip.ReadRollPitchYaw();
+                        Console.WriteLine($"Roll pitch yaw: rad {rpy}  deg {rpy * 180 / Math.PI}");
                     }
 
                     if (args.Euler)
                     {
-                        Console.WriteLine($"Euler: {o.ReadEulerData().ToString(" 000.00;-000.00")}");
+                        Console.WriteLine($"Euler: {chip.ReadEulerData().ToString(" 000.00;-000.00")}");
                     }
 
                     if (args.Accel)
                     {
-                        Console.WriteLine($"Accel: {o.ReadAccel()}");
+                        Console.WriteLine($"Accel: {chip.ReadAccel()}");
                     }
                     if (args.Mag)
                     {
-                        Console.WriteLine($"Mag: {o.ReadMag()}");
+                        Console.WriteLine($"Mag: {chip.ReadMag()}");
                     }
 
                     if (args.LinearAccel)
                     {
-                        Console.WriteLine($"Linear Accel: {o.ReadLinearAccel()}");
+                        Console.WriteLine($"Linear Accel: {chip.ReadLinearAccel()}");
                     }
 
                     if (args.Compass)
                     {
-                        var mag = o.ReadMag();
+                        var mag = chip.ReadMag();
                         var yaw = Math.Atan2(mag.Y, mag.X);
                         Console.WriteLine($"Compass: Rad:{yaw}, Deg:{yaw * 180 / Math.PI}");
                     }
 
                     if (args.Velocity)
                     {
-                        var accel = o.ReadLinearAccel();
+                        var accel = chip.ReadLinearAccel();
                         var now = DateTimeOffset.UtcNow;
                         velocity = velocity + accel * (now - last).TotalSeconds;
                         last = now;
@@ -148,12 +155,12 @@ namespace AbsOrientationTest
 
                     if (args.Gyro)
                     {
-                        Console.WriteLine($"Gyro: {o.ReadGyro()}");
+                        Console.WriteLine($"Gyro: {chip.ReadGyro()}");
                     }
 
                     if (args.Temp)
                     {
-                        Console.WriteLine($"Temp: {o.ReadTemp()}");
+                        Console.WriteLine($"Temp: {chip.ReadTemp()}");
                     }
 
                     await Task.Delay(100, token);
