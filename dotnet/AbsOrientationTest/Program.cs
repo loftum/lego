@@ -82,9 +82,16 @@ namespace AbsOrientationTest
                     await RunAsync(a, source.Token);
                     return 0;
                 }
+                catch (TaskCanceledException)
+                {
+                    Console.WriteLine("Bye!");
+                    return 0;
+                }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    Console.WriteLine(e.GetType().FullName);
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
                     return -1;
                 }
             }

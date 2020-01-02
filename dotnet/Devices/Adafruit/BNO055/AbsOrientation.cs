@@ -1,10 +1,36 @@
 ﻿using System;
 using System.Threading;
+using Devices.Unosquare;
 using Maths;
 using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.Adafruit.BNO055
 {
+    public struct Vector3s
+    {
+        public short X;
+        public short Y;
+        public short Z;
+
+        public Vector3s(short x, short y, short z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+        
+        public string ToString(string format)
+        {
+            switch (format)
+            {
+                case "binary":
+                    return $"[{Convert.ToString(X, 2)},{Convert.ToString(Y, 2)}, {Convert.ToString(Z, 2)}]";
+                default:
+                    return $"[{X.ToString(format)},{Y.ToString(format)},{Z.ToString(format)}]";        
+            }
+        }
+    }
+    
     public class AbsOrientation
     {
         public const int Id = 0xA0;
@@ -94,26 +120,39 @@ namespace Devices.Adafruit.BNO055
             return bytes.ToQuaternion() / 16384; // 2 ^ 14 LSB
         }
 
+        public Vector3s ReadRawEulerAngles()
+        {
+            var buffer = ReadBytes(Registers.BNO055_EULER_H_LSB_ADDR, 6);
+            var x = (short) ((buffer[1] << 8 | buffer[0]) & 0x7fff);
+
+            if (buffer[3] > 0b1011 || buffer[3] < 0b11110100)
+            {
+                buffer[3] &= 0b0111_1111;
+            }
+            
+            var y = (short) ((buffer[3] << 8 | buffer[2]) & 0x7fff);
+            
+            var vector = ReadBytes(Registers.BNO055_EULER_H_LSB_ADDR, 6).ToVector3s();
+            Console.WriteLine($"Raw euler: {vector.ToString("binary")}");
+            return vector;
+        }
+        
         public Vector3 ReadEulerData()
         {
             var bytes = ReadBytes(Registers.BNO055_EULER_H_LSB_ADDR, 6);
+            
             // Stupid bug in the chip.
-            // Whenever pitch > 0, pitch MSB is set erroneously
-            // for (var ii = 0; ii < 6; ii+=2)
-            // {
-            //     var msb = (short) (bytes[ii + 1] << 8 | bytes[ii]);
-            //     if (msb > 2880 || msb < -2880)
-            //     if (msb > 12 && msb < 139) // between 00001011 and 10001011
-            //     {
-            //         bytes[ii +1] &= 0b0111_1111;
-            //     }   
-            // }
-            // var msb = (short) (bytes[5] << 8 | bytes[4]);
-            // if (msb > 2880 || msb < -2880)
-            // if (msb > 12 && msb < 139) // between 00001011 and 10001011
-            // {
-            //     bytes[5] &= 0b0111_1111;
-            // }
+            // Sometimes msb is set for no apparent reason, which makes the int16 value negative.
+            // Let's MacGyver it:
+            for (var ii = 1; ii < 6; ii += 2)
+            {
+                var msb = bytes[ii];
+                if (msb > 0b_0000_1011 && msb < 0b_1000_1011)
+                {
+                    bytes[ii] &= 0b0111_1111; // Reset MSB
+                }
+            }
+            
             var vector = bytes.ToVector3();
             switch (UnitSelection.EulerAngleUnit)
             {
@@ -179,6 +218,7 @@ namespace Devices.Adafruit.BNO055
         private byte[] ReadBytes(Registers register, int length)
         {
             var addressStart = (int)register;
+            return _device.ReadBlock(addressStart, length);
             var bytes = new byte[length];
             for (var ii = 0; ii < bytes.Length; ii++)
             {
