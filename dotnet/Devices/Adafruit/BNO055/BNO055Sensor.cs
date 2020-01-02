@@ -6,32 +6,7 @@ using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.Adafruit.BNO055
 {
-    public struct Vector3s
-    {
-        public short X;
-        public short Y;
-        public short Z;
-
-        public Vector3s(short x, short y, short z)
-        {
-            X = x;
-            Y = y;
-            Z = z;
-        }
-        
-        public string ToString(string format)
-        {
-            switch (format)
-            {
-                case "binary":
-                    return $"[{Convert.ToString(X, 2)},{Convert.ToString(Y, 2)}, {Convert.ToString(Z, 2)}]";
-                default:
-                    return $"[{X.ToString(format)},{Y.ToString(format)},{Z.ToString(format)}]";        
-            }
-        }
-    }
-    
-    public class AbsOrientation
+    public class BNO055Sensor
     {
         public const int Id = 0xA0;
         public const int DefaultI2CAddress = 0x28;
@@ -119,23 +94,6 @@ namespace Devices.Adafruit.BNO055
             var bytes = ReadBytes(Registers.BNO055_QUATERNION_DATA_W_LSB_ADDR, 8);
             return bytes.ToQuaternion() / 16384; // 2 ^ 14 LSB
         }
-
-        public Vector3s ReadRawEulerAngles()
-        {
-            var buffer = ReadBytes(Registers.BNO055_EULER_H_LSB_ADDR, 6);
-            var x = (short) ((buffer[1] << 8 | buffer[0]) & 0x7fff);
-
-            if (buffer[3] > 0b1011 || buffer[3] < 0b11110100)
-            {
-                buffer[3] &= 0b0111_1111;
-            }
-            
-            var y = (short) ((buffer[3] << 8 | buffer[2]) & 0x7fff);
-            
-            var vector = ReadBytes(Registers.BNO055_EULER_H_LSB_ADDR, 6).ToVector3s();
-            Console.WriteLine($"Raw euler: {vector.ToString("binary")}");
-            return vector;
-        }
         
         public Vector3 ReadEulerData()
         {
@@ -219,15 +177,9 @@ namespace Devices.Adafruit.BNO055
         {
             var addressStart = (int)register;
             return _device.ReadBlock(addressStart, length);
-            var bytes = new byte[length];
-            for (var ii = 0; ii < bytes.Length; ii++)
-            {
-                bytes[ii] = _device.ReadAddressByte(addressStart + ii);
-            }
-            return bytes;
         }
 
-        public AbsOrientation(II2CBus bus, OperationMode mode)
+        public BNO055Sensor(II2CBus bus, OperationMode mode)
         {
             _device = bus.AddDevice(DefaultI2CAddress);
             VerifyId();

@@ -101,7 +101,7 @@ namespace AbsOrientationTest
         {
             while (true)
             {
-                var chip = new AbsOrientation(Pi.I2C, OperationMode.NDOF);
+                var chip = new BNO055Sensor(Pi.I2C, OperationMode.NDOF);
                 Console.WriteLine(chip.UnitSelection);
 
                 Vector3 velocity = 0;
