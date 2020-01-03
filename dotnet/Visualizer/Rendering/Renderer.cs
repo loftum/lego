@@ -180,7 +180,8 @@ namespace Visualizer.Rendering
         private Vector3 GetRotation()
         {
             var rotation = _positionProvider.GetRotation();
-            return new Vector3(-(float)rotation.Z, -(float)rotation.Y, -(float)rotation.X);
+            // Camera on top of carq
+            return new Vector3(-(float)rotation.Y, (float)rotation.Z, -(float)rotation.X);
         }
 
         private void UpdateUniforms()
