@@ -1,4 +1,5 @@
-﻿using Unosquare.RaspberryIO.Abstractions;
+﻿using System.Collections.Generic;
+using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.Unosquare
 {
@@ -12,6 +13,16 @@ namespace Devices.Unosquare
                 bytes[ii] = device.ReadAddressByte(startAddress + ii);
             }
             return bytes;
+        }
+        
+        public static void WriteBlock(this II2CDevice device, int startAddress, IEnumerable<byte> bytes)
+        {
+            var ii = 0;
+            foreach (var b in bytes)
+            {
+                device.WriteAddressByte(startAddress + ii, b);
+                ii++;
+            }
         }
     }
 }

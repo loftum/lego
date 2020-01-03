@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using Devices.Unosquare;
 using Maths;
@@ -6,27 +9,6 @@ using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.Adafruit.BNO055
 {
-    public struct CalibrationData
-    {
-        public byte System { get; }
-        public byte Gyro { get; }
-        public byte Accel { get; }
-        public byte Mag { get; }
-
-        public CalibrationData(byte system, byte gyro, byte accel, byte mag)
-        {
-            System = system;
-            Gyro = gyro;
-            Accel = accel;
-            Mag = mag;
-        }
-
-        public override string ToString()
-        {
-            return $"Accel: {Accel}, Gyro: {Gyro}, Mag: {Mag}, System: {System}";
-        }
-    }
-    
     public class BNO055Sensor
     {
         public const int Id = 0xA0;
@@ -34,6 +16,7 @@ namespace Devices.Adafruit.BNO055
         public const int AlternativeI2CAddress = 0x29;
 
         private readonly II2CDevice _device;
+        public const string OffsetFileName = "bno055.offsets.txt";
 
         /// <summary>
         /// 3.3 Operation modes
@@ -100,13 +83,13 @@ namespace Devices.Adafruit.BNO055
 
         public Vector3 ReadGyro()
         {
-            var bytes = ReadBytes(Registers.BNO055_GYRO_DATA_X_LSB_ADDR, 6);
+            var bytes = ReadBytes(Registers.BNO055_GYRO_DATA_X_LSB_ADDR, 6).FixMsb();
             return bytes.ToVector3() / 16;
         }
 
         public Vector3 ReadMag()
         {
-            var bytes = ReadBytes(Registers.BNO055_MAG_DATA_X_LSB_ADDR, 6);
+            var bytes = ReadBytes(Registers.BNO055_MAG_DATA_X_LSB_ADDR, 6).FixMsb();
             return bytes.ToVector3() / 16;
         }
 
@@ -119,20 +102,16 @@ namespace Devices.Adafruit.BNO055
         public Vector3 ReadEulerData()
         {
             var bytes = ReadBytes(Registers.BNO055_EULER_H_LSB_ADDR, 6);
+
+            var shorts = bytes.ToComposedShorts();
+            Console.WriteLine($"[{string.Join(", ", shorts.Select(s => s.ToBinaryString()))}]");
+            
+            
             
             // Stupid bug in the chip.
             // Sometimes msb is set for no apparent reason, which makes the int16 value negative.
             // Let's MacGyver it:
-            for (var ii = 1; ii < 6; ii += 2)
-            {
-                var msb = bytes[ii];
-                if (msb > 0b_0000_1011 && msb < 0b_1000_1011)
-                {
-                    bytes[ii] &= 0b0111_1111; // Reset MSB
-                }
-            }
-            
-            var vector = bytes.ToVector3();
+            var vector = bytes.FixMsb().ToVector3();
             switch (UnitSelection.EulerAngleUnit)
             {
                 case EulerAngleUnit.Radians:
@@ -188,7 +167,9 @@ namespace Devices.Adafruit.BNO055
          */
         public Vector3 ReadAccel()
         {
-            var vector = ReadBytes(Registers.BNO055_ACCEL_DATA_X_LSB_ADDR, 6).ToVector3();
+            var vector = ReadBytes(Registers.BNO055_ACCEL_DATA_X_LSB_ADDR, 6)
+                .FixMsb()
+                .ToVector3();
             switch (UnitSelection.AccelerometerUnit)
             {
                 case AccelerometerUnit.MetersPerSquareSecond:
@@ -200,12 +181,6 @@ namespace Devices.Adafruit.BNO055
             }
         }
 
-        private byte[] ReadBytes(Registers register, int length)
-        {
-            var addressStart = (int)register;
-            return _device.ReadBlock(addressStart, length);
-        }
-
         public BNO055Sensor(II2CBus bus, OperationMode mode)
         {
             _device = bus.AddDevice(DefaultI2CAddress);
@@ -214,14 +189,45 @@ namespace Devices.Adafruit.BNO055
             Begin(mode);
         }
 
-        public void Begin(OperationMode mode)
+        private void Begin(OperationMode mode)
         {
             OperationMode = OperationMode.CONFIG;
+            LoadOffsets();
             Reset();
             PowerMode = PowerMode.POWER_MODE_NORMAL;
             RegisterPage = 0;
             ClockSelection = ClockSelection.External;
             OperationMode = mode;
+        }
+
+        private void LoadOffsets()
+        {
+            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, OffsetFileName);
+            if (!File.Exists(path))
+            {
+                return;
+            }
+            var text = File.ReadAllLines(path);
+            if (text.Length != 22)
+            {
+                return;
+            }
+
+            if (!Bytes.TryParse(text, out var bytes))
+            {
+                return;
+            }
+            Console.WriteLine($"Loading offsets from {path}");
+            WriteBytes(Registers.ACCEL_OFFSET_X_LSB_ADDR, bytes);
+        }
+
+        public byte[] GetSensorOffsets()
+        {
+            var mode = OperationMode;
+            Thread.Sleep(25);
+            var bytes = ReadBytes(Registers.ACCEL_OFFSET_X_LSB_ADDR, 22);
+            OperationMode = mode;
+            return bytes;
         }
 
         private void VerifyId(int retries = 1)
@@ -248,24 +254,35 @@ namespace Devices.Adafruit.BNO055
             Thread.Sleep(50);
         }
 
-        public CalibrationData GetCalibration()
+        public CalibrationStatus GetCalibration()
         {
             var calibration = ReadByte(Registers.BNO055_CALIB_STAT_ADDR);
             var system = (byte) ((calibration >> 6) & 0x03);
             var gyro = (byte) ((calibration >> 4) & 0x03);
             var accel = (byte) ((calibration >> 2) & 0x03);
             var mag = (byte) (calibration & 0x03);
-            return new CalibrationData(system, gyro, accel, mag);
+            return new CalibrationStatus(system, gyro, accel, mag);
         }
 
         private byte ReadByte(Registers register)
         {
             return _device.ReadAddressByte((int) register);
         }
+        
+        private byte[] ReadBytes(Registers register, int length)
+        {
+            var addressStart = (int)register;
+            return _device.ReadBlock(addressStart, length);
+        }
 
         private void WriteByte(Registers register, byte value)
         {
             _device.WriteAddressByte((int)register, value);
+        }
+        
+        private void WriteBytes(Registers register, IEnumerable<byte> values)
+        {
+            _device.WriteBlock((int) register, values);
         }
 
         public double ReadTemp()
