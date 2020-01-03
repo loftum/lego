@@ -6,6 +6,27 @@ using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.Adafruit.BNO055
 {
+    public struct CalibrationData
+    {
+        public byte System { get; }
+        public byte Gyro { get; }
+        public byte Accel { get; }
+        public byte Mag { get; }
+
+        public CalibrationData(byte system, byte gyro, byte accel, byte mag)
+        {
+            System = system;
+            Gyro = gyro;
+            Accel = accel;
+            Mag = mag;
+        }
+
+        public override string ToString()
+        {
+            return $"Accel: {Accel}, Gyro: {Gyro}, Mag: {Mag}, System: {System}";
+        }
+    }
+    
     public class BNO055Sensor
     {
         public const int Id = 0xA0;
@@ -125,6 +146,9 @@ namespace Devices.Adafruit.BNO055
             }
         }
 
+        /**
+         * Linear acceleration (minus gravity)
+         */
         public Vector3 ReadLinearAccel()
         {
             var bytes = ReadBytes(Registers.BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, 6);
@@ -159,6 +183,9 @@ namespace Devices.Adafruit.BNO055
             return new Vector3(roll, pitch, yaw);
         }
 
+        /**
+         * Linear acceleration (including gravity)
+         */
         public Vector3 ReadAccel()
         {
             var vector = ReadBytes(Registers.BNO055_ACCEL_DATA_X_LSB_ADDR, 6).ToVector3();
@@ -219,6 +246,16 @@ namespace Devices.Adafruit.BNO055
             Thread.Sleep(1000);
             VerifyId(10);
             Thread.Sleep(50);
+        }
+
+        public CalibrationData GetCalibration()
+        {
+            var calibration = ReadByte(Registers.BNO055_CALIB_STAT_ADDR);
+            var system = (byte) ((calibration >> 6) & 0x03);
+            var gyro = (byte) ((calibration >> 4) & 0x03);
+            var accel = (byte) ((calibration >> 2) & 0x03);
+            var mag = (byte) (calibration & 0x03);
+            return new CalibrationData(system, gyro, accel, mag);
         }
 
         private byte ReadByte(Registers register)

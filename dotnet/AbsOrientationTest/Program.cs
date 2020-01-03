@@ -32,6 +32,7 @@ namespace AbsOrientationTest
         public bool Quaternion { get; }
         public bool Compass { get; }
         public bool RollPitchYaw { get; }
+        public bool Calibration { get; }
 
         private static readonly PropertyInfo[] Properties = typeof(AbsArguments)
             .GetProperties()
@@ -59,6 +60,7 @@ namespace AbsOrientationTest
             Gyro = args.Has("gyro");
             Temp = args.Has("temp");
             Compass = args.Has("compass");
+            Calibration = args.Has("calibration");
         }
     }
 
@@ -107,6 +109,7 @@ namespace AbsOrientationTest
                 Vector3 velocity = 0;
                 var last = DateTimeOffset.UtcNow;
 
+                
                 while (true)
                 {
                     if (token.IsCancellationRequested)
@@ -114,6 +117,15 @@ namespace AbsOrientationTest
                         return;
                     }
 
+                    if (args.Calibration)
+                    {
+                        // accel.x, accel.y, accel.z, accel, gyro, mag, system
+                        var calibration = chip.GetCalibration();
+                        var accel = chip.ReadAccel();
+                        Console.WriteLine($"System: {calibration.System}");
+                        Console.WriteLine($"Accel: {accel}, Cal: {calibration}");
+                    }
+                    
                     if (args.Quaternion)
                     {
                         Console.WriteLine($"Quaternion: {chip.ReadQuaternion()}");
