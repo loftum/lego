@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using LCTP;
 using LCTP.Core;
 using LCTP.Core.Server;
 
@@ -71,6 +70,10 @@ namespace LctpTestServer
             {
                 Content = request.Content
             });
+        }
+
+        public void Dispose()
+        {
         }
     }
 }

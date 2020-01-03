@@ -180,7 +180,7 @@ namespace Visualizer.Rendering
         private Vector3 GetRotation()
         {
             var rotation = _positionProvider.GetRotation();
-            return new Vector3((float)rotation.X, (float)rotation.Y, (float)rotation.Z);
+            return new Vector3(-(float)rotation.Z, -(float)rotation.Y, -(float)rotation.X);
         }
 
         private void UpdateUniforms()
