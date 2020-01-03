@@ -8,7 +8,7 @@ namespace LCTP.Core.Routing
 {
     public abstract class BaseController: IController
     {
-        protected ISet<Route> Routes = new HashSet<Route>();
+        protected readonly ISet<Route> Routes = new HashSet<Route>();
 
         protected void Get(string route, Func<RequestMessage, Match, Task<ResponseMessage>> handler)
         {
@@ -33,7 +33,7 @@ namespace LCTP.Core.Routing
                 : route(request);
         }
 
-        private Task<ResponseMessage> NotFound()
+        private static Task<ResponseMessage> NotFound()
         {
             return Task.FromResult(new ResponseMessage
             {

@@ -68,7 +68,8 @@ namespace Visualizer.ViewControllers
             })
             .WithSubview(_errorField, (c, p) => new []
             {
-                c.TopAnchor.ConstraintEqualToAnchor(p.CenterYAnchor),
+                c.CenterXAnchor.ConstraintEqualToAnchor(p.CenterXAnchor),
+                c.TopAnchor.ConstraintEqualToAnchor(_hostField.BottomAnchor, 20),
                 c.WidthAnchor.ConstraintGreaterThanOrEqualToConstant(400)
             });
         }

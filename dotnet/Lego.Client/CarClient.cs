@@ -37,7 +37,6 @@ namespace Lego.Client
                 {
                     break;
                 }
-                Console.WriteLine("Update");
                 sw.Start();
                 if (!await DoUpdate())
                 {
@@ -87,10 +86,16 @@ namespace Lego.Client
                 updated = true;
             }
 
-            var rotationResult = await _client.Get("rotation");
+            var rotationResult = await _client.Get("orientation");
             if (rotationResult.StatusCode == 200 && Vector3.TryParse(rotationResult.Content, out var rotation))
             {
-                _rotation = rotation;
+                Console.WriteLine($"Rotation: {rotation}");
+                _rotation = new Vector3(rotation.X, rotation.Y, rotation.Z);
+                updated = true;
+            }
+            else
+            {
+                Console.WriteLine($"Bad rotation status code: {rotationResult.StatusCode}");
             }
             return updated;
         }

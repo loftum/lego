@@ -54,6 +54,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lego.Client", "Lego.Client\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lego.Server", "Lego.Server\Lego.Server.csproj", "{55398ED7-1DA2-4199-8AEF-251767A41576}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImuServer", "ImuServer\ImuServer.csproj", "{6A087F93-950F-4AE0-828F-780C6DC3294E}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Shared\Shared.projitems*{b9b5f667-5b75-4aa5-97d4-101443adebd8}*SharedItemsImports = 13
@@ -307,6 +309,18 @@ Global
 		{55398ED7-1DA2-4199-8AEF-251767A41576}.Release|iPhone.Build.0 = Release|Any CPU
 		{55398ED7-1DA2-4199-8AEF-251767A41576}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{55398ED7-1DA2-4199-8AEF-251767A41576}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{6A087F93-950F-4AE0-828F-780C6DC3294E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A087F93-950F-4AE0-828F-780C6DC3294E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A087F93-950F-4AE0-828F-780C6DC3294E}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{6A087F93-950F-4AE0-828F-780C6DC3294E}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{6A087F93-950F-4AE0-828F-780C6DC3294E}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{6A087F93-950F-4AE0-828F-780C6DC3294E}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{6A087F93-950F-4AE0-828F-780C6DC3294E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A087F93-950F-4AE0-828F-780C6DC3294E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A087F93-950F-4AE0-828F-780C6DC3294E}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{6A087F93-950F-4AE0-828F-780C6DC3294E}.Release|iPhone.Build.0 = Release|Any CPU
+		{6A087F93-950F-4AE0-828F-780C6DC3294E}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{6A087F93-950F-4AE0-828F-780C6DC3294E}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -333,6 +347,7 @@ Global
 		{F7C77102-12A6-48D7-8431-AB0F3C77FB6F} = {28BBC1EF-B589-42B9-A89F-796778A5BEF0}
 		{938AFE20-BE61-44B5-BF69-05E95056189E} = {28BBC1EF-B589-42B9-A89F-796778A5BEF0}
 		{55398ED7-1DA2-4199-8AEF-251767A41576} = {28BBC1EF-B589-42B9-A89F-796778A5BEF0}
+		{6A087F93-950F-4AE0-828F-780C6DC3294E} = {EDF4BB25-BE69-4A2E-B168-8F3EA5FE1E50}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D8D2DC8C-6314-40BB-B8CE-597BF251B888}
