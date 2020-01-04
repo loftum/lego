@@ -1,7 +1,7 @@
 using System;
 using Devices.ThePiHut.MotoZero;
 
-namespace Lego.Simulator
+namespace Lego.Server.Simulator
 {
     public class MotorSimulator : IMotor
     {

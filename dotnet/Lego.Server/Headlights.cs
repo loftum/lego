@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Devices.ThePiHut.ServoPWMPiZero;
+using Lego.Core;
 
-namespace Lego.Core
+namespace Lego.Server
 {
     public class Headlights : ILight
     {

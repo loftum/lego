@@ -14,7 +14,7 @@ namespace Lego.Client
         private readonly Sampled<int> _throttle = new Sampled<int>();
         private readonly Sampled<int> _steer = new Sampled<int>();
         private readonly Timer _timer = new Timer(25);
-        private int _updating = 0;
+        private int _updating;
         private readonly LctpClient _client;
         private readonly ICarInput _input;
         private Vector3 _rotation;

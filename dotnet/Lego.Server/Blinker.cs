@@ -1,6 +1,7 @@
 ﻿using Devices.ThePiHut.ServoPWMPiZero;
+using Lego.Core;
 
-namespace Lego.Core
+namespace Lego.Server
 {
     public class Blinker : ILight
     {

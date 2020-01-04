@@ -1,16 +1,16 @@
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Timers;
-using Devices;
 using Devices.Adafruit.BNO055;
 using Devices.ThePiHut.ADCPiZero;
 using Devices.ThePiHut.MotoZero;
 using Devices.ThePiHut.ServoPWMPiZero;
 using Lego.Client;
+using Lego.Core;
 using Maths;
+using Timer = System.Timers.Timer;
 
-namespace Lego.Core
+namespace Lego.Server
 {
     public class LegoCar : ILegoCar
     {
@@ -26,7 +26,8 @@ namespace Lego.Core
         public ILight Headlights { get; }
         private readonly Timer _blinker = new Timer(2 * Math.PI * 100);
         private readonly ADCPiZeroInput _frontDistance;
-        private readonly Timer _updateTimer = new Timer(50);
+        private readonly InterlockedTimer _updateTimer = new InterlockedTimer(10);
+        
         public Sampled<double> Distance { get; } = new Sampled<double>();
         public Sampled<Vector3> Orientation { get; } = new Sampled<Vector3>();
 

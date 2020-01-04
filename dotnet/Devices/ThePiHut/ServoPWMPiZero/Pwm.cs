@@ -5,7 +5,7 @@ namespace Devices.ThePiHut.ServoPWMPiZero
 {
     public class Pwm
     {
-        private readonly ServoPwmBoard _board;
+        public ServoPwmBoard Board { get; }
         private readonly II2CDevice _device;
         private readonly int _address;
         private int _onTime;
@@ -43,12 +43,9 @@ namespace Devices.ThePiHut.ServoPWMPiZero
 
         public Pwm(II2CDevice device, ServoPwmBoard board, int outputNumber)
         {
-            _board = board;
+            Board = board;
             _device = device;
             _address = (int)Registers.LED0_ON_L + 4 * outputNumber;
         }
-
-        public Servo AsServo() => new Servo(this, _board);
-        public Led AsLed() => new Led(this, _board);
     }
 }

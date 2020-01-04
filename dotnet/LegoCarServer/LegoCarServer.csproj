@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Devices\Devices.csproj" />
     <ProjectReference Include="..\LCTP\LCTP.csproj" />
+    <ProjectReference Include="..\Lego.Server\Lego.Server.csproj" />
     <ProjectReference Include="..\Lego\Lego.csproj" />
   </ItemGroup>
 

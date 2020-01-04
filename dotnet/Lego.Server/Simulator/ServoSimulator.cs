@@ -1,7 +1,7 @@
 using System;
-using Devices.ThePiHut.ServoPWMPiZero;
+using Lego.Core;
 
-namespace Lego.Simulator
+namespace Lego.Server.Simulator
 {
     public class ServoSimulator : IServo
     {

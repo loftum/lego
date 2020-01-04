@@ -1,15 +1,15 @@
-﻿namespace Devices.ThePiHut.ServoPWMPiZero
+﻿using Devices.ThePiHut.ServoPWMPiZero;
+
+namespace Lego.Server
 {
     public class Led
     {
-        private readonly ServoPwmBoard _board;
         private readonly Pwm _pwm;
         private double _brightness;
 
-        public Led(Pwm pwm, ServoPwmBoard board)
+        public Led(Pwm pwm)
         {
             _pwm = pwm;
-            _board = board;
             Brightness = 0;
         }
 

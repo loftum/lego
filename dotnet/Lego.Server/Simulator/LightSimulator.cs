@@ -1,7 +1,7 @@
 using System;
 using Lego.Core;
 
-namespace Lego.Simulator
+namespace Lego.Server.Simulator
 {
     public class LightSimulator : ILight
     {

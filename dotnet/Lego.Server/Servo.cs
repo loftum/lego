@@ -1,15 +1,11 @@
 ﻿using System;
+using Devices.ThePiHut.ServoPWMPiZero;
+using Lego.Core;
 
-namespace Devices.ThePiHut.ServoPWMPiZero
+namespace Lego.Server
 {
-    public interface IServo
-    {
-        int Value { get; set; }
-    }
-    
     public class Servo : IServo
     {
-        private readonly ServoPwmBoard _board;
         private readonly Pwm _pwm;
         private int _value;
         public int MinPos {get; private set; }
@@ -34,10 +30,9 @@ namespace Devices.ThePiHut.ServoPWMPiZero
             }
         }
 
-        public Servo(Pwm pwm, ServoPwmBoard board)
+        public Servo(Pwm pwm)
         {
             _pwm = pwm;
-            _board = board;
             SetPositionLimitsMs(0.7, 2.3); // pretty default for servos
             Value = 90;
         }
@@ -50,12 +45,25 @@ namespace Devices.ThePiHut.ServoPWMPiZero
 
         private int ToPosition(double millis)
         {
-            var value = (int)(4096.0 * millis / 1000 * _board.Frequency);
+            var value = (int)(4096.0 * millis / 1000 * _pwm.Board.Frequency);
             if (value < 0 || value > 4095)
             {
                 throw new ArgumentOutOfRangeException($"{value} is out of range [0, 4096>");
             }
             return value;
+        }
+    }
+
+    public static class PwmExtensions
+    {
+        public static Servo AsServo(this Pwm pwm)
+        {
+            return new Servo(pwm);
+        }
+
+        public static Led AsLed(this Pwm pwm)
+        {
+            return new Led(pwm);
         }
     }
 }
