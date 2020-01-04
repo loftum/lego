@@ -9,8 +9,4 @@
       <ProjectReference Include="..\Maths\Maths.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Simulator" />
-    </ItemGroup>
-
 </Project>

@@ -115,7 +115,6 @@
     <Compile Include="MotionManager.cs" />
     <Compile Include="Controllers\ViewController.cs" />
     <Compile Include="Controllers\SteeringWheelViewController.cs" />
-    <Compile Include="Controllers\MathExtensions.cs" />
     <Compile Include="Controllers\UIButtonExtensions.cs" />
     <Compile Include="Controllers\UIViewExtensions.cs" />
     <Compile Include="Controllers\UISliderExtensions.cs" />
@@ -128,6 +127,10 @@
     <ProjectReference Include="..\Lego.Client\Lego.Client.csproj">
       <Project>{938afe20-be61-44b5-bf69-05e95056189e}</Project>
       <Name>Lego.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Maths\Maths.csproj">
+      <Project>{f7c77102-12a6-48d7-8431-ab0f3c77fb6f}</Project>
+      <Name>Maths</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

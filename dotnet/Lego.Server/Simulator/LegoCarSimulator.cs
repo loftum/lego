@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
 using Devices.ThePiHut.MotoZero;
@@ -40,6 +41,15 @@ namespace Lego.Server.Simulator
             }
             var diff = speed * (SteerFront.Value + SteerBack.Value) * _timer.Interval;
             _orientation = previous + new Vector3(previous.X, previous.Y, diff);
+        }
+
+        public LegoCarState GetState()
+        {
+            return new LegoCarState
+            {
+                Orientation = GetOrientation(),
+                Distances = new List<double>()
+            };
         }
 
         public Vector3 GetOrientation()

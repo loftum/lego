@@ -17,7 +17,7 @@ namespace Visualizer.ViewControllers
         private readonly NSSlider _throttleSlider;
         private readonly NSSlider _steerSlider;
         
-        private CarClient _client;
+        private LegoCarClient _client;
         private readonly Renderer _renderer;
         private readonly MTKView _mtkView;
         private readonly NSButton _disconnectButton;
@@ -92,7 +92,7 @@ namespace Visualizer.ViewControllers
 
         public void Connect(string host, int port)
         {
-            _client = new CarClient(host, port, this);
+            _client = new LegoCarClient(host, port, this);
             _client.Connect();
         }
 

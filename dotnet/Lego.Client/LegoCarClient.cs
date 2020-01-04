@@ -9,7 +9,7 @@ using Timer = System.Timers.Timer;
 
 namespace Lego.Client
 {
-    public class CarClient : IRotationProvider, IDisposable
+    public class LegoCarClient : IRotationProvider, IDisposable
     {
         private readonly Sampled<int> _throttle = new Sampled<int>();
         private readonly Sampled<int> _steer = new Sampled<int>();
@@ -24,7 +24,7 @@ namespace Lego.Client
         public Switch RightBlinkerSwitch { get; } = new Switch();
         public bool Connected => _client.Connected;
 
-        public CarClient(string host, int port, ICarInput input)
+        public LegoCarClient(string host, int port, ICarInput input)
         {
             _input = input;
             _client = new LctpClient(host, port);

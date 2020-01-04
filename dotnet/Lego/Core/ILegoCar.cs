@@ -14,5 +14,6 @@ namespace Lego.Core
         void SetMotorSpeed(int motorNumber, int speed);
         void SetMotorSpeed(int speed);
         void Reset();
+        LegoCarState GetState();
     }
 }

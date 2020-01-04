@@ -1,5 +1,6 @@
 ﻿using Devices.Adafruit.LSM9DS1.Accelerometer;
 using Devices.Unosquare;
+using Maths;
 using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.Adafruit.LSM9DS1

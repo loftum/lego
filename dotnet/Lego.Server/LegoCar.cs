@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 using Devices.Adafruit.BNO055;
@@ -58,12 +60,29 @@ namespace Lego.Server
             _blinker.Elapsed += Blink;
             _blinker.Start();
             _updateTimer.Elapsed += ReadSensors;
+            _updateTimer.Start();
         }
 
         private void ReadSensors(object sender, ElapsedEventArgs e)
         {
+            var sw = new Stopwatch();
+            sw.Start();
             Distance.Value = _frontDistance.ReadVoltage();
+            sw.Stop();
+            Console.WriteLine($"Distance: {sw.ElapsedMilliseconds} ms");
+            sw.Restart();
             Orientation.Value = _imu.ReadEulerData();
+            sw.Stop();
+            Console.WriteLine($"Orientation: {sw.ElapsedMilliseconds} ms");
+        }
+
+        public LegoCarState GetState()
+        {
+            return new LegoCarState
+            {
+                Orientation = Orientation.Value,
+                Distances = new List<double> {Distance.Value}
+            };
         }
 
         public Vector3 GetOrientation() => Orientation.Value;

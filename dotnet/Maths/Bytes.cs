@@ -1,30 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Maths;
 
-namespace Devices
+namespace Maths
 {
-    public struct ComposedShort
+    public static class Ints
     {
-        public byte Lsb { get; }
-        public byte Msb { get; }
-        public short ShortValue => (short) (Msb << 8 | Lsb);
-        
-        public ComposedShort(byte lsb, byte msb)
+        public static bool TryParse(string list, out List<int> values)
         {
-            Lsb = lsb;
-            Msb = msb;
+            values = new List<int>();
+            var parts = list.TrimStart('[').TrimEnd(']').Split(',');
+            foreach (var value in parts)
+            {
+                if (!int.TryParse(value, out var i))
+                {
+                    return false;
+                }
+                values.Add(i);
+            }
+            return true;
         }
-
-        public override string ToString()
+    }
+    
+    public static class Doubles
+    {
+        public static bool TryParse(string list, out List<double> values)
         {
-            return ToBinaryString();
-        }
-
-        public string ToBinaryString()
-        {
-            return $"{Msb.ToBinaryString()} {Lsb.ToBinaryString()}";
+            values = new List<double>();
+            var parts = list.TrimStart('[').TrimEnd(']').Split(',');
+            foreach (var value in parts)
+            {
+                if (!double.TryParse(value, out var i))
+                {
+                    return false;
+                }
+                values.Add(i);
+            }
+            return true;
         }
     }
     

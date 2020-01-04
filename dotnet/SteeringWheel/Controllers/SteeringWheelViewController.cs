@@ -4,13 +4,14 @@ using CoreFoundation;
 using CoreGraphics;
 using CoreMotion;
 using Lego.Client;
+using Maths;
 using UIKit;
 
 namespace SteeringWheel.Controllers
 {
     public class SteeringWheelViewController : UIViewController, ICarInput
     {
-        private readonly CarClient _client;
+        private readonly LegoCarClient _client;
         private readonly CMMotionManager _motionManager = MotionManager.Instance;
 
         private readonly UISlider _throttleSlider;
@@ -79,7 +80,7 @@ namespace SteeringWheel.Controllers
             var height = 200;
             _throttleSlider.Frame = new CGRect(frame.Width - 100, frame.Height / 2 - height / 2, width, height);
 
-            _client = new CarClient(host, port, this);
+            _client = new LegoCarClient(host, port, this);
             _client.Connect();
             _motionManager.DeviceMotionUpdateInterval = 0.1;
             _motionManager.StartDeviceMotionUpdates();

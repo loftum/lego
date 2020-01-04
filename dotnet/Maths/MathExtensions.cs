@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SteeringWheel.Controllers
+namespace Maths
 {
     public static class MathExtensions
     {
