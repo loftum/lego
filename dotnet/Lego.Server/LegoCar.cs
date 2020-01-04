@@ -69,11 +69,9 @@ namespace Lego.Server
             sw.Start();
             Distance.Value = _frontDistance.ReadVoltage();
             sw.Stop();
-            Console.WriteLine($"Distance: {sw.ElapsedMilliseconds} ms");
             sw.Restart();
             Orientation.Value = _imu.ReadEulerData();
             sw.Stop();
-            Console.WriteLine($"Orientation: {sw.ElapsedMilliseconds} ms");
         }
 
         public LegoCarState GetState()

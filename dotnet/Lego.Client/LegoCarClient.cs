@@ -1,11 +1,10 @@
 using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using LCTP.Core.Client;
+using Lego.Core;
 using Maths;
-using Timer = System.Timers.Timer;
 
 namespace Lego.Client
 {
@@ -13,8 +12,8 @@ namespace Lego.Client
     {
         private readonly Sampled<int> _throttle = new Sampled<int>();
         private readonly Sampled<int> _steer = new Sampled<int>();
-        private readonly Timer _timer = new Timer(25);
-        private int _updating;
+        private readonly InterlockedTimer _timer = new InterlockedTimer(25);
+        private int _running;
         private readonly LctpClient _client;
         private readonly ICarInput _input;
         private Vector3 _rotation;
@@ -33,31 +32,25 @@ namespace Lego.Client
 
         private async void Update(object sender, ElapsedEventArgs e)
         {
-            if (Interlocked.CompareExchange(ref _updating, 1, 0) != 0)
+            if (Interlocked.CompareExchange(ref _running, 1, 0) != 0)
             {
                 return;
             }
-            
             try
             {
-                var sw = new Stopwatch();
-                sw.Start();
                 if (!await DoUpdate())
                 {
                     await _client.Ping();
                 }
-                sw.Stop();
-                Console.WriteLine($"Elapsed: {sw.Elapsed} ({sw.ElapsedMilliseconds} ms)");
             }
             finally
             {
-                Interlocked.Exchange(ref _updating, 0);
+                Interlocked.Exchange(ref _running, 0);
             }
         }
 
         private async Task<bool> DoUpdate()
         {
-
             var updated = false;
 
             _throttle.Value = await _input.GetThrottleAsync();

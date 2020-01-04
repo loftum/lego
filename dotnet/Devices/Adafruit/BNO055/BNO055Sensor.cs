@@ -103,8 +103,8 @@ namespace Devices.Adafruit.BNO055
         {
             var bytes = ReadBytes(Registers.BNO055_EULER_H_LSB_ADDR, 6);
 
-            var shorts = bytes.ToComposedShorts();
-            Console.WriteLine($"[{string.Join(", ", shorts.Select(s => s.ToBinaryString()))}]");
+            // var shorts = bytes.ToComposedShorts();
+            // Console.WriteLine($"[{string.Join(", ", shorts.Select(s => s.ToBinaryString()))}]");
             
             
             

@@ -19,7 +19,7 @@ namespace LegoCarServer
             Set("motor/speed", SetBothMotorsSpeed);
             Get("motor/(\\d{1})/speed", GetMotorSpeed);
             Set("motor/(\\d{1})/speed", SetMotorSpeed);
-            Set("steer/angle", SetSteer);
+            Set("steer", SetSteer);
             Get("orientation", GetOrientation);
             Get("state", GetState);
         }

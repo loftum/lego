@@ -132,10 +132,13 @@ namespace SteeringWheel.Controllers
 
         public Task<int> GetSteerAngleDegAsync()
         {
-            var attitude = _motionManager.DeviceMotion?.Attitude;
-            var angle = attitude == null ? 0 : 90 - attitude.Pitch.ToDeg();
-            return Task.FromResult(angle);
-            //return DispatchQueue.MainQueue.DispatchAsync(() => angle);
+            return DispatchQueue.MainQueue.DispatchAsync(() =>
+            {
+                var attitude = _motionManager.DeviceMotion?.Attitude;
+                var angle = attitude == null ? 0 : 90 - attitude.Pitch.ToDeg();
+                Console.WriteLine($"Angle: {angle}");
+                return angle;
+            });
         }
     }
     
