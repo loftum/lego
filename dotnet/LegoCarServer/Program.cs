@@ -49,6 +49,7 @@ namespace LegoCarServer
                 {
                     var adcBoard = new ADCPiZeroBoard(Pi.I2C);
                     var imu = new BNO055Sensor(Pi.I2C, OperationMode.NDOF);
+                    imu.UnitSelection.EulerAngleUnit = EulerAngleUnit.Radians;
                     var car = new LegoCar(pwm, motoZero, adcBoard, imu);
                     var controller = new LegoCarController(car);
                     using (var server = new LctpServer(5080, controller))

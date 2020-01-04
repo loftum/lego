@@ -16,12 +16,12 @@ namespace Lego.Client
         private int _running;
         private readonly LctpClient _client;
         private readonly ICarInput _input;
-        private Vector3 _rotation;
 
         public Switch HeadlightSwitch { get; } = new Switch();
         public Switch LeftBlinkerSwitch { get; } = new Switch();
         public Switch RightBlinkerSwitch { get; } = new Switch();
         public bool Connected => _client.Connected;
+        private LegoCarState _state = new LegoCarState();
 
         public LegoCarClient(string host, int port, ICarInput input)
         {
@@ -84,16 +84,14 @@ namespace Lego.Client
                 updated = true;
             }
 
-            var rotationResult = await _client.Get("orientation");
-            if (rotationResult.StatusCode == 200 && Vector3.TryParse(rotationResult.Content, out var rotation))
+            var stateResult = await _client.Get("state");
+            if (stateResult.StatusCode == 200 && LegoCarState.TryParse(stateResult.Content, out var state))
             {
-                Console.WriteLine($"Rotation: {rotation}");
-                _rotation = new Vector3(rotation.X, rotation.Y, rotation.Z);
-                updated = true;
+                _state = state;
             }
             else
             {
-                Console.WriteLine($"Bad rotation status code: {rotationResult.StatusCode}");
+                Console.WriteLine($"Bad state status code: {stateResult.StatusCode}");
             }
 
             return updated;
@@ -117,6 +115,6 @@ namespace Lego.Client
             _client.Disconnect();
         }
 
-        public Vector3 GetRotation() => _rotation;
+        public Vector3 GetRotation() => _state.Orientation;
     }
 }
