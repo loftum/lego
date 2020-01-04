@@ -9,21 +9,6 @@ using LCTP.Core.Extensions;
 
 namespace LCTP.Core.Client
 {
-    public static class SocketExtensions
-    {
-        public static void Connect(this Socket socket, EndPoint endpoint, TimeSpan timeout)
-        {
-            var result = socket.BeginConnect(endpoint, null, null);
-            if (result.AsyncWaitHandle.WaitOne(timeout, true))
-            {
-                socket.EndConnect(result);
-                return;
-            }
-            socket.Close();
-            throw new SocketException((int)SocketError.TimedOut);
-        }
-    }
-
     /// <summary>
     /// Lego Command Transfer Protocol client
     /// </summary>

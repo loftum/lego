@@ -1,6 +1,6 @@
 namespace Lego.Client
 {
-    public struct Sampled<T> where T : struct
+    public class Sampled<T> where T : struct
     {
         private T _value;
         public T LastValue { get; private set; }

@@ -3,9 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using Devices;
+using Devices.Adafruit.BNO055;
 using Devices.ThePiHut.ADCPiZero;
 using Devices.ThePiHut.MotoZero;
 using Devices.ThePiHut.ServoPWMPiZero;
+using Lego.Client;
 using Maths;
 
 namespace Lego.Core
@@ -16,6 +18,7 @@ namespace Lego.Core
         private readonly ADCPiZeroBoard _adcBoard; 
         private readonly ServoPwmBoard _pwmBoard;
         private readonly MotoZeroBoard _motoZero;
+        private readonly BNO055Sensor _imu;
         public IServo SteerFront { get; }
         public IServo SteerBack { get; }
         public ILight LeftBlinker { get; }
@@ -23,15 +26,16 @@ namespace Lego.Core
         public ILight Headlights { get; }
         private readonly Timer _blinker = new Timer(2 * Math.PI * 100);
         private readonly ADCPiZeroInput _frontDistance;
-        private readonly Task _distanceTask;
-        private double _lastDistance;
-        public double Distance { get; private set; }
+        private readonly Timer _updateTimer = new Timer(50);
+        public Sampled<double> Distance { get; } = new Sampled<double>();
+        public Sampled<Vector3> Orientation { get; } = new Sampled<Vector3>();
 
-        public LegoCar(ServoPwmBoard pwmBoard, MotoZeroBoard motoZero, ADCPiZeroBoard adcBoard)
+        public LegoCar(ServoPwmBoard pwmBoard, MotoZeroBoard motoZero, ADCPiZeroBoard adcBoard, BNO055Sensor imu)
         {
             _pwmBoard = pwmBoard;
             _motoZero = motoZero;
             _adcBoard = adcBoard;
+            _imu = imu;
             _frontDistance = adcBoard.Inputs[0];
             _frontDistance.Bitrate = Bitrate._16;
             _frontDistance.ConversionMode = ConversionMode.Continuous;
@@ -52,14 +56,16 @@ namespace Lego.Core
             
             _blinker.Elapsed += Blink;
             _blinker.Start();
-            _distanceTask = Task.Run(MeasureDistance);
+            _updateTimer.Elapsed += ReadSensors;
         }
 
-        public Vector3 GetOrientation()
+        private void ReadSensors(object sender, ElapsedEventArgs e)
         {
-            // Not implemented
-            return Vector3.Zero;
+            Distance.Value = _frontDistance.ReadVoltage();
+            Orientation.Value = _imu.ReadEulerData();
         }
+
+        public Vector3 GetOrientation() => Orientation.Value;
 
         public int GetMotorSpeed(int motorNumber)
         {
@@ -74,7 +80,7 @@ namespace Lego.Core
         
         public void SetMotorSpeed(int speed)
         {
-            if (Distance > DistanceLimit && _lastDistance > DistanceLimit && speed >= 0)
+            if (Distance.Value > DistanceLimit && Distance.LastValue > DistanceLimit && speed >= 0)
             {
                 if (_motoZero.Motors[0].Speed > 0)
                 {
@@ -96,28 +102,6 @@ namespace Lego.Core
         {
             LeftBlinker.Toggle();
             RightBlinker.Toggle();
-        }
-        
-        private async Task MeasureDistance()
-        {
-            while(true)
-            {
-                _lastDistance = Distance;
-                Distance = _frontDistance.ReadVoltage();
-                if (Distance > DistanceLimit && _lastDistance > DistanceLimit)
-                {
-                    Console.WriteLine($"Distance: {Distance}");
-                    if (_motoZero.Motors[0].Speed > 0)
-                    {
-                        _motoZero.Motors[0].Speed = 0;
-                    }
-                    if (_motoZero.Motors[1].Speed > 0)
-                    {
-                        _motoZero.Motors[1].Speed = 0;
-                    }
-                }
-                await Task.Delay(75);
-            }
         }
 
         public void Reset()

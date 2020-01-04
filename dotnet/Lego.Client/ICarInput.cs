@@ -1,8 +1,10 @@
+using System.Threading.Tasks;
+
 namespace Lego.Client
 {
     public interface ICarInput
     {
-        int GetThrottle();
-        int GetSteerAngleDeg();
+        Task<int> GetThrottleAsync();
+        Task<int> GetSteerAngleDegAsync();
     }
 }

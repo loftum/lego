@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Devices.Adafruit.BNO055;
 using Devices.ThePiHut.ADCPiZero;
 using Devices.ThePiHut.MotoZero;
 using Devices.ThePiHut.ServoPWMPiZero;
@@ -47,7 +48,8 @@ namespace LegoCarServer
                 using (var motoZero = new MotoZeroBoard(Pi.Gpio))
                 {
                     var adcBoard = new ADCPiZeroBoard(Pi.I2C);
-                    var car = new LegoCar(pwm, motoZero, adcBoard);
+                    var imu = new BNO055Sensor(Pi.I2C, OperationMode.NDOF);
+                    var car = new LegoCar(pwm, motoZero, adcBoard, imu);
                     var controller = new LegoCarController(car);
                     using (var server = new LctpServer(5080, controller))
                     {

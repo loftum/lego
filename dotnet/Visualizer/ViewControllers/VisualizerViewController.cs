@@ -1,5 +1,7 @@
 using System;
+using System.Threading.Tasks;
 using AppKit;
+using CoreFoundation;
 using CoreGraphics;
 using Lego.Client;
 using Maths;
@@ -113,16 +115,29 @@ namespace Visualizer.ViewControllers
             OnDisconnect?.Invoke(this, EventArgs.Empty);
         }
 
-        public int GetThrottle()
+        public Task<int> GetThrottleAsync()
         {
-            return _throttleSlider.IntValue;
+            return DispatchQueue.MainQueue.DispatchAsync(() => _throttleSlider.IntValue);
         }
 
-        public int GetSteerAngleDeg()
+        public Task<int> GetSteerAngleDegAsync()
         {
-            return _steerSlider.IntValue;
+            return DispatchQueue.MainQueue.DispatchAsync(() => _steerSlider.IntValue);
         }
 
         public Vector3 GetRotation() => _client?.GetRotation() ?? Vector3.Zero;
+    }
+
+    public static class DispatchQueueExtensions
+    {
+        public static Task<T> DispatchAsync<T>(this DispatchQueue queue, Func<T> getValue)
+        {
+            var tcs = new TaskCompletionSource<T>();
+            queue.DispatchSync(() =>
+            {
+                tcs.SetResult(getValue());
+            });
+            return tcs.Task;
+        }
     }
 }

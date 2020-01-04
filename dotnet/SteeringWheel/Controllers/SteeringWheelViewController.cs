@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading.Tasks;
+using CoreFoundation;
 using CoreGraphics;
 using CoreMotion;
 using Lego.Client;
@@ -125,16 +127,27 @@ namespace SteeringWheel.Controllers
             _motionManager.StopDeviceMotionUpdates();
         }
 
-        public int GetThrottle() => (int) _throttleSlider.Value;
+        public Task<int> GetThrottleAsync() => DispatchQueue.MainQueue.DispatchAsync(() => (int)_throttleSlider.Value);
 
-        public int GetSteerAngleDeg()
+        public Task<int> GetSteerAngleDegAsync()
         {
             var attitude = _motionManager.DeviceMotion?.Attitude;
-            if (attitude == null)
+            var angle = attitude == null ? 0 : 90 - attitude.Pitch.ToDeg();
+            return Task.FromResult(angle);
+            //return DispatchQueue.MainQueue.DispatchAsync(() => angle);
+        }
+    }
+    
+    public static class DispatchQueueExtensions
+    {
+        public static Task<T> DispatchAsync<T>(this DispatchQueue queue, Func<T> getValue)
+        {
+            var tcs = new TaskCompletionSource<T>();
+            queue.DispatchSync(() =>
             {
-                return 0;
-            }
-            return 90 - attitude.Pitch.ToDeg();
+                tcs.SetResult(getValue());
+            });
+            return tcs.Task;
         }
     }
 }

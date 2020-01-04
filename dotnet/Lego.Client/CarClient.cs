@@ -2,17 +2,19 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using LCTP.Core.Client;
 using Maths;
+using Timer = System.Timers.Timer;
 
 namespace Lego.Client
 {
     public class CarClient : IRotationProvider, IDisposable
     {
-        private Sampled<int> _throttle;
-        private Sampled<int> _steer;
-        private readonly CancellationTokenSource _source = new CancellationTokenSource();
-        private Task _task;
+        private readonly Sampled<int> _throttle = new Sampled<int>();
+        private readonly Sampled<int> _steer = new Sampled<int>();
+        private readonly Timer _timer = new Timer(25);
+        private int _updating = 0;
         private readonly LctpClient _client;
         private readonly ICarInput _input;
         private Vector3 _rotation;
@@ -26,42 +28,45 @@ namespace Lego.Client
         {
             _input = input;
             _client = new LctpClient(host, port);
+            _timer.Elapsed += Update;
         }
-        
-        private async Task Update(CancellationToken cancellationToken)
+
+        private async void Update(object sender, ElapsedEventArgs e)
         {
-            var sw = new Stopwatch();
-            while (true)
+            if (Interlocked.CompareExchange(ref _updating, 1, 0) != 0)
             {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    break;
-                }
+                return;
+            }
+            
+            try
+            {
+                var sw = new Stopwatch();
                 sw.Start();
                 if (!await DoUpdate())
                 {
                     await _client.Ping();
                 }
-                if (sw.ElapsedMilliseconds < 50)
-                {
-                    await Task.Delay(50 - (int)sw.ElapsedMilliseconds, cancellationToken);
-                }
-                sw.Reset();
+                sw.Stop();
+                Console.WriteLine($"Elapsed: {sw.Elapsed} ({sw.ElapsedMilliseconds} ms)");
             }
-            Console.WriteLine("Update done");
+            finally
+            {
+                Interlocked.Exchange(ref _updating, 0);
+            }
         }
 
         private async Task<bool> DoUpdate()
         {
+
             var updated = false;
 
-            _throttle.Value = _input.GetThrottle();
+            _throttle.Value = await _input.GetThrottleAsync();
             if (_throttle.HasChanged)
             {
                 await _client.Set("motor/speed", $"{_throttle.Value}");
             }
 
-            _steer.Value = _input.GetSteerAngleDeg();
+            _steer.Value = await _input.GetSteerAngleDegAsync();
             if (_steer.HasChanged)
             {
                 await _client.Set("steer", $"{_steer.Value}");
@@ -97,26 +102,25 @@ namespace Lego.Client
             {
                 Console.WriteLine($"Bad rotation status code: {rotationResult.StatusCode}");
             }
+
             return updated;
         }
         
         public void Dispose()
         {
-            _source.Cancel();
-            _source.Dispose();
+            _timer.Dispose();
             _client?.Dispose();
         }
 
         public void Connect()
         {
             _client.Connect();
-            _task = Update(_source.Token);
+            _timer.Start();
         }
 
         public void Disconnect()
         {
-            _source.Cancel();
-            _source.Dispose();
+            _timer.Stop();
             _client.Disconnect();
         }
 
