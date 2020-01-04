@@ -91,8 +91,11 @@
     <Compile Include="AppDelegate.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="MainWindowController.cs" />
+    <Compile Include="Rendering\CarRenderer.cs" />
+    <Compile Include="Rendering\M.cs" />
     <Compile Include="Rendering\MatrixExtensions.cs" />
     <Compile Include="Rendering\Renderer.cs" />
+    <Compile Include="Rendering\SceneGraph\Scene.cs" />
     <Compile Include="Rendering\Uniforms.cs" />
     <Compile Include="ViewControllers\ConnectViewController.cs" />
     <Compile Include="ViewControllers\NSViewExtensions.cs" />
