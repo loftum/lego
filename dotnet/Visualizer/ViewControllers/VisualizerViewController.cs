@@ -8,6 +8,7 @@ using Maths;
 using Metal;
 using MetalKit;
 using Visualizer.Rendering;
+using Visualizer.Rendering.Car;
 
 namespace Visualizer.ViewControllers
 {
@@ -18,7 +19,7 @@ namespace Visualizer.ViewControllers
         private readonly NSSlider _steerSlider;
         
         private LegoCarClient _client;
-        private readonly Renderer _renderer;
+        private readonly IMTKViewDelegate _renderer;
         private readonly MTKView _mtkView;
         private readonly NSButton _disconnectButton;
 
@@ -35,7 +36,7 @@ namespace Visualizer.ViewControllers
                 ColorPixelFormat = MTLPixelFormat.BGRA8Unorm,
                 DepthStencilPixelFormat = MTLPixelFormat.Depth32Float
             };
-            _renderer = new Renderer(_mtkView, this);
+            _renderer = new CarRenderer(_mtkView, this);
             _mtkView.Delegate = _renderer;
             
             _throttleSlider = new NSSlider

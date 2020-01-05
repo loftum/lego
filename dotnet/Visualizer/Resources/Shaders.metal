@@ -1,52 +1,99 @@
 #include <metal_stdlib>
-#include <simd/simd.h>
-
 using namespace metal;
 
-// Variables in constant address space
-constant float3 light_position = float3(0.0, 1.0, -1.0);
-//constant float4 ambient_color  = float4(0.18, 0.24, 0.8, 1.0);
-constant float4 ambient_color  = float4(0.0, 0.8, 0.8, 1.0);
-//constant float4 diffuse_color  = float4(0.4, 0.4, 1.0, 1.0);
-constant float4 diffuse_color  = float4(1.0, 0.0, 0.0, 1.0);
-
-struct uniforms_t
-{
-    float4x4 modelview_projection_matrix;
-    float4x4 normal_matrix;
+struct VertexIn {
+    float3 position  [[attribute(0)]];
+    float3 normal    [[attribute(1)]];
+    float2 texCoords [[attribute(2)]];
 };
 
-typedef struct
-{
-    float3 position [[attribute(0)]];
-    float3 normal [[attribute(1)]];
-} vertex_t;
-
-typedef struct {
+struct VertexOut {
     float4 position [[position]];
-    half4  color;
-} ColorInOut;
+    float3 worldNormal;
+    float3 worldPosition;
+    float2 texCoords;
+};
 
-// Vertex shader function
-vertex ColorInOut lighting_vertex(vertex_t vertex_array [[stage_in]],
-                                  constant uniforms_t& uniforms [[ buffer(1) ]])
+struct Light {
+    float3 worldPosition;
+    float3 color;
+};
+
+struct VertexUniforms {
+    float4x4 viewProjectionMatrix;
+    float4x4 modelMatrix;
+    float3x3 normalMatrix;
+};
+
+#define LightCount 3
+
+struct FragmentUniforms {
+    float3 cameraWorldPosition;
+    float3 ambientLightColor;
+    float3 specularColor;
+    float specularPower;
+    Light lights[LightCount];
+};
+
+vertex VertexOut vertex_main(VertexIn vertexIn [[stage_in]],
+                             constant VertexUniforms &uniforms [[buffer(1)]])
 {
-    ColorInOut out;
-    
-    float4 in_position = float4(vertex_array.position, 1.0);
-    out.position = uniforms.modelview_projection_matrix * in_position;
-    
-    float4 eye_normal = normalize(uniforms.normal_matrix * float4(vertex_array.normal, 0.0));
-    float n_dot_l = dot(eye_normal.rgb, normalize(light_position));
-    n_dot_l = fmax(0.0, n_dot_l);
-    
-    out.color = half4(n_dot_l);
-    out.color = half4(ambient_color + diffuse_color * n_dot_l);
-    return out;
+    VertexOut vertexOut;
+    float4 worldPosition = uniforms.modelMatrix * float4(vertexIn.position, 1);
+    vertexOut.position = uniforms.viewProjectionMatrix * worldPosition;
+    vertexOut.worldPosition = worldPosition.xyz;
+    vertexOut.worldNormal = uniforms.normalMatrix * vertexIn.normal;
+    vertexOut.texCoords = vertexIn.texCoords;
+    return vertexOut;
 }
 
-// Fragment shader function
-fragment half4 lighting_fragment(ColorInOut in [[stage_in]])
+fragment float4 fragment_main(VertexOut fragmentIn [[stage_in]],
+                              constant FragmentUniforms &uniforms [[buffer(0)]])
 {
-    return in.color;
+    float3 baseColor(0.5, 0.5, 0.5);
+    float3 specularColor = uniforms.specularColor;
+    
+    float3 N = normalize(fragmentIn.worldNormal);
+    float3 V = normalize(uniforms.cameraWorldPosition - fragmentIn.worldPosition);
+
+    float3 finalColor(0, 0, 0);
+    for (int i = 0; i < LightCount; ++i) {
+        float3 L = normalize(uniforms.lights[i].worldPosition - fragmentIn.worldPosition.xyz);
+        float3 diffuseIntensity = saturate(dot(N, L));
+        float3 H = normalize(L + V);
+        float specularBase = saturate(dot(N, H));
+        float specularIntensity = powr(specularBase, uniforms.specularPower);
+        float3 lightColor = uniforms.lights[i].color;
+        finalColor += uniforms.ambientLightColor * baseColor +
+                      diffuseIntensity * lightColor * baseColor +
+                      specularIntensity * lightColor * specularColor;
+    }
+    return float4(finalColor, 1);
 }
+
+//fragment float4 fragment_main(VertexOut fragmentIn [[stage_in]],
+//                              constant FragmentUniforms &uniforms [[buffer(0)]],
+//                              texture2d<float, access::sample> baseColorTexture [[texture(0)]],
+//                              sampler baseColorSampler [[sampler(0)]])
+//{
+//    float3 baseColor = baseColorTexture.sample(baseColorSampler, fragmentIn.texCoords).rgb;
+//    float3 specularColor = uniforms.specularColor;
+//
+//    float3 N = normalize(fragmentIn.worldNormal);
+//    float3 V = normalize(uniforms.cameraWorldPosition - fragmentIn.worldPosition);
+//
+//    float3 finalColor(0, 0, 0);
+//    for (int i = 0; i < LightCount; ++i) {
+//        float3 L = normalize(uniforms.lights[i].worldPosition - fragmentIn.worldPosition.xyz);
+//        float3 diffuseIntensity = saturate(dot(N, L));
+//        float3 H = normalize(L + V);
+//        float specularBase = saturate(dot(N, H));
+//        float specularIntensity = powr(specularBase, uniforms.specularPower);
+//        float3 lightColor = uniforms.lights[i].color;
+//        finalColor += uniforms.ambientLightColor * baseColor +
+//                      diffuseIntensity * lightColor * baseColor +
+//                      specularIntensity * lightColor * specularColor;
+//    }
+//    return float4(finalColor, 1);
+//}
+//

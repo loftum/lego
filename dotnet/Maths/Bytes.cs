@@ -28,6 +28,10 @@ namespace Maths
         {
             values = new List<double>();
             var parts = list.TrimStart('[').TrimEnd(']').Split(',');
+            if (parts.Length == 1 && string.IsNullOrEmpty(parts[0]))
+            {
+                return true;
+            }
             foreach (var value in parts)
             {
                 if (!double.TryParse(value, out var i))

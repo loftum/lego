@@ -7,6 +7,7 @@ using Metal;
 using MetalKit;
 using ModelIO;
 using OpenTK;
+using Visualizer.Rendering.Car;
 
 namespace Visualizer.Rendering
 {
@@ -79,21 +80,10 @@ namespace Visualizer.Rendering
 
         private MTKMesh[] LoadAssets(IMTLLibrary library)
         {
-            // Generate meshes
-            
-            MDLMesh mdl = MDLMesh.CreateBox(new Vector3(2f, 2f, 2f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, new MTKMeshBufferAllocator(_device));
-            //MDLMesh mdl = MDLMesh.CreateBox(new Vector3(1f, 2f, 2f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, new MTKMeshBufferAllocator(device));
-            //var mdl = MDLMesh.CreateCylinder(new Vector3(2f, 2f, 2f), new Vector2i(1, 1), true, true, true, MDLGeometryType.Triangles, new MTKMeshBufferAllocator(device));
-            //var mdl = MDLMesh.CreateEllipsoid(new Vector3(2f, 2f, 2f), 1, 1, MDLGeometryType.Triangles, true, true, new MTKMeshBufferAllocator(_device));
-            var boxMesh = new MTKMesh(mdl, _device, out var error);
-            if (error != null)
-            {
-                throw new NSErrorException(error);
-            }
-            
+            var mesh = CarRendererFactory.CreateTeapot(library);
             
             // Create a vertex descriptor from the MTKMesh
-            var vertexDescriptor = MTLVertexDescriptor.FromModelIO(boxMesh.VertexDescriptor);
+            var vertexDescriptor = MTLVertexDescriptor.FromModelIO(mesh.VertexDescriptor);
             vertexDescriptor.Layouts[0].StepRate = 1;
             vertexDescriptor.Layouts[0].StepFunction = MTLVertexStepFunction.PerVertex;
 
@@ -109,13 +99,13 @@ namespace Visualizer.Rendering
             };
 
             pipelineStateDescriptor.ColorAttachments[0].PixelFormat = _view.ColorPixelFormat;
-            _pipelineState = _device.CreateRenderPipelineState(pipelineStateDescriptor, out error);
+            _pipelineState = _device.CreateRenderPipelineState(pipelineStateDescriptor, out var error);
 
             if (error != null)
             {
                 throw new NSErrorException(error);
             }
-            return new[] { boxMesh };
+            return new[] { mesh };
         }
 
         public override void DrawableSizeWillChange(MTKView view, CoreGraphics.CGSize size)

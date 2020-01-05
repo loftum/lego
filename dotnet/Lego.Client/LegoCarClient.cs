@@ -85,9 +85,17 @@ namespace Lego.Client
             }
 
             var stateResult = await _client.Get("state");
-            if (stateResult.StatusCode == 200 && LegoCarState.TryParse(stateResult.Content, out var state))
+            if (stateResult.StatusCode == 200)
             {
-                _state = state;
+                if (LegoCarState.TryParse(stateResult.Content, out var state))
+                {
+                    _state = state;    
+                }
+                else
+                {
+                    Console.WriteLine($"Bad state state string: {stateResult.Content}");
+                }
+                
             }
             else
             {

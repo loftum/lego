@@ -91,11 +91,17 @@
     <Compile Include="AppDelegate.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="MainWindowController.cs" />
-    <Compile Include="Rendering\CarRenderer.cs" />
+    <Compile Include="Rendering\Car\CarRenderer.cs" />
+    <Compile Include="Rendering\Car\FragmentUniforms.cs" />
+    <Compile Include="Rendering\Car\CarRendererFactory.cs" />
+    <Compile Include="Rendering\Car\SceneGraph\Light.cs" />
+    <Compile Include="Rendering\Car\SceneGraph\Material.cs" />
+    <Compile Include="Rendering\Car\SceneGraph\Node.cs" />
+    <Compile Include="Rendering\Car\SceneGraph\Scene.cs" />
+    <Compile Include="Rendering\Car\VertexUniforms.cs" />
     <Compile Include="Rendering\M.cs" />
     <Compile Include="Rendering\MatrixExtensions.cs" />
     <Compile Include="Rendering\Renderer.cs" />
-    <Compile Include="Rendering\SceneGraph\Scene.cs" />
     <Compile Include="Rendering\Uniforms.cs" />
     <Compile Include="ViewControllers\ConnectViewController.cs" />
     <Compile Include="ViewControllers\NSViewExtensions.cs" />
@@ -104,9 +110,6 @@
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />
-  </ItemGroup>
-  <ItemGroup>
-    <Metal Include="Resources\Shaders.metal" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\teapot.obj">
@@ -126,6 +129,10 @@
       <Project>{f7c77102-12a6-48d7-8431-ab0f3c77fb6f}</Project>
       <Name>Maths</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Metal Include="Resources\Shaders.metal" />
+    <Metal Include="Resources\Shaders.old.metal" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>
