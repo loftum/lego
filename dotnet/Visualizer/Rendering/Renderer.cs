@@ -5,7 +5,6 @@ using Foundation;
 using Lego.Client;
 using Metal;
 using MetalKit;
-using ModelIO;
 using OpenTK;
 using Visualizer.Rendering.Car;
 
@@ -24,7 +23,6 @@ namespace Visualizer.Rendering
         private static readonly int UniformsSize = Marshal.SizeOf<Uniforms>();
         private readonly IMTLBuffer _uniformsBuffer;
         private int _uniformsIndex;
-        private int _offset;
 
         // renderer
         private readonly IMTLDevice _device;
@@ -80,7 +78,8 @@ namespace Visualizer.Rendering
 
         private MTKMesh[] LoadAssets(IMTLLibrary library)
         {
-            var mesh = CarRendererFactory.CreateTeapot(library);
+            var vd = CarRendererFactory.CreateVertexDescriptor();
+            var mesh = CarRendererFactory.CreateTeapot(library, vd);
             
             // Create a vertex descriptor from the MTKMesh
             var vertexDescriptor = MTLVertexDescriptor.FromModelIO(mesh.VertexDescriptor);
@@ -145,7 +144,7 @@ namespace Visualizer.Rendering
                 {
                     renderEncoder.SetVertexBuffer(mesh.VertexBuffers[0].Buffer, mesh.VertexBuffers[0].Offset, 0);
 
-                    renderEncoder.SetVertexBuffer(_uniformsBuffer, (nuint)_offset, 1);
+                    renderEncoder.SetVertexBuffer(_uniformsBuffer, (nuint) (UniformsSize * _uniformsIndex), 1);
 
                     var submesh = mesh.Submeshes[0];
                     // Tell the render context we want to draw our primitives
@@ -190,15 +189,17 @@ namespace Visualizer.Rendering
                 ModelviewProjectionMatrix = Matrix4.Transpose(Matrix4.Mult(_projectionMatrix, modelViewMatrix))
             };
 
-            var rawdata = new byte[UniformsSize];
+            _uniformsBuffer.Copy(uniforms, _uniformsIndex);
 
-            GCHandle pinnedUniforms = GCHandle.Alloc(uniforms, GCHandleType.Pinned);
-            IntPtr ptr = pinnedUniforms.AddrOfPinnedObject();
-            Marshal.Copy(ptr, rawdata, 0, UniformsSize);
-            pinnedUniforms.Free();
-            _offset = UniformsSize * _uniformsIndex;
+            //var rawdata = new byte[UniformsSize];
 
-            Marshal.Copy(rawdata, 0, _uniformsBuffer.Contents + _offset, UniformsSize);
+            //GCHandle pinnedUniforms = GCHandle.Alloc(uniforms, GCHandleType.Pinned);
+            //IntPtr ptr = pinnedUniforms.AddrOfPinnedObject();
+            //Marshal.Copy(ptr, rawdata, 0, UniformsSize);
+            //pinnedUniforms.Free();
+            //_offset = UniformsSize * _uniformsIndex;
+
+            //Marshal.Copy(rawdata, 0, _uniformsBuffer.Contents + _offset, UniformsSize);
         }
         
         

@@ -5,6 +5,7 @@ using System.Timers;
 using LCTP.Core.Client;
 using Lego.Core;
 using Maths;
+using Timer = System.Timers.Timer;
 
 namespace Lego.Client
 {
@@ -12,7 +13,7 @@ namespace Lego.Client
     {
         private readonly Sampled<int> _throttle = new Sampled<int>();
         private readonly Sampled<int> _steer = new Sampled<int>();
-        private readonly InterlockedTimer _timer = new InterlockedTimer(25);
+        private readonly Timer _timer = new Timer(25);
         private int _running;
         private readonly LctpClient _client;
         private readonly ICarInput _input;

@@ -1,17 +1,18 @@
 #include <metal_stdlib>
+#include <simd/simd.h>
 using namespace metal;
 
 struct VertexIn {
     float3 position  [[attribute(0)]];
     float3 normal    [[attribute(1)]];
-    float2 texCoords [[attribute(2)]];
+    //float2 texCoords [[attribute(2)]];
 };
 
 struct VertexOut {
     float4 position [[position]];
     float3 worldNormal;
     float3 worldPosition;
-    float2 texCoords;
+    //float2 texCoords;
 };
 
 struct Light {
@@ -39,36 +40,46 @@ vertex VertexOut vertex_main(VertexIn vertexIn [[stage_in]],
                              constant VertexUniforms &uniforms [[buffer(1)]])
 {
     VertexOut vertexOut;
-    float4 worldPosition = uniforms.modelMatrix * float4(vertexIn.position, 1);
-    vertexOut.position = uniforms.viewProjectionMatrix * worldPosition;
-    vertexOut.worldPosition = worldPosition.xyz;
-    vertexOut.worldNormal = uniforms.normalMatrix * vertexIn.normal;
-    vertexOut.texCoords = vertexIn.texCoords;
+    
+    vertexOut.position = float4(vertexIn.position, 1);
+    vertexOut.worldNormal = vertexIn.normal;
+    vertexOut.worldPosition = vertexIn.position;
+
+    //float4 worldPosition = uniforms.modelMatrix * float4(vertexIn.position, 1);
+    //vertexOut.position = uniforms.viewProjectionMatrix * worldPosition;
+    //vertexOut.worldPosition = worldPosition.xyz;
+    //vertexOut.worldNormal = uniforms.normalMatrix * vertexIn.normal;
+    
     return vertexOut;
 }
 
 fragment float4 fragment_main(VertexOut fragmentIn [[stage_in]],
                               constant FragmentUniforms &uniforms [[buffer(0)]])
 {
-    float3 baseColor(0.5, 0.5, 0.5);
-    float3 specularColor = uniforms.specularColor;
+    if (uniforms.specularPower < 100){
+        return float4(uniforms.specularPower / 100, 0.0, 1.0, 1.0);
+    }
     
+//    float3 baseColor(0.5, 0.5, 0.5);
+//    float3 specularColor = uniforms.specularColor;
+//
     float3 N = normalize(fragmentIn.worldNormal);
     float3 V = normalize(uniforms.cameraWorldPosition - fragmentIn.worldPosition);
-
-    float3 finalColor(0, 0, 0);
-    for (int i = 0; i < LightCount; ++i) {
-        float3 L = normalize(uniforms.lights[i].worldPosition - fragmentIn.worldPosition.xyz);
-        float3 diffuseIntensity = saturate(dot(N, L));
-        float3 H = normalize(L + V);
-        float specularBase = saturate(dot(N, H));
-        float specularIntensity = powr(specularBase, uniforms.specularPower);
-        float3 lightColor = uniforms.lights[i].color;
-        finalColor += uniforms.ambientLightColor * baseColor +
-                      diffuseIntensity * lightColor * baseColor +
-                      specularIntensity * lightColor * specularColor;
-    }
-    return float4(finalColor, 1);
+    return float4(abs(N), 1);
+//
+//    float3 finalColor(0, 0, 0);
+//    for (int i = 0; i < LightCount; ++i) {
+//        float3 L = normalize(uniforms.lights[i].worldPosition - fragmentIn.worldPosition.xyz);
+//        float3 diffuseIntensity = saturate(dot(N, L));
+//        float3 H = normalize(L + V);
+//        float specularBase = saturate(dot(N, H));
+//        float specularIntensity = powr(specularBase, uniforms.specularPower);
+//        float3 lightColor = uniforms.lights[i].color;
+//        finalColor += uniforms.ambientLightColor * baseColor +
+//                      diffuseIntensity * lightColor * baseColor +
+//                      specularIntensity * lightColor * specularColor;
+//    }
+//    return float4(finalColor, 1);
 }
 
 //fragment float4 fragment_main(VertexOut fragmentIn [[stage_in]],
