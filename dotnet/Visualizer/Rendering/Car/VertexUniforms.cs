@@ -1,7 +1,11 @@
+using System;
+using System.Runtime.InteropServices;
 using OpenTK;
 
 namespace Visualizer.Rendering.Car
 {
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
     public struct VertexUniforms
     {
         public Matrix4 ViewProjectionMatrix;
