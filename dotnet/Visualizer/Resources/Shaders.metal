@@ -64,7 +64,7 @@ fragment float4 fragment_main(VertexOut fragmentIn [[stage_in]],
 //    float3 specularColor = uniforms.specularColor;
 //
     float3 N = normalize(fragmentIn.worldNormal);
-    float3 V = normalize(uniforms.cameraWorldPosition - fragmentIn.worldPosition);
+    //float3 V = normalize(uniforms.cameraWorldPosition - fragmentIn.worldPosition);
     return float4(abs(N), 1);
 //
 //    float3 finalColor(0, 0, 0);

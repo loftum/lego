@@ -12,6 +12,7 @@ namespace Visualizer
         private readonly ViewController _vc = new ViewController();
         private readonly ConnectViewController _connectViewController = new ConnectViewController();
         private readonly VisualizerViewController _visualizerViewcontroller = new VisualizerViewController();
+        private readonly MetalTestViewController _metalTestViewController = new MetalTestViewController();
 
         public MainWindowController(IntPtr handle) : base(handle)
         {
@@ -26,7 +27,10 @@ namespace Visualizer
         {
             var contentRect = new CGRect(0, 0, 1000, 500);
             base.Window = new MainWindow(contentRect, NSWindowStyle.Titled | NSWindowStyle.Closable | NSWindowStyle.Miniaturizable | NSWindowStyle.Resizable, NSBackingStore.Buffered, false);
-            Window.ContentView = _connectViewController.View;
+
+            Window.ContentView = _metalTestViewController.View;
+
+            //Window.ContentView = _connectViewController.View;
             _connectViewController.OnConnect += OnConnect;
             _visualizerViewcontroller.OnDisconnect += OnDisconnect;
         }

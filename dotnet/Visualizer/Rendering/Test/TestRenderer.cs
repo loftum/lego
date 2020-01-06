@@ -1,18 +1,17 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Lego.Client;
 using Metal;
 using MetalKit;
 using OpenTK;
 using Visualizer.Rendering.Car.SceneGraph;
 
-namespace Visualizer.Rendering.Car
+namespace Visualizer.Rendering.Test
 {
-    public class CarRenderer : MTKViewDelegate
+    public class TestRenderer : MTKViewDelegate
     {
-        private static readonly int VertexUniformsSize = Marshal.SizeOf<VertexUniforms>();
-        private static readonly int FragmentUniformsSize = Marshal.SizeOf<FragmentUniforms>();
+        private static readonly int VertexUniformsSize = Marshal.SizeOf<TestVertexUniforms>();
+        private static readonly int FragmentUniformsSize = Marshal.SizeOf<TestFragmentUniforms>();
 
         private readonly MTKView _view;
         private readonly Semaphore _inflightSemaphore;
@@ -22,24 +21,21 @@ namespace Visualizer.Rendering.Car
 
         private Matrix4 _projectionMatrix = Matrix4.Identity;
         private Matrix4 _viewMatrix = Matrix4.Identity;
-        private Matrix4 _viewProjectionMatrix = Matrix4.Identity;
-        private readonly IRotationProvider _positionProvider;
 
         private readonly IMTLRenderPipelineState _renderPipeline;
         private readonly IMTLSamplerState _samplerState;
         private readonly IMTLDepthStencilState _depthStencilState;
         private readonly Scene _scene;
-        private readonly Vector3 _cameraWorldPosition = new Vector3(0, 0, 20);
-        
+        private readonly Vector3 _cameraWorldPosition = new Vector3(0, 0, 5f);
 
-        public CarRenderer(MTKView view, IRotationProvider positionProvider)
+
+        public TestRenderer(MTKView view)
         {
-            _positionProvider = positionProvider;
             // Set the view to use the default device
             var device = MTLDevice.SystemDefault ?? throw new Exception("Metal is not supported on this device");
             _uniformsIndex = 0;
-            _inflightSemaphore = new Semaphore(CarRendererFactory.MaxInflightBuffers, CarRendererFactory.MaxInflightBuffers);
-            
+            _inflightSemaphore = new Semaphore(TestRendererFactory.MaxInflightBuffers, TestRendererFactory.MaxInflightBuffers);
+
             view.Delegate = this;
             view.Device = device;
             view.ColorPixelFormat = MTLPixelFormat.BGRA8Unorm_sRGB;
@@ -52,14 +48,14 @@ namespace Visualizer.Rendering.Car
             _view = view;
 
             var library = device.CreateDefaultLibrary();
-
+            
             _commandQueue = device.CreateCommandQueue();
-            var vertexDescriptor = CarRendererFactory.CreateVertexDescriptor();
-            _renderPipeline = CarRendererFactory.CreateRenderPipeline(device, library, view, vertexDescriptor);
-            _samplerState = CarRendererFactory.CreateSamplerState(device);
-            _depthStencilState = CarRendererFactory.CreateDepthStencilState(device);
+            var vertexDescriptor = TestRendererFactory.CreateVertexDescriptor();
+            _renderPipeline = TestRendererFactory.CreateRenderPipeline(device, library, view, vertexDescriptor);
+            _samplerState = TestRendererFactory.CreateSamplerState(device);
+            _depthStencilState = TestRendererFactory.CreateDepthStencilState(device);
 
-            _scene = CarRendererFactory.BuildScene(library, vertexDescriptor);
+            _scene = TestRendererFactory.BuildScene(library, vertexDescriptor);
             Reshape();
         }
 
@@ -68,28 +64,38 @@ namespace Visualizer.Rendering.Car
             Reshape();
         }
 
+        private float _angle;
         private Vector3 GetRotation()
         {
-            var rotation = _positionProvider.GetRotation();
+            _angle += .01f;
+            if (_angle >= 2 * Math.PI)
+            {
+                _angle = 0;
+            }
             // Camera on top of car
-            return new Vector3(-(float)rotation.Y, (float)rotation.Z, -(float)rotation.X);
+            return new Vector3(0, _angle, 0);
         }
 
-        private void UpdateUniforms()
+        private void UpdateUniforms(MTKView view)
         {
+            var aspect = (float)(view.DrawableSize.Width / view.DrawableSize.Height);
+            //_projectionMatrix = M.CreateMatrixFromPerspective(65f * ((float)Math.PI / 180f), aspect, .1f, 100f);
+            _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(65f * ((float)Math.PI / 180f), aspect, .1f, 100f);
+
             var rotation = GetRotation();
-            var node = _scene.NodeNamed("car");
-            node.ModelMatrix = Matrix4.Identity; //.Rotate(rotation);
+            _scene.RootNode.ModelMatrix = Matrix4.Identity.Rotate(rotation);
+            _scene.NodeNamed("car").ModelMatrix = Matrix4.Identity.Rotate(rotation * -2) * Matrix4.Scale(.5f);
+            _scene.NodeNamed("box").ModelMatrix = Matrix4.Identity.Rotate(rotation * .5f);
         }
 
         public override void Draw(MTKView view)
         {
             _inflightSemaphore.WaitOne();
-            UpdateUniforms();
+            UpdateUniforms(view);
 
             // Create a new command buffer for each renderpass to the current drawable
             var commandBuffer = _commandQueue.CommandBuffer();
-            commandBuffer.Label = "MyCommand";
+            commandBuffer.Label = "Hest";
 
             // Call the view's completion handler which is required by the view since it will signal its semaphore and set up the next buffer
             var drawable = view.CurrentDrawable;
@@ -99,7 +105,6 @@ namespace Visualizer.Rendering.Car
                 drawable.Dispose();
                 var count = _inflightSemaphore.Release();
             });
-
 
             var renderPassDescriptor = view.CurrentRenderPassDescriptor;
             if (renderPassDescriptor == null)
@@ -111,9 +116,9 @@ namespace Visualizer.Rendering.Car
 
             //// Create a render command encoder so we can render into something
 
-            encoder.Label = "MyRenderEncoder";
+            encoder.Label = "HestEncoder";
             encoder.SetFrontFacingWinding(MTLWinding.CounterClockwise);
-            encoder.SetCullMode(MTLCullMode.Back);
+            //encoder.SetCullMode(MTLCullMode.Back);
             encoder.SetDepthStencilState(_depthStencilState);
             encoder.SetRenderPipelineState(_renderPipeline);
             encoder.SetFragmentSamplerState(_samplerState, 0);
@@ -130,7 +135,7 @@ namespace Visualizer.Rendering.Car
             // Schedule a present once the framebuffer is complete using the current drawable
             commandBuffer.PresentDrawable(drawable);
 
-            _uniformsIndex = (_uniformsIndex + 1) % CarRendererFactory.MaxInflightBuffers;
+            _uniformsIndex = (_uniformsIndex + 1) % TestRendererFactory.MaxInflightBuffers;
 
             // Finalize rendering here & push the command buffer to the GPU
             commandBuffer.Commit();
@@ -142,27 +147,25 @@ namespace Visualizer.Rendering.Car
             var mesh = node.Mesh;
             if (mesh != null)
             {
-                //var viewProjectionMatrix = _projectionMatrix * _viewMatrix;
-                var vertexUniforms = new VertexUniforms
+                var viewMatrix = Matrix4.CreateTranslation(0, 0, 1);
+                var vertexUniforms = new TestVertexUniforms
                 {
-                    ViewProjectionMatrix = _viewProjectionMatrix,
-                    ModelMatrix = modelMatrix,
-                    NormalMatrix = modelMatrix.GetNormalMatrix()
+                    //ViewProjectionMatrix = _projectionMatrix * modelViewMatrix,
+                    ViewProjectionMatrix = _projectionMatrix * modelMatrix,
+                    //ViewProjectionMatrix = Matrix4.Transpose(_projectionMatrix * viewMatrix * modelMatrix),
+                    NormalMatrix = node.ModelMatrix.Normal()
                 };
-                
-                node.VertexUniformsBuffer.Copy(vertexUniforms, _uniformsIndex);
-                
-                encoder.SetVertexBuffer(node.VertexUniformsBuffer, (nuint) (VertexUniformsSize * _uniformsIndex), 1);
 
-                var fragmentUniforms = new FragmentUniforms
+                node.VertexUniformsBuffer.Copy(vertexUniforms, _uniformsIndex);
+
+                encoder.SetVertexBuffer(node.VertexUniformsBuffer, (nuint)(VertexUniformsSize * _uniformsIndex), 1);
+
+                var fragmentUniforms = new TestFragmentUniforms
                 {
                     CameraWorldPosition = _cameraWorldPosition,
-                    AmbientLightColor = _scene.AmbientLightColor,
+                    AmbientLightColor = _scene.AmbientLightColor * (float)Math.Sin(_angle),
                     SpecularColor = node.Material.SpecularColor,
                     SpecularPower = node.Material.SpecularPower,
-                    Light0 = _scene.Lights[0],
-                    Light1 = _scene.Lights[1],
-                    Light2 = _scene.Lights[2]
                 };
 
                 node.FragmentUniformsBuffer.Copy(fragmentUniforms, _uniformsIndex);
@@ -184,11 +187,9 @@ namespace Visualizer.Rendering.Car
 
         private void Reshape()
         {
-            _viewMatrix = Matrix4.CreateTranslation(-_cameraWorldPosition); // * Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), (float)(Math.PI / 6));
+            _viewMatrix = Matrix4.CreateTranslation(-_cameraWorldPosition);
             var aspectRatio = (float)(_view.DrawableSize.Width / _view.DrawableSize.Height);
-            //_projectionMatrix = Matrix4.CreatePerspectiveFieldOfView((float)(Math.PI / 6), aspectRatio, .1f, 100f);
-            _projectionMatrix = M.CreateMatrixFromPerspective(65f * ((float)Math.PI / 180f), aspectRatio, .1f, 100f);
-            _viewProjectionMatrix = _projectionMatrix * _viewMatrix;
+            _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView((float)Math.PI /3, aspectRatio, .1f, 100f);
         }
     }
 }

@@ -81,6 +81,7 @@
   <ItemGroup>
     <Folder Include="Resources\" />
     <Folder Include="ViewControllers\" />
+    <Folder Include="Rendering\Test\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -101,12 +102,18 @@
     <Compile Include="Rendering\Car\VertexUniforms.cs" />
     <Compile Include="Rendering\M.cs" />
     <Compile Include="Rendering\MatrixExtensions.cs" />
+    <Compile Include="Rendering\MtlBufferExtensions.cs" />
     <Compile Include="Rendering\Renderer.cs" />
     <Compile Include="Rendering\Uniforms.cs" />
     <Compile Include="ViewControllers\ConnectViewController.cs" />
     <Compile Include="ViewControllers\NSViewExtensions.cs" />
     <Compile Include="ViewControllers\ViewController.cs" />
     <Compile Include="ViewControllers\VisualizerViewController.cs" />
+    <Compile Include="ViewControllers\MetalTestViewController.cs" />
+    <Compile Include="Rendering\Test\TestRenderer.cs" />
+    <Compile Include="Rendering\Test\TestRendererFactory.cs" />
+    <Compile Include="Rendering\Test\TestVertexUniforms.cs" />
+    <Compile Include="Rendering\Test\TestFragmentUniforms.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />
@@ -133,6 +140,7 @@
   <ItemGroup>
     <Metal Include="Resources\Shaders.metal" />
     <Metal Include="Resources\Shaders.old.metal" />
+    <Metal Include="Resources\Shaders.test.metal" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>

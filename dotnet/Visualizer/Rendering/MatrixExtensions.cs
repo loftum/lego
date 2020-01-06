@@ -5,6 +5,21 @@ namespace Visualizer.Rendering
 {
     public static class MatrixExtensions
     {
+        public static Matrix4 Transposed(this Matrix4 self)
+        {
+            return Matrix4.Transpose(self);
+        }
+
+        public static Matrix4 Inverted(this Matrix4 self)
+        {
+            return Matrix4.Invert(self);
+        }
+
+        public static Matrix4 Normal(this Matrix4 self)
+        {
+            return self.Transposed().Inverted();
+        }
+        
         public static Matrix3 GetNormalMatrix(this Matrix4 self)
         {
             var upperLeft = self.GetUpperLeft();
