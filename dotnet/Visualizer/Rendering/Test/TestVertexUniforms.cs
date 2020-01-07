@@ -9,6 +9,7 @@ namespace Visualizer.Rendering.Test
     public struct TestVertexUniforms
     {
         public Matrix4 ViewProjectionMatrix;
+        public Matrix4 ModelMatrix;
         public Matrix4 NormalMatrix;
     }
 }

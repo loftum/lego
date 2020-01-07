@@ -67,7 +67,7 @@ namespace Visualizer.Rendering.Test
         private float _angle;
         private Vector3 GetRotation()
         {
-            _angle += .01f;
+            _angle += (float) (2 * Math.PI / 1000);
             if (_angle >= 2 * Math.PI)
             {
                 _angle = 0;
@@ -78,14 +78,12 @@ namespace Visualizer.Rendering.Test
 
         private void UpdateUniforms(MTKView view)
         {
-            var aspect = (float)(view.DrawableSize.Width / view.DrawableSize.Height);
-            //_projectionMatrix = M.CreateMatrixFromPerspective(65f * ((float)Math.PI / 180f), aspect, .1f, 100f);
-            _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(65f * ((float)Math.PI / 180f), aspect, .1f, 100f);
+            _projectionMatrix = CreateProjectionMatrix(view);
 
             var rotation = GetRotation();
-            _scene.RootNode.ModelMatrix = Matrix4.Identity.Rotate(rotation);
-            _scene.NodeNamed("car").ModelMatrix = Matrix4.Identity.Rotate(rotation * -2) * Matrix4.Scale(.5f);
-            _scene.NodeNamed("box").ModelMatrix = Matrix4.Identity.Rotate(rotation * .5f);
+            
+            _scene.NodeNamed("car").ModelMatrix = Matrix4.Identity.Rotate(rotation * -2) * Matrix4.CreateTranslation(1f, 0, 0);
+            _scene.NodeNamed("box").ModelMatrix = Matrix4.Identity.Rotate(rotation * .5f) * Matrix4.CreateTranslation(-1f, 0, 0); 
         }
 
         public override void Draw(MTKView view)
@@ -147,12 +145,10 @@ namespace Visualizer.Rendering.Test
             var mesh = node.Mesh;
             if (mesh != null)
             {
-                var viewMatrix = Matrix4.CreateTranslation(0, 0, 1);
                 var vertexUniforms = new TestVertexUniforms
                 {
-                    //ViewProjectionMatrix = _projectionMatrix * modelViewMatrix,
-                    ViewProjectionMatrix = _projectionMatrix * modelMatrix,
-                    //ViewProjectionMatrix = Matrix4.Transpose(_projectionMatrix * viewMatrix * modelMatrix),
+                    ViewProjectionMatrix = _viewMatrix * _projectionMatrix,
+                    ModelMatrix = modelMatrix,
                     NormalMatrix = node.ModelMatrix.Normal()
                 };
 
@@ -188,8 +184,13 @@ namespace Visualizer.Rendering.Test
         private void Reshape()
         {
             _viewMatrix = Matrix4.CreateTranslation(-_cameraWorldPosition);
-            var aspectRatio = (float)(_view.DrawableSize.Width / _view.DrawableSize.Height);
-            _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView((float)Math.PI /3, aspectRatio, .1f, 100f);
+            _projectionMatrix = CreateProjectionMatrix(_view);
+        }
+
+        private static Matrix4 CreateProjectionMatrix(MTKView view)
+        {
+            var aspectRatio = (float)(view.DrawableSize.Width / view.DrawableSize.Height);
+            return Matrix4.CreatePerspectiveFieldOfView((float)Math.PI / 3, aspectRatio, .1f, 100f);
         }
     }
 }

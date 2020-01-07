@@ -107,7 +107,7 @@ namespace Visualizer.Rendering.Test
                 Material = new Material { SpecularPower = 100f, SpecularColor = new Vector3(.8f, .8f, .8f) },
                 VertexUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<TestVertexUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
                 FragmentUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<TestFragmentUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
-                Mesh = CreatePlane(library, bufferAllocator),
+                Mesh = CreateBox(library, bufferAllocator),
             };
             box.VertexUniformsBuffer.Label = "Box VertexUniformsBuffer";
             box.FragmentUniformsBuffer.Label = "Box FragmentUniformsBuffer";
@@ -129,7 +129,7 @@ namespace Visualizer.Rendering.Test
 
         public static MTKMesh CreatePlane(IMTLLibrary library, MTKMeshBufferAllocator bufferAllocator)
         {
-            var mdl = MDLMesh.CreatePlane(new Vector2(2f, 2f), new Vector2i(1, 1), MDLGeometryType.Triangles, bufferAllocator);
+            var mdl = MDLMesh.CreatePlane(new Vector2(1f, 1f), new Vector2i(1, 1), MDLGeometryType.Triangles, bufferAllocator);
             var mesh = new MTKMesh(mdl, library.Device, out var error);
             if (error != null)
             {

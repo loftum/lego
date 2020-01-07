@@ -61,5 +61,25 @@ namespace Visualizer.Rendering
 
             return m;
         }
+
+        public static Matrix4 PerspectiveProjectionFov(float fovRadians, float aspectRatio, float nearZ, float farZ)
+        {
+            var yScale = (float) (1 / Math.Tan(fovRadians * 0.5));
+            var xScale = (float) (yScale / aspectRatio);
+            var zRange = (float) (farZ - nearZ);
+            var zScale = (float) (-(farZ + nearZ) / zRange);
+            var wzScale = (float) (-2 * farZ * nearZ / zRange);
+            var xx = xScale;
+            var yy = (float)yScale;
+            var zz = zScale;
+            var zw = -1f;
+            var wz = wzScale;
+ 
+            return new Matrix4(new Vector4(xx, 0, 0, 0),
+                new Vector4(0, yy, 0, 0),
+                new Vector4(0, 0, zz, zw),
+                new Vector4(0, 0, wz, 0)
+                );
+        }
     }
 }

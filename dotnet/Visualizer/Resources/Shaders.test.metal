@@ -14,6 +14,7 @@ struct TestVertexOut {
 
 struct TestVertexUniforms {
     float4x4 viewProjectionMatrix;
+    float4x4 modelMatrix;
     float4x4 normalMatrix;
 };
 
@@ -30,8 +31,10 @@ vertex TestVertexOut vertex_test(TestVertexIn vertexIn [[stage_in]],
                              constant TestVertexUniforms &uniforms [[buffer(1)]])
 {
     TestVertexOut vertexOut;
+    float4 worldPosition = uniforms.modelMatrix * float4(vertexIn.position, 1);
     //vertexOut.position = float4(vertexIn.position, 1);
-    vertexOut.position = uniforms.viewProjectionMatrix * float4(vertexIn.position, 1);
+    //vertexOut.position = uniforms.viewProjectionMatrix * float4(vertexIn.position, 1);
+    vertexOut.position = uniforms.viewProjectionMatrix * worldPosition;
     vertexOut.worldNormal = normalize(uniforms.normalMatrix * float4(vertexIn.normal, 0));
     
     return vertexOut;
