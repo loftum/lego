@@ -116,7 +116,7 @@ namespace Maths
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(X, Y, Z, W);
+            return X.GetHashCode() ^ Y.GetHashCode() ^ Z.GetHashCode() ^ W.GetHashCode();
         }
 
         public override string ToString()
