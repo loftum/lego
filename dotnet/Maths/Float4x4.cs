@@ -3,10 +3,14 @@ using System.Runtime.InteropServices;
 
 namespace Maths
 {
+    public interface IMatrix
+    {
+        float[,] ToGrid();
+    }
     
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public struct Float4x4
+    public struct Float4x4 : IMatrix
     {
         public static Float4x4 Identity => new Float4x4(Float4.UnitX, Float4.UnitY, Float4.UnitZ, Float4.UnitW);
         
@@ -98,7 +102,7 @@ namespace Maths
                 left.M41 * right.M14 + left.M42 * right.M24 + left.M43 * right.M34 + left.M44 * right.M44);
         }
 
-        private float[,] ToGrid()
+        public float[,] ToGrid()
         {
             return new [,]
             {
@@ -108,7 +112,32 @@ namespace Maths
                 { Col0.W, Col1.W, Col2.W, Col3.W }
             };
         }
+
+
+        public static Float4x4 CreateTranslation(float x, float y, float z)
+        {
+            return new Float4x4(
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                x, y, z, 1
+                );
+        }
         
+        public static Float4x4 CreateRotation(float radians, float x, float y, float z)
+        {
+            var v = new Float3(x, y, z);
+            v.Normalize();
+            var cos = (float)Math.Cos(radians);
+            var sin = (float)Math.Sin(radians);
+            var cosp = 1f - cos;
+
+            return new Float4x4(
+                cos + cosp * v.X * v.X, cosp * v.X * v.Y - v.Z * sin, cosp * v.X * v.Z + v.Y * sin, 0f,
+                cosp * v.X * v.Y + v.Z * sin, cos + cosp * v.Y * v.Y, cosp * v.Y * v.Z - v.X * sin, 0f,
+                cosp * v.X * v.Z - v.Y * sin, cosp * v.Y * v.Z + v.X * sin, cos + cosp * v.Z * v.Z, 0f,
+                0f, 0f, 0f, 1f);
+        }
         
         public Float4x4 Invert(Float4x4 mat)
         {
@@ -117,30 +146,28 @@ namespace Maths
             int[] pivotIdx = { -1, -1, -1, -1 };
 
             // convert the matrix to an array for easy looping
-            float[,] inverse = mat.ToGrid();
-            int icol = 0;
-            int irow = 0;
-            for (int i = 0; i < 4; i++)
+            var inverse = mat.ToGrid();
+            var icol = 0;
+            var irow = 0;
+            for (var ii = 0; ii < 4; ii++)
             {
                 // Find the largest pivot value
-                float maxPivot = 0.0f;
-                for (int j = 0; j < 4; j++)
+                var maxPivot = 0.0f;
+                for (var jj = 0; jj < 4; jj++)
                 {
-                    if (pivotIdx[j] != 0)
+                    if (pivotIdx[jj] != 0)
                     {
-                        for (int k = 0; k < 4; ++k)
+                        for (var kk = 0; kk < 4; ++kk)
                         {
-                            if (pivotIdx[k] == -1)
+                            if (pivotIdx[kk] == -1)
                             {
-                                float absVal = Math.Abs(inverse[j, k]);
-                                if (absVal > maxPivot)
-                                {
-                                    maxPivot = absVal;
-                                    irow = j;
-                                    icol = k;
-                                }
+                                var absVal = Math.Abs(inverse[jj, kk]);
+                                if (!(absVal > maxPivot)) continue;
+                                maxPivot = absVal;
+                                irow = jj;
+                                icol = kk;
                             }
-                            else if (pivotIdx[k] > 0)
+                            else if (pivotIdx[kk] > 0)
                             {
                                 return mat;
                             }
@@ -148,23 +175,23 @@ namespace Maths
                     }
                 }
 
-                ++(pivotIdx[icol]);
+                ++pivotIdx[icol];
 
                 // Swap rows over so pivot is on diagonal
                 if (irow != icol)
                 {
-                    for (int k = 0; k < 4; ++k)
+                    for (var kk = 0; kk < 4; ++kk)
                     {
-                        float f = inverse[irow, k];
-                        inverse[irow, k] = inverse[icol, k];
-                        inverse[icol, k] = f;
+                        var f = inverse[irow, kk];
+                        inverse[irow, kk] = inverse[icol, kk];
+                        inverse[icol, kk] = f;
                     }
                 }
 
-                rowIdx[i] = irow;
-                colIdx[i] = icol;
+                rowIdx[ii] = irow;
+                colIdx[ii] = icol;
 
-                float pivot = inverse[icol, icol];
+                var pivot = inverse[icol, icol];
                 // check for singular matrix
                 if (pivot == 0.0f)
                 {
@@ -173,32 +200,37 @@ namespace Maths
                 }
 
                 // Scale row so it has a unit diagonal
-                float oneOverPivot = 1.0f / pivot;
+                var oneOverPivot = 1.0f / pivot;
                 inverse[icol, icol] = 1.0f;
-                for (int k = 0; k < 4; ++k)
+                for (var k = 0; k < 4; ++k)
+                {
                     inverse[icol, k] *= oneOverPivot;
+                }
+                    
 
                 // Do elimination of non-diagonal elements
-                for (int j = 0; j < 4; ++j)
+                for (var jj = 0; jj < 4; ++jj)
                 {
                     // check this isn't on the diagonal
-                    if (icol != j)
+                    if (icol != jj)
                     {
-                        float f = inverse[j, icol];
-                        inverse[j, icol] = 0.0f;
-                        for (int k = 0; k < 4; ++k)
-                            inverse[j, k] -= inverse[icol, k] * f;
+                        var f = inverse[jj, icol];
+                        inverse[jj, icol] = 0.0f;
+                        for (var kk = 0; kk < 4; ++kk)
+                        {
+                            inverse[jj, kk] -= inverse[icol, kk] * f;
+                        }
                     }
                 }
             }
 
-            for (int j = 3; j >= 0; --j)
+            for (var jj = 3; jj >= 0; --jj)
             {
-                int ir = rowIdx[j];
-                int ic = colIdx[j];
-                for (int k = 0; k < 4; ++k)
+                var ir = rowIdx[jj];
+                var ic = colIdx[jj];
+                for (var k = 0; k < 4; ++k)
                 {
-                    float f = inverse[k, ir];
+                    var f = inverse[k, ir];
                     inverse[k, ir] = inverse[k, ic];
                     inverse[k, ic] = f;
                 }
