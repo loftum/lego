@@ -1,6 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
-using OpenTK;
+using Maths;
 using Visualizer.Rendering.Car.SceneGraph;
 
 namespace Visualizer.Rendering.Car
@@ -9,9 +9,9 @@ namespace Visualizer.Rendering.Car
     [StructLayout(LayoutKind.Sequential)]
     public struct FragmentUniforms
     {
-        public Vector3 CameraWorldPosition;
-        public Vector3 AmbientLightColor;
-        public Vector3 SpecularColor;
+        public Float3 CameraWorldPosition;
+        public Float3 AmbientLightColor;
+        public Float3 SpecularColor;
         public float SpecularPower;
         public Light Light0;
         public Light Light1;

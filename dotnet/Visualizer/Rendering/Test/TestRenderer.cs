@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Maths;
 using Metal;
 using MetalKit;
 using OpenTK;
@@ -19,14 +20,14 @@ namespace Visualizer.Rendering.Test
 
         private readonly IMTLCommandQueue _commandQueue;
 
-        private Matrix4 _projectionMatrix = Matrix4.Identity;
-        private Matrix4 _viewMatrix = Matrix4.Identity;
+        private Float4x4 _projectionMatrix = Float4x4.Identity;
+        private Float4x4 _viewMatrix = Float4x4.Identity;
 
         private readonly IMTLRenderPipelineState _renderPipeline;
         private readonly IMTLSamplerState _samplerState;
         private readonly IMTLDepthStencilState _depthStencilState;
         private readonly Scene _scene;
-        private readonly Vector3 _cameraWorldPosition = new Vector3(0, 0, 5f);
+        private readonly Float3 _cameraWorldPosition = new Float3(0, 0, 5f);
 
 
         public TestRenderer(MTKView view)
@@ -65,7 +66,7 @@ namespace Visualizer.Rendering.Test
         }
 
         private float _angle;
-        private Vector3 GetRotation()
+        private Float3 GetRotation()
         {
             _angle += (float) (2 * Math.PI / 1000);
             if (_angle >= 2 * Math.PI)
@@ -73,17 +74,20 @@ namespace Visualizer.Rendering.Test
                 _angle = 0;
             }
             // Camera on top of car
-            return new Vector3(0, _angle, 0);
+            return new Float3(0, _angle, 0);
         }
 
         private void UpdateUniforms(MTKView view)
         {
             _projectionMatrix = CreateProjectionMatrix(view);
 
+            
             var rotation = GetRotation();
             
-            _scene.NodeNamed("car").ModelMatrix = Matrix4.Identity.Rotate(rotation * -2) * Matrix4.CreateTranslation(1f, 0, 0);
-            _scene.NodeNamed("box").ModelMatrix = Matrix4.Identity.Rotate(rotation * .5f) * Matrix4.CreateTranslation(-1f, 0, 0); 
+             //_scene.NodeNamed("car").ModelMatrix = Float4x4.CreateTranslation((float)Math.Sin(_angle), 0, 0);
+            // _scene.NodeNamed("box").ModelMatrix = Float4x4.Identity.Rotate(rotation * .5f) * Float4x4.CreateTranslation(-1f, 0, 0);
+            //_scene.NodeNamed("car").ModelMatrix = Float4x4.CreateTranslation(2f, 0, 0) * Float4x4.Identity.Rotate(rotation);
+            _scene.NodeNamed("box").ModelMatrix = Float4x4.CreateTranslation(-2f, 0, 0) * Float4x4.Identity.Rotate(rotation);
         }
 
         public override void Draw(MTKView view)
@@ -123,7 +127,7 @@ namespace Visualizer.Rendering.Test
 
             //// Set context state
             encoder.PushDebugGroup("DrawScene");
-            DrawNodeRecursive(_scene.RootNode, Matrix4.Identity, encoder);
+            DrawNodeRecursive(_scene.RootNode, Float4x4.Identity, encoder);
 
             encoder.PopDebugGroup();
 
@@ -139,7 +143,7 @@ namespace Visualizer.Rendering.Test
             commandBuffer.Commit();
         }
 
-        private void DrawNodeRecursive(Node node, Matrix4 parentTransform, IMTLRenderCommandEncoder encoder)
+        private void DrawNodeRecursive(Node node, Float4x4 parentTransform, IMTLRenderCommandEncoder encoder)
         {
             var modelMatrix = parentTransform * node.ModelMatrix;
             var mesh = node.Mesh;
@@ -147,9 +151,9 @@ namespace Visualizer.Rendering.Test
             {
                 var vertexUniforms = new TestVertexUniforms
                 {
-                    ViewProjectionMatrix = _viewMatrix * _projectionMatrix,
+                    ViewProjectionMatrix = _projectionMatrix * _viewMatrix,
                     ModelMatrix = modelMatrix,
-                    NormalMatrix = node.ModelMatrix.Normal()
+                    NormalMatrix = node.ModelMatrix.Transposed().Inverted()
                 };
 
                 node.VertexUniformsBuffer.Copy(vertexUniforms, _uniformsIndex);
@@ -183,14 +187,14 @@ namespace Visualizer.Rendering.Test
 
         private void Reshape()
         {
-            _viewMatrix = Matrix4.CreateTranslation(-_cameraWorldPosition);
+            _viewMatrix = Float4x4.CreateTranslation(-_cameraWorldPosition);
             _projectionMatrix = CreateProjectionMatrix(_view);
         }
 
-        private static Matrix4 CreateProjectionMatrix(MTKView view)
+        private static Float4x4 CreateProjectionMatrix(MTKView view)
         {
             var aspectRatio = (float)(view.DrawableSize.Width / view.DrawableSize.Height);
-            return Matrix4.CreatePerspectiveFieldOfView((float)Math.PI / 3, aspectRatio, .1f, 100f);
+            return Float4x4.CreatePerspectiveFieldOfView((float)Math.PI / 3, aspectRatio, .1f, 100f);
         }
     }
 }

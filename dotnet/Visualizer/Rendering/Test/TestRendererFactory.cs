@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Foundation;
+using Maths;
 using Metal;
 using MetalKit;
 using ModelIO;
 using OpenTK;
 using Visualizer.Rendering.Car.SceneGraph;
+using Vector3 = OpenTK.Vector3;
 
 namespace Visualizer.Rendering.Test
 {
@@ -80,18 +82,18 @@ namespace Visualizer.Rendering.Test
             var bufferAllocator = new MTKMeshBufferAllocator(library.Device);
             var scene = new Scene
             {
-                AmbientLightColor = new Vector3(.5f, .5f, 0f),
+                AmbientLightColor = new Float3(.5f, .5f, 0f),
                 Lights = new List<Light>
                 {
-                    new Light {WorldPosition = new Vector3(5, 5, 0), Color = new Vector3(.3f, .3f, .3f)},
-                    new Light {WorldPosition = new Vector3(-5, 5, 0), Color = new Vector3(.3f, .3f, .3f)},
-                    new Light {WorldPosition = new Vector3(0, -5, 0), Color = new Vector3(.3f, .3f, .3f)}
+                    new Light {WorldPosition = new Float3(5, 5, 0), Color = new Float3(.3f, .3f, .3f)},
+                    new Light {WorldPosition = new Float3(-5, 5, 0), Color = new Float3(.3f, .3f, .3f)},
+                    new Light {WorldPosition = new Float3(0, -5, 0), Color = new Float3(.3f, .3f, .3f)}
                 }
             };
 
             var car = new Node("car")
             {
-                Material = new Material { SpecularPower = 100f, SpecularColor = new Vector3(.8f, .8f, .8f) },
+                Material = new Material { SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f) },
                 VertexUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<TestVertexUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
                 FragmentUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<TestFragmentUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
                 Mesh = CreateTeapot(library, vertexDescriptor, bufferAllocator),
@@ -100,11 +102,11 @@ namespace Visualizer.Rendering.Test
             car.FragmentUniformsBuffer.Label = "Car FragmentUniformsBuffer";
             Console.WriteLine($"VertexUniformsBuffer.length = {car.VertexUniformsBuffer.Length}");
             Console.WriteLine($"FragmentUniformsBuffer.length = {car.FragmentUniformsBuffer.Length}");
-            scene.RootNode.Children.Add(car);
+            //scene.RootNode.Children.Add(car);
 
             var box = new Node("box")
             {
-                Material = new Material { SpecularPower = 100f, SpecularColor = new Vector3(.8f, .8f, .8f) },
+                Material = new Material { SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f) },
                 VertexUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<TestVertexUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
                 FragmentUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<TestFragmentUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
                 Mesh = CreateBox(library, bufferAllocator),
@@ -118,8 +120,8 @@ namespace Visualizer.Rendering.Test
 
         public static MTKMesh CreateTeapot(IMTLLibrary library, MDLVertexDescriptor vertexDescriptor, MTKMeshBufferAllocator bufferAllocator)
         {
-            var carAsset = new MDLAsset(NSUrl.FromFilename("teapot.obj"), vertexDescriptor, bufferAllocator);
-            var mesh = MTKMesh.FromAsset(carAsset, library.Device, out _, out var error).First();
+            var asset = new MDLAsset(NSUrl.FromFilename("teapot.obj"), vertexDescriptor, bufferAllocator);
+            var mesh = MTKMesh.FromAsset(asset, library.Device, out _, out var error).First();
             if (error != null)
             {
                 throw new NSErrorException(error);
@@ -140,8 +142,7 @@ namespace Visualizer.Rendering.Test
 
         public static MTKMesh CreateBox(IMTLLibrary library, MTKMeshBufferAllocator bufferAllocator)
         {
-            
-            MDLMesh mdl = MDLMesh.CreateBox(new Vector3(2f, 2f, 2f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, bufferAllocator);
+            var mdl = MDLMesh.CreateBox(new Vector3(1f, 1f, 1f), new Vector3i(2, 2, 2), MDLGeometryType.Triangles, false, bufferAllocator);
             var boxMesh = new MTKMesh(mdl, library.Device, out var error);
             if (error != null)
             {

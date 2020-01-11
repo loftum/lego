@@ -1,11 +1,25 @@
 using System;
 using System.Linq;
+using Maths;
 using OpenTK;
+using Vector3 = OpenTK.Vector3;
 
 namespace Visualizer.Rendering
 {
     public static class M
     {
+        public static Float4x4 Rotate(this Float4x4 matrix, Float3 angles)
+        {
+            var rotations = new[]
+            {
+                
+                Float4x4.CreateRotation(angles.X, 1, 0, 0),
+                Float4x4.CreateRotation(angles.Y, 0, 1, 0),
+                Float4x4.CreateRotation(angles.Z, 0, 0, 1)
+            };
+            return rotations.Aggregate(matrix, Float4x4.Mult);
+        }
+        
         public static Matrix4 Rotate(this Matrix4 matrix, Vector3 angles)
         {
             var rotations = new[]

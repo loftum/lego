@@ -28,8 +28,8 @@ namespace Visualizer
             var contentRect = new CGRect(0, 0, 1000, 500);
             base.Window = new MainWindow(contentRect, NSWindowStyle.Titled | NSWindowStyle.Closable | NSWindowStyle.Miniaturizable | NSWindowStyle.Resizable, NSBackingStore.Buffered, false);
 
-            //Window.ContentView = _metalTestViewController.View;
-            Window.ContentView = _connectViewController.View;
+            Window.ContentView = _metalTestViewController.View;
+            //Window.ContentView = _connectViewController.View;
 
             //Window.ContentView = _connectViewController.View;
             _connectViewController.OnConnect += OnConnect;

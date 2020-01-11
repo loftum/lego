@@ -1,6 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
-using OpenTK;
+using Maths;
 
 namespace Visualizer.Rendering.Car
 {
@@ -8,8 +8,8 @@ namespace Visualizer.Rendering.Car
     [StructLayout(LayoutKind.Sequential)]
     public struct VertexUniforms
     {
-        public Matrix4 ViewProjectionMatrix;
-        public Matrix4 ModelMatrix;
-        public Matrix3 NormalMatrix;
+        public Float4x4 ViewProjectionMatrix;
+        public Float4x4 ModelMatrix;
+        public Float4x4 NormalMatrix;
     }
 }

@@ -104,9 +104,11 @@
     <Compile Include="Rendering\MatrixExtensions.cs" />
     <Compile Include="Rendering\MtlBufferExtensions.cs" />
     <Compile Include="Rendering\Renderer.cs" />
+    <Compile Include="Rendering\Triangle\TriangleRenderer.cs" />
     <Compile Include="Rendering\Uniforms.cs" />
     <Compile Include="ViewControllers\ConnectViewController.cs" />
     <Compile Include="ViewControllers\NSViewExtensions.cs" />
+    <Compile Include="ViewControllers\TriangleViewController.cs" />
     <Compile Include="ViewControllers\ViewController.cs" />
     <Compile Include="ViewControllers\VisualizerViewController.cs" />
     <Compile Include="ViewControllers\MetalTestViewController.cs" />

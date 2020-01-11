@@ -7,12 +7,19 @@ namespace Maths
     {
         float[,] ToGrid();
     }
-    
+
+    /// <summary>
+    /// Column-major 4x4 matrix, like in Swift / metal
+    /// </summary>
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public struct Float4x4 : IMatrix
     {
-        public static Float4x4 Identity => new Float4x4(Float4.UnitX, Float4.UnitY, Float4.UnitZ, Float4.UnitW);
+        public static Float4x4 Identity => new Float4x4(
+            1f, 0, 0, 0,
+            0, 1f, 0, 0,
+            0, 0, 1f, 0,
+            0, 0, 0, 1f);
         
         public Float4 Col0;
         public Float4 Col1;
@@ -81,7 +88,7 @@ namespace Maths
 
         public Float4x4 Inverted() => Invert(this);
 
-        public static Float4x4 Mult(ref Float4x4 left, ref Float4x4 right)
+        public static Float4x4 Mult(Float4x4 left, Float4x4 right)
         {
             return new Float4x4(
                 left.M11 * right.M11 + left.M12 * right.M21 + left.M13 * right.M31 + left.M14 * right.M41,
@@ -100,6 +107,27 @@ namespace Maths
                 left.M41 * right.M12 + left.M42 * right.M22 + left.M43 * right.M32 + left.M44 * right.M42,
                 left.M41 * right.M13 + left.M42 * right.M23 + left.M43 * right.M33 + left.M44 * right.M43,
                 left.M41 * right.M14 + left.M42 * right.M24 + left.M43 * right.M34 + left.M44 * right.M44);
+            
+            // return new Float4x4(
+            //     left.M11 * right.M11 + left.M12 * right.M21 + left.M13 * right.M31 + left.M14 * right.M41,
+            //     left.M21 * right.M11 + left.M22 * right.M21 + left.M23 * right.M31 + left.M24 * right.M41,
+            //     left.M31 * right.M11 + left.M32 * right.M21 + left.M33 * right.M31 + left.M34 * right.M41,
+            //     left.M41 * right.M11 + left.M42 * right.M21 + left.M43 * right.M31 + left.M44 * right.M41,
+            //     
+            //     left.M11 * right.M12 + left.M12 * right.M22 + left.M13 * right.M32 + left.M14 * right.M42,
+            //     left.M21 * right.M12 + left.M22 * right.M22 + left.M23 * right.M32 + left.M24 * right.M42,
+            //     left.M31 * right.M12 + left.M32 * right.M22 + left.M33 * right.M32 + left.M34 * right.M42,
+            //     left.M41 * right.M12 + left.M42 * right.M22 + left.M43 * right.M32 + left.M44 * right.M42,
+            //     
+            //     left.M11 * right.M13 + left.M12 * right.M23 + left.M13 * right.M33 + left.M14 * right.M43,
+            //     left.M21 * right.M13 + left.M22 * right.M23 + left.M23 * right.M33 + left.M24 * right.M43,
+            //     left.M31 * right.M13 + left.M32 * right.M23 + left.M33 * right.M33 + left.M34 * right.M43,
+            //     left.M41 * right.M13 + left.M42 * right.M23 + left.M43 * right.M33 + left.M44 * right.M43,
+            //     
+            //     left.M11 * right.M14 + left.M12 * right.M24 + left.M13 * right.M34 + left.M14 * right.M44,
+            //     left.M21 * right.M14 + left.M22 * right.M24 + left.M23 * right.M34 + left.M24 * right.M44,
+            //     left.M31 * right.M14 + left.M32 * right.M24 + left.M33 * right.M34 + left.M34 * right.M44,
+            //     left.M41 * right.M14 + left.M42 * right.M24 + left.M43 * right.M34 + left.M44 * right.M44);
         }
 
         public float[,] ToGrid()
@@ -113,14 +141,15 @@ namespace Maths
             };
         }
 
-
+        public static Float4x4 CreateTranslation(Float3 vector) => CreateTranslation(vector.X, vector.Y, vector.Z); 
+        
         public static Float4x4 CreateTranslation(float x, float y, float z)
         {
             return new Float4x4(
-                1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                x, y, z, 1
+                1f, 0, 0, x,
+                0, 1f, 0, y,
+                0, 0, 1f, z,
+                0, 0, 0, 1f
                 );
         }
         
@@ -137,6 +166,48 @@ namespace Maths
                 cosp * v.X * v.Y + v.Z * sin, cos + cosp * v.Y * v.Y, cosp * v.Y * v.Z - v.X * sin, 0f,
                 cosp * v.X * v.Z - v.Y * sin, cosp * v.Y * v.Z + v.X * sin, cos + cosp * v.Z * v.Z, 0f,
                 0f, 0f, 0f, 1f);
+        }
+        
+        public static Float4x4 CreatePerspectiveFieldOfView(float fovy, float aspect, float zNear, float zFar)
+        {
+            if (fovy <= 0 || fovy > Math.PI)
+                throw new ArgumentOutOfRangeException("fovy");
+            if (aspect <= 0)
+                throw new ArgumentOutOfRangeException("aspect");
+            if (zNear <= 0)
+                throw new ArgumentOutOfRangeException("zNear");
+            if (zFar <= 0)
+                throw new ArgumentOutOfRangeException("zFar");
+            
+            var yMax = zNear * (float)Math.Tan(0.5f * fovy);
+            var yMin = -yMax;
+            var xMin = yMin * aspect;
+            var xMax = yMax * aspect;
+
+            return CreatePerspectiveOffCenter(xMin, xMax, yMin, yMax, zNear, zFar);
+        }
+        
+        public static Float4x4 CreatePerspectiveOffCenter(float left, float right, float bottom, float top, float zNear, float zFar)
+        {
+            if (zNear <= 0)
+                throw new ArgumentOutOfRangeException("zNear");
+            if (zFar <= 0)
+                throw new ArgumentOutOfRangeException("zFar");
+            if (zNear >= zFar)
+                throw new ArgumentOutOfRangeException("zNear");
+            
+            var x = (2.0f * zNear) / (right - left);
+            var y = (2.0f * zNear) / (top - bottom);
+            var a = (right + left) / (right - left);
+            var b = (top + bottom) / (top - bottom);
+            var c = -(zFar + zNear) / (zFar - zNear);
+            var d = -(2.0f * zFar * zNear) / (zFar - zNear);
+            
+            return new Float4x4(
+                x, 0, 0, a,
+                0, y, 0, b,
+                0, 0, c, d,
+                0, 0, -1, 0);
         }
         
         public Float4x4 Invert(Float4x4 mat)
@@ -245,7 +316,7 @@ namespace Maths
         
         public static Float4x4 operator *(Float4x4 left, Float4x4 right)
         {
-            return Mult(ref left, ref right);
+            return Mult(left, right);
         }
 
         /// <summary>
@@ -268,6 +339,30 @@ namespace Maths
         public static bool operator !=(Float4x4 left, Float4x4 right)
         {
             return !left.Equals(right);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Float4x4 other && Equals(other);
+        }
+        
+        public bool Equals(Float4x4 other)
+        {
+            return
+                Col0 == other.Col0 &&
+                Col1 == other.Col1 &&
+                Col2 == other.Col2 &&
+                Col3 == other.Col3;
+        }
+        
+        public override int GetHashCode()
+        {
+            return Col0.GetHashCode() ^ Col1.GetHashCode() ^ Col2.GetHashCode() ^ Col3.GetHashCode();
+        }
+        
+        public override string ToString()
+        {
+            return $"{Col0.X},{Col1.X},{Col2.X},{Col3.X}\n{Col0.Y},{Col1.Y},{Col2.Y},{Col3.Y}\n{Col0.Z},{Col1.Z},{Col2.Z},{Col3.Z}\n{Col0.W},{Col1.W},{Col2.W},{Col3.W}";
         }
     }
 }

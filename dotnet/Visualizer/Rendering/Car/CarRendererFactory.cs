@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Foundation;
+using Maths;
 using Metal;
 using MetalKit;
 using ModelIO;
 using OpenTK;
 using Visualizer.Rendering.Car.SceneGraph;
+using Vector3 = OpenTK.Vector3;
 
 namespace Visualizer.Rendering.Car
 {
@@ -78,18 +80,18 @@ namespace Visualizer.Rendering.Car
         {
             var scene = new Scene
             {
-                AmbientLightColor = new Vector3(.1f, .1f, .1f),
+                AmbientLightColor = new Float3(.1f, .1f, .1f),
                 Lights = new List<Light>
                 {
-                    new Light {WorldPosition = new Vector3(5, 5, 0), Color = new Vector3(.3f, .3f, .3f)},
-                    new Light {WorldPosition = new Vector3(-5, 5, 0), Color = new Vector3(.3f, .3f, .3f)},
-                    new Light {WorldPosition = new Vector3(0, -5, 0), Color = new Vector3(.3f, .3f, .3f)}
+                    new Light {WorldPosition = new Float3(5, 5, 0), Color = new Float3(.3f, .3f, .3f)},
+                    new Light {WorldPosition = new Float3(-5, 5, 0), Color = new Float3(.3f, .3f, .3f)},
+                    new Light {WorldPosition = new Float3(0, -5, 0), Color = new Float3(.3f, .3f, .3f)}
                 }
             };
 
             var car = new Node("car")
             {
-                Material = new Material {SpecularPower = 100f, SpecularColor = new Vector3(.8f, .8f, .8f)},
+                Material = new Material {SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f)},
                 VertexUniformsBuffer = library.Device.CreateBuffer((nuint) Marshal.SizeOf<VertexUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
                 FragmentUniformsBuffer = library.Device.CreateBuffer((nuint) Marshal.SizeOf<FragmentUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
                 Mesh = CreateTeapot(library, vertexDescriptor)// CreateBox(library),

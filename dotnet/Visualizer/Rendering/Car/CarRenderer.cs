@@ -2,10 +2,11 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Lego.Client;
+using Maths;
 using Metal;
 using MetalKit;
-using OpenTK;
 using Visualizer.Rendering.Car.SceneGraph;
+using Vector3 = OpenTK.Vector3;
 
 namespace Visualizer.Rendering.Car
 {
@@ -20,16 +21,16 @@ namespace Visualizer.Rendering.Car
 
         private readonly IMTLCommandQueue _commandQueue;
 
-        private Matrix4 _projectionMatrix = Matrix4.Identity;
-        private Matrix4 _viewMatrix = Matrix4.Identity;
-        private Matrix4 _viewProjectionMatrix = Matrix4.Identity;
+        private Float4x4 _projectionMatrix = Float4x4.Identity;
+        private Float4x4 _viewMatrix = Float4x4.Identity;
+        private Float4x4 _viewProjectionMatrix = Float4x4.Identity;
         private readonly IRotationProvider _positionProvider;
 
         private readonly IMTLRenderPipelineState _renderPipeline;
         private readonly IMTLSamplerState _samplerState;
         private readonly IMTLDepthStencilState _depthStencilState;
         private readonly Scene _scene;
-        private readonly Vector3 _cameraWorldPosition = new Vector3(0, 0, 20);
+        private readonly Float3 _cameraWorldPosition = new Float3(0, 0, 20);
         
 
         public CarRenderer(MTKView view, IRotationProvider positionProvider)
@@ -79,7 +80,7 @@ namespace Visualizer.Rendering.Car
         {
             var rotation = GetRotation();
             var node = _scene.NodeNamed("car");
-            node.ModelMatrix = Matrix4.Identity; //.Rotate(rotation);
+            node.ModelMatrix = Float4x4.Identity; //.Rotate(rotation);
         }
 
         public override void Draw(MTKView view)
@@ -120,7 +121,7 @@ namespace Visualizer.Rendering.Car
 
             //// Set context state
             encoder.PushDebugGroup("DrawScene");
-            DrawNodeRecursive(_scene.RootNode, Matrix4.Identity, encoder);
+            DrawNodeRecursive(_scene.RootNode, Float4x4.Identity, encoder);
 
             encoder.PopDebugGroup();
 
@@ -136,7 +137,7 @@ namespace Visualizer.Rendering.Car
             commandBuffer.Commit();
         }
 
-        private void DrawNodeRecursive(Node node, Matrix4 parentTransform, IMTLRenderCommandEncoder encoder)
+        private void DrawNodeRecursive(Node node, Float4x4 parentTransform, IMTLRenderCommandEncoder encoder)
         {
             var modelMatrix = parentTransform * node.ModelMatrix;
             var mesh = node.Mesh;
@@ -147,7 +148,7 @@ namespace Visualizer.Rendering.Car
                 {
                     ViewProjectionMatrix = _viewProjectionMatrix,
                     ModelMatrix = modelMatrix,
-                    NormalMatrix = modelMatrix.GetNormalMatrix()
+                    NormalMatrix = modelMatrix.Transposed().Inverted()
                 };
                 
                 node.VertexUniformsBuffer.Copy(vertexUniforms, _uniformsIndex);
@@ -184,10 +185,10 @@ namespace Visualizer.Rendering.Car
 
         private void Reshape()
         {
-            _viewMatrix = Matrix4.CreateTranslation(-_cameraWorldPosition); // * Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), (float)(Math.PI / 6));
+            _viewMatrix = Float4x4.CreateTranslation(-_cameraWorldPosition); // * Float4x4.CreateFromAxisAngle(new Vector3(1, 0, 0), (float)(Math.PI / 6));
             var aspectRatio = (float)(_view.DrawableSize.Width / _view.DrawableSize.Height);
-            //_projectionMatrix = Matrix4.CreatePerspectiveFieldOfView((float)(Math.PI / 6), aspectRatio, .1f, 100f);
-            _projectionMatrix = M.CreateMatrixFromPerspective(65f * ((float)Math.PI / 180f), aspectRatio, .1f, 100f);
+            //_projectionMatrix = Float4x4.CreatePerspectiveFieldOfView((float)(Math.PI / 6), aspectRatio, .1f, 100f);
+            _projectionMatrix = Float4x4.CreatePerspectiveFieldOfView(65f * ((float)Math.PI / 180f), aspectRatio, .1f, 100f);
             _viewProjectionMatrix = _projectionMatrix * _viewMatrix;
         }
     }

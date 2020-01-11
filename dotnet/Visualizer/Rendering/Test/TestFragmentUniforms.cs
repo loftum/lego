@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using OpenTK;
+using Maths;
 
 namespace Visualizer.Rendering.Test
 {
@@ -8,9 +8,9 @@ namespace Visualizer.Rendering.Test
     [StructLayout(LayoutKind.Sequential)]
     public struct TestFragmentUniforms
     {
-        public Vector3 CameraWorldPosition;
-        public Vector3 AmbientLightColor;
-        public Vector3 SpecularColor;
+        public Float3 CameraWorldPosition;
+        public Float3 AmbientLightColor;
+        public Float3 SpecularColor;
         public float SpecularPower;
     }
 }

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using Maths;
 using Metal;
 using MetalKit;
-using OpenTK;
 
 namespace Visualizer.Rendering.Car.SceneGraph
 {
@@ -10,7 +10,7 @@ namespace Visualizer.Rendering.Car.SceneGraph
         public string Name { get; }
         public Node Parent { get; set; }
         public List<Node> Children { get; set; } = new List<Node>();
-        public Matrix4 ModelMatrix { get; set; } = Matrix4.Identity;
+        public Float4x4 ModelMatrix { get; set; } = Float4x4.Identity;
         public MTKMesh Mesh { get; set; }
         public Material Material { get; set; }
         public IMTLBuffer VertexUniformsBuffer { get; set; }

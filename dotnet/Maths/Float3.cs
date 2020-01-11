@@ -1,9 +1,15 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace Maths
 {
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
     public struct Float3
     {
+        public static Float3 Zero => new Float3();
+        public static Float3 One => new Float3(1f, 1f, 1f);
+        
         public float X;
         public float Y;
         public float Z;
@@ -20,6 +26,11 @@ namespace Maths
         public static Float3 operator +(Float3 first, Float3 second)
         {
             return new Float3(first.X + second.X, first.Y + second.Y, first.Z + second.Z);
+        }
+        
+        public static Float3 operator -(Float3 first)
+        {
+            return new Float3(-first.X, -first.Y, -first.Z);
         }
 
         public static Float3 operator *(Float3 vector, float f)
@@ -41,8 +52,6 @@ namespace Maths
         {
             return new Float3(value, value, value);
         }
-
-        public static Float3 Zero => new Float3();
 
         public override string ToString()
         {

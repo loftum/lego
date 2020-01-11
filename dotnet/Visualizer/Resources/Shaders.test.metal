@@ -25,6 +25,7 @@ struct TestFragmentUniforms {
     float3 ambientLightColor;
     float3 specularColor;
     float specularPower;
+    
 };
 
 vertex TestVertexOut vertex_test(TestVertexIn vertexIn [[stage_in]],
@@ -49,6 +50,7 @@ fragment float4 fragment_test(TestVertexOut fragmentIn [[stage_in]],
 //    float3 baseColor(0.5, 0.5, 0.5);
 //    float3 specularColor = uniforms.specularColor;
 //
+    //return uniforms.fourColors[0];
     float4 N = normalize(fragmentIn.worldNormal);
     //float3 V = normalize(uniforms.cameraWorldPosition - fragmentIn.worldPosition);
     return float4(abs(N.xyz), 1);

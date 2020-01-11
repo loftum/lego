@@ -1,6 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
-using OpenTK;
+using Maths;
 
 namespace Visualizer.Rendering.Car.SceneGraph
 {
@@ -8,7 +8,7 @@ namespace Visualizer.Rendering.Car.SceneGraph
     [StructLayout(LayoutKind.Sequential)]
     public struct Light
     {
-        public Vector3 WorldPosition;
-        public Vector3 Color;
+        public Float3 WorldPosition;
+        public Float3 Color;
     }
 }

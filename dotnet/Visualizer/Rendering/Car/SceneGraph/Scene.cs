@@ -1,12 +1,12 @@
 using System.Collections.Generic;
-using OpenTK;
+using Maths;
 
 namespace Visualizer.Rendering.Car.SceneGraph
 {
     public class Scene
     {
         public Node RootNode { get; set; } = new Node("root");
-        public Vector3 AmbientLightColor { get; set; } = Vector3.Zero;
+        public Float3 AmbientLightColor { get; set; } = Float3.Zero;
         public List<Light> Lights { get; set; } = new List<Light>();
 
         public Node NodeNamed(string name)
