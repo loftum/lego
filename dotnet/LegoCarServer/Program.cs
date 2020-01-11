@@ -34,7 +34,7 @@ namespace LegoCarServer
             var controller = new LegoCarController(car);
             using (var server = new LctpServer(5080, controller))
             {
-                await server.Start(cancellationToken);
+                await server.RunAsync(cancellationToken);
             }
         }
 
@@ -54,7 +54,7 @@ namespace LegoCarServer
                     var controller = new LegoCarController(car);
                     using (var server = new LctpServer(5080, controller))
                     {
-                        await server.Start(cancellationToken);
+                        await server.RunAsync(cancellationToken);
                     }
                 }
             }

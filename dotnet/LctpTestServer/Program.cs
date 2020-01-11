@@ -46,7 +46,7 @@ namespace LctpTestServer
         {
             using(var server = new LctpServer(port, new EchoController()))
             {
-                await server.Start(cancellationToken);
+                await server.RunAsync(cancellationToken);
             }
         }
     }

@@ -49,7 +49,7 @@ namespace MotoZeroServer
                 var controller = new MotoZeroController(board);
                 using (var server = new LctpServer(5080, controller))
                 {
-                    await server.Start(cancellationToken);
+                    await server.RunAsync(cancellationToken);
                 }
             }
         }

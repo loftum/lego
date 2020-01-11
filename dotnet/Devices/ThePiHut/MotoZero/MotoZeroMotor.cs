@@ -66,9 +66,8 @@ namespace Devices.ThePiHut.MotoZero
                         _minusPin.SoftPwmValue = abs;
                         break;
                 }
-
-                Console.WriteLine($"Speed={newValue}");
                 _speed = newValue;
+                System.Console.WriteLine($"Speed={newValue}");
             }
         }
 

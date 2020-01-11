@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using LCTP.Core;
 using LCTP.Core.Routing;
@@ -110,6 +111,7 @@ namespace LegoCarServer
         {
             if (!int.TryParse(request.Content, out var speed))
             {
+                Console.WriteLine($"Bad motor speed {speed}");
                 return Task.FromResult(ResponseMessage.BadRequest("Bad motor speed"));
             }
             _car.SetMotorSpeed(speed);
