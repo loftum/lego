@@ -69,10 +69,15 @@ namespace Visualizer.Rendering.Test
 
         public static MDLVertexDescriptor CreateVertexDescriptor()
         {
-            var vertextDescriptor = new MDLVertexDescriptor();
-            vertextDescriptor.Layouts[0] = new MDLVertexBufferLayout((nuint)(Marshal.SizeOf<float>() * 6));
-            vertextDescriptor.Attributes[0] = new MDLVertexAttribute(MDLVertexAttributes.Position.ToString(), MDLVertexFormat.Float3, 0, 0);
-            vertextDescriptor.Attributes[1] = new MDLVertexAttribute(MDLVertexAttributes.Normal.ToString(), MDLVertexFormat.Float3, (nuint)(Marshal.SizeOf<float>() * 3), 0);
+            var vertextDescriptor = new MDLVertexDescriptor
+            {
+                Layouts = {[0] = new MDLVertexBufferLayout((nuint) (Marshal.SizeOf<float>() * 6))},
+                Attributes =
+                {
+                    [0] = new MDLVertexAttribute(MDLVertexAttributes.Position.ToString(), MDLVertexFormat.Float3, 0, 0),
+                    [1] = new MDLVertexAttribute(MDLVertexAttributes.Normal.ToString(), MDLVertexFormat.Float3, (nuint) (Marshal.SizeOf<float>() * 3), 0)
+                }
+            };
             //vertextDescriptor.Attributes[2] = new MDLVertexAttribute(MDLVertexAttributes.TextureCoordinate.ToString(), MDLVertexFormat.Float2, (nuint) (Marshal.SizeOf<float>() * 6), 0);
             return vertextDescriptor;
         }
@@ -102,18 +107,28 @@ namespace Visualizer.Rendering.Test
             car.FragmentUniformsBuffer.Label = "Car FragmentUniformsBuffer";
             Console.WriteLine($"VertexUniformsBuffer.length = {car.VertexUniformsBuffer.Length}");
             Console.WriteLine($"FragmentUniformsBuffer.length = {car.FragmentUniformsBuffer.Length}");
-            //scene.RootNode.Children.Add(car);
+            scene.RootNode.Children.Add(car);
 
             var box = new Node("box")
             {
                 Material = new Material { SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f) },
                 VertexUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<TestVertexUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
                 FragmentUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<TestFragmentUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
-                Mesh = CreateBox(library, bufferAllocator),
+                Mesh = CreateBox(library, vertexDescriptor, bufferAllocator),
             };
             box.VertexUniformsBuffer.Label = "Box VertexUniformsBuffer";
             box.FragmentUniformsBuffer.Label = "Box FragmentUniformsBuffer";
             scene.RootNode.Children.Add(box);
+
+            var plane = new Node("plane")
+            {
+                Material = new Material {SpecularPower = 100f, SpecularColor = new Float3(0, 1f, 0)},
+                VertexUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<TestVertexUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
+                FragmentUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<TestFragmentUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
+                Mesh = CreatePlane(library, vertexDescriptor, bufferAllocator)
+            };
+            scene.RootNode.Children.Add(plane);
+            
 
             return scene;
         }
@@ -129,9 +144,10 @@ namespace Visualizer.Rendering.Test
             return mesh;
         }
 
-        public static MTKMesh CreatePlane(IMTLLibrary library, MTKMeshBufferAllocator bufferAllocator)
+        public static MTKMesh CreatePlane(IMTLLibrary library, MDLVertexDescriptor vertexDescriptor, MTKMeshBufferAllocator bufferAllocator)
         {
             var mdl = MDLMesh.CreatePlane(new Vector2(1f, 1f), new Vector2i(1, 1), MDLGeometryType.Triangles, bufferAllocator);
+            mdl.VertexDescriptor = vertexDescriptor;
             var mesh = new MTKMesh(mdl, library.Device, out var error);
             if (error != null)
             {
@@ -140,15 +156,17 @@ namespace Visualizer.Rendering.Test
             return mesh;
         }
 
-        public static MTKMesh CreateBox(IMTLLibrary library, MTKMeshBufferAllocator bufferAllocator)
+        public static MTKMesh CreateBox(IMTLLibrary library, MDLVertexDescriptor vertexDescriptor, MTKMeshBufferAllocator bufferAllocator)
         {
-            var mdl = MDLMesh.CreateBox(new Vector3(1f, 1f, 1f), new Vector3i(2, 2, 2), MDLGeometryType.Triangles, false, bufferAllocator);
-            var boxMesh = new MTKMesh(mdl, library.Device, out var error);
+            var mdl = MDLMesh.CreateBox(new Vector3(1f, 1f, 1f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, bufferAllocator);
+            mdl.VertexDescriptor = vertexDescriptor;
+            var mesh = new MTKMesh(mdl, library.Device, out var error);
+            
             if (error != null)
             {
                 throw new NSErrorException(error);
             }
-            return boxMesh;
+            return mesh;
         }
     }
 }
