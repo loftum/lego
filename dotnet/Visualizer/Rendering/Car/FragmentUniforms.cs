@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Maths;
-using Visualizer.Rendering.Car.SceneGraph;
+using Visualizer.Rendering.SceneGraph;
 
 namespace Visualizer.Rendering.Car
 {

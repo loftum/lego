@@ -3,11 +3,6 @@ using System.Runtime.InteropServices;
 
 namespace Maths
 {
-    public interface IMatrix
-    {
-        float[,] ToGrid();
-    }
-
     /// <summary>
     /// Column-major 4x4 matrix, like in Swift / metal
     /// </summary>
@@ -87,6 +82,23 @@ namespace Maths
         }
 
         public Float4x4 Inverted() => Invert(this);
+
+        public static Float4x4 Scale(float factor)
+        {
+            // Matrix4 result;
+            // result.Row0 = Vector4.UnitX * x;
+            // result.Row1 = Vector4.UnitY * y;
+            // result.Row2 = Vector4.UnitZ * z;
+            // result.Row3 = Vector4.UnitW;
+            // return result;
+            
+            return new Float4x4(
+                factor, 0, 0, 0,
+                0, factor, 0, 0,
+                0, 0, factor, 0,
+                0, 0, 0, 1f
+                );
+        }
 
         public static Float4x4 Mult(Float4x4 left, Float4x4 right)
         {

@@ -5,7 +5,7 @@ using Lego.Client;
 using Maths;
 using Metal;
 using MetalKit;
-using Visualizer.Rendering.Car.SceneGraph;
+using Visualizer.Rendering.SceneGraph;
 using Vector3 = OpenTK.Vector3;
 
 namespace Visualizer.Rendering.Car

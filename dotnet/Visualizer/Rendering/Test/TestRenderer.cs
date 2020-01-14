@@ -4,8 +4,7 @@ using System.Threading;
 using Maths;
 using Metal;
 using MetalKit;
-using OpenTK;
-using Visualizer.Rendering.Car.SceneGraph;
+using Visualizer.Rendering.SceneGraph;
 
 namespace Visualizer.Rendering.Test
 {
@@ -83,11 +82,11 @@ namespace Visualizer.Rendering.Test
 
             
             var rotation = GetRotation();
-            
-             //_scene.NodeNamed("car").ModelMatrix = Float4x4.CreateTranslation((float)Math.Sin(_angle), 0, 0);
+
+            _scene.NodeNamed("car").ModelMatrix = Float4x4.Scale(.5f) * Float4x4.CreateRotation(-_angle, 0, 1f, 0) * Float4x4.CreateRotation(-_angle, 0, 0, 1f);
             // _scene.NodeNamed("box").ModelMatrix = Float4x4.Identity.Rotate(rotation * .5f) * Float4x4.CreateTranslation(-1f, 0, 0);
             //_scene.NodeNamed("car").ModelMatrix = Float4x4.CreateTranslation(2f, 0, 0) * Float4x4.Identity.Rotate(rotation);
-            _scene.NodeNamed("box").ModelMatrix = Float4x4.CreateTranslation(-2f, 0, 0) * Float4x4.Identity.Rotate(rotation);
+            //_scene.NodeNamed("box").ModelMatrix = Float4x4.CreateTranslation(-2f, 0, 0) * Float4x4.Identity.Rotate(rotation);
         }
 
         public override void Draw(MTKView view)
