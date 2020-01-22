@@ -124,6 +124,8 @@ namespace Lego.Client
             _client.Disconnect();
         }
 
-        public Vector3 GetRotation() => _state.Orientation;
+        public Double3 GetRotation() => _state.EulerAngles;
+
+        public Quatd GetQuaternion() => _state.Quaternion;
     }
 }

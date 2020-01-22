@@ -84,7 +84,7 @@ namespace Devices.Adafruit.LSM9DS1.Gyroscope
             Device.WriteAddressByte(AccelRegisters.ORIENT_CFG_G, (byte) regValue);
         }
 
-        public Vector3 Read()
+        public Double3 Read()
         {
             return Device.ReadBlock(0x80 | AccelRegisters.OUT_X_L_G, 6).ToVector3() * Settings.GetScale();
         }

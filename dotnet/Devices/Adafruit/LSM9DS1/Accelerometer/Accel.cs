@@ -72,7 +72,7 @@ namespace Devices.Adafruit.LSM9DS1.Accelerometer
             Device.WriteAddressByte(AccelRegisters.CTRL_REG7_XL, (byte) regValue);
         }
 
-        public Vector3 Read()
+        public Double3 Read()
         {
             var value = Device.ReadBlock(0x80 | AccelRegisters.OUT_X_L_XL, 6).ToVector3();
             return value * Settings.GetMgPerLsb() * Constants.SENSORS_GRAVITY_STANDARD;

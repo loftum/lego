@@ -67,9 +67,14 @@ namespace Visualizer.ViewControllers
                 });
         }
 
-        public Vector3 GetRotation()
+        public Double3 GetRotation()
         {
-            return new Vector3(_xSlider.FloatValue, -_ySlider.FloatValue, 0);
+            return new Double3(_xSlider.FloatValue, -_ySlider.FloatValue, 0);
+        }
+
+        public Quatd GetQuaternion()
+        {
+            return new Quatd(_xSlider.DoubleValue, _ySlider.DoubleValue, 0);
         }
     }
 }

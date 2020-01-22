@@ -31,7 +31,7 @@ namespace Lego.Server
         private readonly InterlockedTimer _updateTimer = new InterlockedTimer(10);
         
         public Sampled<double> Distance { get; } = new Sampled<double>();
-        public Sampled<Vector3> Orientation { get; } = new Sampled<Vector3>();
+        public Sampled<Double3> Orientation { get; } = new Sampled<Double3>();
 
         public LegoCar(ServoPwmBoard pwmBoard, MotoZeroBoard motoZero, ADCPiZeroBoard adcBoard, BNO055Sensor imu)
         {
@@ -78,12 +78,12 @@ namespace Lego.Server
         {
             return new LegoCarState
             {
-                Orientation = Orientation.Value,
+                EulerAngles = Orientation.Value,
                 Distances = new List<double> {Distance.Value}
             };
         }
 
-        public Vector3 GetOrientation() => Orientation.Value;
+        public Double3 GetOrientation() => Orientation.Value;
 
         public int GetMotorSpeed(int motorNumber)
         {

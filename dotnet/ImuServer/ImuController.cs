@@ -13,7 +13,7 @@ namespace ImuServer
 {
     public class ImuController : BaseController, IDisposable
     {
-        private Vector3 _orientation;
+        private Double3 _orientation;
         private readonly Timer _timer = new Timer(100);
         private readonly object _updateLock = new object();
         private readonly BNO055Sensor _imu;

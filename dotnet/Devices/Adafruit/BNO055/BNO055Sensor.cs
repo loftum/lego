@@ -81,25 +81,25 @@ namespace Devices.Adafruit.BNO055
             }
         }
 
-        public Vector3 ReadGyro()
+        public Double3 ReadGyro()
         {
             var bytes = ReadBytes(Registers.BNO055_GYRO_DATA_X_LSB_ADDR, 6).FixMsb();
             return bytes.ToVector3() / 16;
         }
 
-        public Vector3 ReadMag()
+        public Double3 ReadMag()
         {
             var bytes = ReadBytes(Registers.BNO055_MAG_DATA_X_LSB_ADDR, 6).FixMsb();
             return bytes.ToVector3() / 16;
         }
 
-        public Quaternion ReadQuaternion()
+        public Quatd ReadQuaternion()
         {
             var bytes = ReadBytes(Registers.BNO055_QUATERNION_DATA_W_LSB_ADDR, 8);
             return bytes.ToQuaternion() / 16384; // 2 ^ 14 LSB
         }
         
-        public Vector3 ReadEulerData()
+        public Double3 ReadEulerData()
         {
             var bytes = ReadBytes(Registers.BNO055_EULER_H_LSB_ADDR, 6);
 
@@ -128,7 +128,7 @@ namespace Devices.Adafruit.BNO055
         /**
          * Linear acceleration (minus gravity)
          */
-        public Vector3 ReadLinearAccel()
+        public Double3 ReadLinearAccel()
         {
             var bytes = ReadBytes(Registers.BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, 6);
             var vector = bytes.ToVector3();
@@ -147,7 +147,7 @@ namespace Devices.Adafruit.BNO055
         /// Returns [roll, pitch, yaw] in radians
         /// </summary>
         /// <returns></returns>
-        public Vector3 ReadRollPitchYaw()
+        public Double3 ReadRollPitchYaw()
         {
             var quaternion = ReadQuaternion();
             
@@ -159,13 +159,13 @@ namespace Devices.Adafruit.BNO055
             var roll = Math.Atan2(2 * y * w - 2 * x * z, 1 - 2 * y * y - 2 * z * z);
             var pitch = Math.Atan2(2 * x * w - 2 * y * z, 1 - 2 * x * x - 2 * z * z);
             var yaw = Math.Asin(2 * x * y + 2 * z * w);
-            return new Vector3(roll, pitch, yaw);
+            return new Double3(roll, pitch, yaw);
         }
 
         /**
          * Linear acceleration (including gravity)
          */
-        public Vector3 ReadAccel()
+        public Double3 ReadAccel()
         {
             var vector = ReadBytes(Registers.BNO055_ACCEL_DATA_X_LSB_ADDR, 6)
                 .FixMsb()

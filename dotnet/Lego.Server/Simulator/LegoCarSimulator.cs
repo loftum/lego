@@ -16,7 +16,7 @@ namespace Lego.Server.Simulator
         public IServo SteerFront { get; }
         public IServo SteerBack { get; }
         public IMotor[] Motors { get; }
-        private Vector3 _orientation;
+        private Double3 _orientation;
         private readonly Timer _timer;
 
         public LegoCarSimulator(int motors)
@@ -40,19 +40,19 @@ namespace Lego.Server.Simulator
                 return;
             }
             var diff = speed * (SteerFront.Value + SteerBack.Value) * _timer.Interval;
-            _orientation = previous + new Vector3(previous.X, previous.Y, diff);
+            _orientation = previous + new Double3(previous.X, previous.Y, diff);
         }
 
         public LegoCarState GetState()
         {
             return new LegoCarState
             {
-                Orientation = GetOrientation(),
+                EulerAngles = GetOrientation(),
                 Distances = new List<double>()
             };
         }
 
-        public Vector3 GetOrientation()
+        public Double3 GetOrientation()
         {
             return _orientation;
         }

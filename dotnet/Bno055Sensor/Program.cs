@@ -195,7 +195,7 @@ namespace Bno055Sensor
                 var chip = new BNO055Sensor(Pi.I2C, OperationMode.NDOF);
                 Console.WriteLine(chip.UnitSelection);
 
-                Vector3 velocity = 0;
+                Double3 velocity = 0;
                 var last = DateTimeOffset.UtcNow;
                 
                 while (true)

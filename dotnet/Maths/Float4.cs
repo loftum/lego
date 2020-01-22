@@ -93,7 +93,6 @@ namespace Maths
             return !left.Equals(right);
         }
 
-        [CLSCompliant(false)]
         public static unsafe explicit operator float*(Float4 v)
         {
             return &v.X;

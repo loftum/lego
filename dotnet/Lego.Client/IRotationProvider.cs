@@ -4,6 +4,7 @@ namespace Lego.Client
 {
     public interface IRotationProvider
     {
-        Vector3 GetRotation();
+        Double3 GetRotation();
+        Quatd GetQuaternion();
     }
 }

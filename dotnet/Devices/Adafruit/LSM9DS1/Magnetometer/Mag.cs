@@ -60,7 +60,7 @@ namespace Devices.Adafruit.LSM9DS1.Magnetometer
             Device.WriteAddressByte(MagRegisters.CTRL_REG5_M, (byte) regValue);
         }
 
-        public Vector3 Read()
+        public Double3 Read()
         {
             return Device.ReadBlock(0x80 | MagRegisters.OUT_X_L_M, 6).ToVector3() * Settings.GetGain();
         }

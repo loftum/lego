@@ -5,14 +5,15 @@ namespace Lego.Core
 {
     public class LegoCarState
     {
-        public Vector3 Orientation { get; set; }
+        public Double3 EulerAngles { get; set; }
+        public Quatd Quaternion { get; set; }
         public List<double> Distances { get; set; } = new List<double>();
 
         public override string ToString() => Serialize();
 
         public string Serialize()
         {
-            return $"{Orientation};[{string.Join(",", Distances)}]";
+            return $"{EulerAngles};[{string.Join(",", Distances)}]";
         }
 
         public static bool TryParse(string serialized, out LegoCarState state)
@@ -24,7 +25,7 @@ namespace Lego.Core
                 return false;
             }
 
-            if (!Vector3.TryParse(parts[0], out var orientation))
+            if (!Double3.TryParse(parts[0], out var orientation))
             {
                 return false;
             }
@@ -36,7 +37,7 @@ namespace Lego.Core
 
             state = new LegoCarState
             {
-                Orientation = orientation,
+                EulerAngles = orientation,
                 Distances = distances
             };
             return true;

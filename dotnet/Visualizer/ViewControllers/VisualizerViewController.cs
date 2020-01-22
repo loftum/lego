@@ -126,7 +126,10 @@ namespace Visualizer.ViewControllers
             return DispatchQueue.MainQueue.DispatchAsync(() => _steerSlider.IntValue);
         }
 
-        public Vector3 GetRotation() => _client?.GetRotation() ?? Vector3.Zero;
+        public Double3 GetRotation() => _client?.GetRotation() ?? Double3.Zero;
+
+        public Quatd GetQuaternion() => _client?.GetQuaternion() ?? new Quatd(0, 0, 0);
+
     }
 
     public static class DispatchQueueExtensions

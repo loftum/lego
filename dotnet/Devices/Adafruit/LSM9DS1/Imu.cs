@@ -27,9 +27,9 @@ namespace Devices.Adafruit.LSM9DS1
         public Mag Mag { get; private set; }
         public Thermometer Thermometer { get; private set; }
 
-        public Vector3 AccelValue { get; private set; }
-        public Vector3 MagValue { get; private set; }
-        public Vector3 GyroValue { get; private set; }
+        public Double3 AccelValue { get; private set; }
+        public Double3 MagValue { get; private set; }
+        public Double3 GyroValue { get; private set; }
         public double TempValue { get; private set; }
 
         public Imu(II2CBus bus)

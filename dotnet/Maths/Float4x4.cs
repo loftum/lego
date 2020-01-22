@@ -376,5 +376,42 @@ namespace Maths
         {
             return $"{Col0.X},{Col1.X},{Col2.X},{Col3.X}\n{Col0.Y},{Col1.Y},{Col2.Y},{Col3.Y}\n{Col0.Z},{Col1.Z},{Col2.Z},{Col3.Z}\n{Col0.W},{Col1.W},{Col2.W},{Col3.W}";
         }
+
+        public static Float4x4 CreateFromQuaternion(Quatf quaternion)
+        {
+            var axisAngle = quaternion.ToAxisAngle();
+            return CreateFromAxisAngle(new Float3(axisAngle.X, axisAngle.Y, axisAngle.Z), axisAngle.W);
+        }
+
+        public static Float4x4 CreateFromAxisAngle(Float3 axis, in float angle)
+        {
+            // normalize and create a local copy of the vector.
+            axis.Normalize();
+            float axisX = axis.X, axisY = axis.Y, axisZ = axis.Z;
+
+            // calculate angles
+            var cos = (float)Math.Cos(-angle);
+            var sin = (float)Math.Sin(-angle);
+            var t = 1.0f - cos;
+
+            // do the conversion math once
+            var tXX = t * axisX * axisX;
+            var tXY = t * axisX * axisY;
+            var tXZ = t * axisX * axisZ;
+            var tYY = t * axisY * axisY;
+            var tYZ = t * axisY * axisZ;
+            var tZZ = t * axisZ * axisZ;
+
+            var sinX = sin * axisX;
+            var sinY = sin * axisY;
+            var sinZ = sin * axisZ;
+
+            return new Float4x4(
+                tXX + cos, tXY - sinZ, tXZ + sinY, 0,
+                tXY + sinZ, tYY + cos, tYZ - sinX, 0,
+                tXZ - sinY, tYZ + sinX, tZZ + cos, 0,
+                0, 0, 0, 1
+                );
+        }
     }
 }

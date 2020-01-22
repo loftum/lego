@@ -1,44 +1,44 @@
 ﻿namespace Maths
 {
-    public struct Vector3
+    public struct Double3
     {
         public double X;
         public double Y;
         public double Z;
 
-        public Vector3(double x, double y, double z)
+        public Double3(double x, double y, double z)
         {
             X = x;
             Y = y;
             Z = z;
         }
 
-        public static Vector3 operator +(Vector3 first, Vector3 second)
+        public static Double3 operator +(Double3 first, Double3 second)
         {
-            return new Vector3(first.X + second.X, first.Y + second.Y, first.Z + second.Z);
+            return new Double3(first.X + second.X, first.Y + second.Y, first.Z + second.Z);
         }
 
-        public static Vector3 operator *(Vector3 vector, double f)
+        public static Double3 operator *(Double3 vector, double f)
         {
-            return new Vector3(vector.X * f, vector.Y * f, vector.Z * f);
+            return new Double3(vector.X * f, vector.Y * f, vector.Z * f);
         }
 
-        public static Vector3 operator *(double f, Vector3 vector)
+        public static Double3 operator *(double f, Double3 vector)
         {
             return vector * f;
         }
 
-        public static Vector3 operator /(Vector3 vector, double f)
+        public static Double3 operator /(Double3 vector, double f)
         {
-            return new Vector3(vector.X / f, vector.Y / f, vector.Z / f);
+            return new Double3(vector.X / f, vector.Y / f, vector.Z / f);
         }
 
-        public static implicit operator Vector3(double value)
+        public static implicit operator Double3(double value)
         {
-            return new Vector3(value, value, value);
+            return new Double3(value, value, value);
         }
 
-        public static Vector3 Zero => new Vector3();
+        public static Double3 Zero => new Double3();
 
         public override string ToString()
         {
@@ -50,7 +50,7 @@
             return $"[{X.ToString(format)},{Y.ToString(format)},{Z.ToString(format)}]";
         }
 
-        public static bool TryParse(string stringValue, out Vector3 result)
+        public static bool TryParse(string stringValue, out Double3 result)
         {
             result = Zero;
             if (string.IsNullOrWhiteSpace(stringValue))
@@ -68,7 +68,7 @@
                 double.TryParse(parts[1], out var y) &&
                 double.TryParse(parts[2], out var z))
             {
-                result = new Vector3(x, y, z);
+                result = new Double3(x, y, z);
                 return true;
             }
             return false;

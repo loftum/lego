@@ -76,14 +76,26 @@ namespace Visualizer.Rendering.Test
             return new Float3(0, _angle, 0);
         }
 
+        private Quatf GetQuaternion()
+        {
+            _angle += (float) (2 * Math.PI / 1000);
+            if (_angle >= 2 * Math.PI)
+            {
+                _angle = 0;
+            }
+            // Camera on top of car
+            return new Quatf(-Float.Pi / 2, 0, Float.Pi / 2 + _angle);
+        }
+
         private void UpdateUniforms(MTKView view)
         {
             _projectionMatrix = CreateProjectionMatrix(view);
 
             
             var rotation = GetRotation();
+            var quaternion = GetQuaternion();
 
-            _scene.NodeNamed("car").ModelMatrix = Float4x4.Scale(.5f) * Float4x4.CreateRotation(-_angle, 0, 1f, 0) * Float4x4.CreateRotation(-_angle, 0, 0, 1f);
+            _scene.NodeNamed("car").ModelMatrix = Float4x4.Scale(.5f) * Float4x4.CreateFromQuaternion(quaternion);
             // _scene.NodeNamed("box").ModelMatrix = Float4x4.Identity.Rotate(rotation * .5f) * Float4x4.CreateTranslation(-1f, 0, 0);
             //_scene.NodeNamed("car").ModelMatrix = Float4x4.CreateTranslation(2f, 0, 0) * Float4x4.Identity.Rotate(rotation);
             //_scene.NodeNamed("box").ModelMatrix = Float4x4.CreateTranslation(-2f, 0, 0) * Float4x4.Identity.Rotate(rotation);
