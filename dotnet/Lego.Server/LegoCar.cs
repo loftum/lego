@@ -31,7 +31,8 @@ namespace Lego.Server
         private readonly InterlockedTimer _updateTimer = new InterlockedTimer(10);
         
         public Sampled<double> Distance { get; } = new Sampled<double>();
-        public Sampled<Double3> Orientation { get; } = new Sampled<Double3>();
+        public Sampled<Double3> EulerAngles { get; } = new Sampled<Double3>();
+        public Sampled<Quatd> Quaternion { get; } = new Sampled<Quatd>();
 
         public LegoCar(ServoPwmBoard pwmBoard, MotoZeroBoard motoZero, ADCPiZeroBoard adcBoard, BNO055Sensor imu)
         {
@@ -70,7 +71,8 @@ namespace Lego.Server
             Distance.Value = _frontDistance.ReadVoltage();
             sw.Stop();
             sw.Restart();
-            Orientation.Value = _imu.ReadEulerData();
+            EulerAngles.Value = _imu.ReadEulerData();
+            Quaternion.Value = _imu.ReadQuaternion();
             sw.Stop();
         }
 
@@ -78,12 +80,15 @@ namespace Lego.Server
         {
             return new LegoCarState
             {
-                EulerAngles = Orientation.Value,
+                EulerAngles = EulerAngles.Value,
+                Quaternion = Quaternion.Value,
                 Distances = new List<double> {Distance.Value}
             };
         }
 
-        public Double3 GetOrientation() => Orientation.Value;
+        public Double3 GetEulerAngles() => EulerAngles.Value;
+
+        public Quatd GetQuaternion() => Quaternion.Value;
 
         public int GetMotorSpeed(int motorNumber)
         {

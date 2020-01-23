@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using Foundation;
 using Maths;
 using Metal;
 using MetalKit;
 using ModelIO;
-using OpenTK;
 using Visualizer.Rendering.SceneGraph;
-using Vector3 = OpenTK.Vector3;
 
 namespace Visualizer.Rendering.Test
 {
@@ -101,7 +98,7 @@ namespace Visualizer.Rendering.Test
                 Material = new Material { SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f) },
                 VertexUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<TestVertexUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
                 FragmentUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<TestFragmentUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
-                Mesh = CreateRaceCar(library, vertexDescriptor, bufferAllocator),
+                Mesh = ModelFactory.CreateRaceCar(library, vertexDescriptor, bufferAllocator),
             };
             car.VertexUniformsBuffer.Label = "Car VertexUniformsBuffer";
             car.FragmentUniformsBuffer.Label = "Car FragmentUniformsBuffer";
@@ -109,74 +106,7 @@ namespace Visualizer.Rendering.Test
             Console.WriteLine($"FragmentUniformsBuffer.length = {car.FragmentUniformsBuffer.Length}");
             scene.RootNode.Children.Add(car);
 
-            // var box = new Node("box")
-            // {
-            //     Material = new Material { SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f) },
-            //     VertexUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<TestVertexUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
-            //     FragmentUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<TestFragmentUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
-            //     Mesh = CreateBox(library, vertexDescriptor, bufferAllocator),
-            // };
-            // box.VertexUniformsBuffer.Label = "Box VertexUniformsBuffer";
-            // box.FragmentUniformsBuffer.Label = "Box FragmentUniformsBuffer";
-            // scene.RootNode.Children.Add(box);
-
-            // var plane = new Node("plane")
-            // {
-            //     Material = new Material {SpecularPower = 100f, SpecularColor = new Float3(0, 1f, 0)},
-            //     VertexUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<TestVertexUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
-            //     FragmentUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<TestFragmentUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
-            //     Mesh = CreatePlane(library, vertexDescriptor, bufferAllocator)
-            // };
-            // scene.RootNode.Children.Add(plane);
-            
-
             return scene;
-        }
-
-        public static MTKMesh CreateRaceCar(IMTLLibrary library, MDLVertexDescriptor vertexDescriptor, MTKMeshBufferAllocator bufferAllocator)
-        {
-            return CreateFromModelFile(library, "3DModels/Aventador/Avent.obj", vertexDescriptor, bufferAllocator);
-        }
-
-        public static MTKMesh CreateTeapot(IMTLLibrary library, MDLVertexDescriptor vertexDescriptor, MTKMeshBufferAllocator bufferAllocator)
-        {
-            return CreateFromModelFile(library, "teapot.obj", vertexDescriptor, bufferAllocator);
-        }
-        
-        public static MTKMesh CreateFromModelFile(IMTLLibrary library, string filename, MDLVertexDescriptor vertexDescriptor, MTKMeshBufferAllocator bufferAllocator)
-        {
-            var asset = new MDLAsset(NSUrl.FromFilename(filename), vertexDescriptor, bufferAllocator);
-            var mesh = MTKMesh.FromAsset(asset, library.Device, out _, out var error);
-            if (error != null)
-            {
-                throw new NSErrorException(error);
-            }
-            return mesh.First();
-        }
-
-        public static MTKMesh CreatePlane(IMTLLibrary library, MDLVertexDescriptor vertexDescriptor, MTKMeshBufferAllocator bufferAllocator)
-        {
-            var mdl = MDLMesh.CreatePlane(new Vector2(1f, 1f), new Vector2i(1, 1), MDLGeometryType.Triangles, bufferAllocator);
-            mdl.VertexDescriptor = vertexDescriptor;
-            var mesh = new MTKMesh(mdl, library.Device, out var error);
-            if (error != null)
-            {
-                throw new NSErrorException(error);
-            }
-            return mesh;
-        }
-
-        public static MTKMesh CreateBox(IMTLLibrary library, MDLVertexDescriptor vertexDescriptor, MTKMeshBufferAllocator bufferAllocator)
-        {
-            var mdl = MDLMesh.CreateBox(new Vector3(1f, 1f, 1f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, bufferAllocator);
-            mdl.VertexDescriptor = vertexDescriptor;
-            var mesh = new MTKMesh(mdl, library.Device, out var error);
-            
-            if (error != null)
-            {
-                throw new NSErrorException(error);
-            }
-            return mesh;
         }
     }
 }

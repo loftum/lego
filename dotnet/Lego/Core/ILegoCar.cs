@@ -9,7 +9,8 @@ namespace Lego.Core
         ILight Headlights { get; }
         IServo SteerFront { get; }
         IServo SteerBack { get; }
-        Double3 GetOrientation();
+        Double3 GetEulerAngles();
+        Quatd GetQuaternion();
         int GetMotorSpeed(int motorNumber);
         void SetMotorSpeed(int motorNumber, int speed);
         void SetMotorSpeed(int speed);

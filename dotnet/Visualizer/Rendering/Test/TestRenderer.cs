@@ -84,7 +84,8 @@ namespace Visualizer.Rendering.Test
                 _angle = 0;
             }
             // Camera on top of car
-            return new Quatf(-Float.Pi / 2, 0, Float.Pi / 2 + _angle);
+            var wiggle = Float.Pi / 12 * Float.Sin(_angle * 12);
+            return new Quatf(-Float.Pi / 2 + wiggle, 0, Float.Pi / 2 + _angle);
         }
 
         private void UpdateUniforms(MTKView view)

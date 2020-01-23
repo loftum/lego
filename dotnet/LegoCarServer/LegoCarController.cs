@@ -32,7 +32,7 @@ namespace LegoCarServer
 
         private Task<ResponseMessage> GetOrientation(RequestMessage request, Match match)
         {
-            return Task.FromResult(ResponseMessage.Ok(_car.GetOrientation()));
+            return Task.FromResult(ResponseMessage.Ok(_car.GetEulerAngles()));
         }
 
         private Task<ResponseMessage> SetBlinker(RequestMessage request, Match match)

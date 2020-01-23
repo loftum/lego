@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
 using Devices.ThePiHut.MotoZero;
-using Devices.ThePiHut.ServoPWMPiZero;
 using Lego.Core;
 using Maths;
 
@@ -16,7 +15,7 @@ namespace Lego.Server.Simulator
         public IServo SteerFront { get; }
         public IServo SteerBack { get; }
         public IMotor[] Motors { get; }
-        private Double3 _orientation;
+        private Double3 _eulerAngles;
         private readonly Timer _timer;
 
         public LegoCarSimulator(int motors)
@@ -33,28 +32,34 @@ namespace Lego.Server.Simulator
 
         private void Elapsed(object sender, ElapsedEventArgs e)
         {
-            var previous = _orientation;
+            var previous = _eulerAngles;
             var speed = GetMotorSpeed(0);
             if (speed == 0 || SteerFront.Value == 0 && SteerBack.Value == 0)
             {
                 return;
             }
             var diff = speed * (SteerFront.Value + SteerBack.Value) * _timer.Interval;
-            _orientation = previous + new Double3(previous.X, previous.Y, diff);
+            _eulerAngles = previous + new Double3(previous.X, previous.Y, diff);
         }
 
         public LegoCarState GetState()
         {
             return new LegoCarState
             {
-                EulerAngles = GetOrientation(),
+                EulerAngles = GetEulerAngles(),
                 Distances = new List<double>()
             };
         }
 
-        public Double3 GetOrientation()
+        public Double3 GetEulerAngles()
         {
-            return _orientation;
+            return _eulerAngles;
+        }
+
+        public Quatd GetQuaternion()
+        {
+            var eulerAngles = _eulerAngles;
+            return new Quatd(eulerAngles.X, eulerAngles.Y, eulerAngles.Z);
         }
 
         public int GetMotorSpeed(int motorNumber)

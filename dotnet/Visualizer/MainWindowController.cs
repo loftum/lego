@@ -9,7 +9,6 @@ namespace Visualizer
     [Register("MainWindowController")]
     public class MainWindowController : NSWindowController
     {
-        private readonly ViewController _vc = new ViewController();
         private readonly ConnectViewController _connectViewController = new ConnectViewController();
         private readonly VisualizerViewController _visualizerViewcontroller = new VisualizerViewController();
         private readonly MetalTestViewController _metalTestViewController = new MetalTestViewController();

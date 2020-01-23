@@ -1,15 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using Foundation;
 using Maths;
 using Metal;
 using MetalKit;
 using ModelIO;
-using OpenTK;
 using Visualizer.Rendering.SceneGraph;
-using Vector3 = OpenTK.Vector3;
+using Visualizer.Rendering.Test;
 
 namespace Visualizer.Rendering.Car
 {
@@ -78,6 +76,7 @@ namespace Visualizer.Rendering.Car
 
         public static Scene BuildScene(IMTLLibrary library, MDLVertexDescriptor vertexDescriptor)
         {
+            var bufferAllocator = new MTKMeshBufferAllocator(library.Device);
             var scene = new Scene
             {
                 AmbientLightColor = new Float3(.1f, .1f, .1f),
@@ -94,7 +93,7 @@ namespace Visualizer.Rendering.Car
                 Material = new Material {SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f)},
                 VertexUniformsBuffer = library.Device.CreateBuffer((nuint) Marshal.SizeOf<VertexUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
                 FragmentUniformsBuffer = library.Device.CreateBuffer((nuint) Marshal.SizeOf<FragmentUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
-                Mesh = CreateTeapot(library, vertexDescriptor)// CreateBox(library),
+                Mesh = ModelFactory.CreateTeapot(library, vertexDescriptor, bufferAllocator)
             };
             car.VertexUniformsBuffer.Label = "Car VertexUniformsBuffer";
             car.FragmentUniformsBuffer.Label = "Car FragmentUniformsBuffer";
@@ -103,32 +102,6 @@ namespace Visualizer.Rendering.Car
             scene.RootNode.Children.Add(car);
 
             return scene;
-        }
-
-        public static MTKMesh CreateTeapot(IMTLLibrary library, MDLVertexDescriptor vertexDescriptor)
-        {
-            var bufferAllocator = new MTKMeshBufferAllocator(library.Device);
-            var carAsset = new MDLAsset(NSUrl.FromFilename("teapot.obj"), vertexDescriptor, bufferAllocator);
-            var mesh = MTKMesh.FromAsset(carAsset, library.Device, out _, out var error).First();
-            if (error != null)
-            {
-                throw new NSErrorException(error);
-            }
-            return mesh;
-        }
-
-        public static MTKMesh CreateBox(IMTLLibrary library)
-        {
-            using (var bufferAllocator = new MTKMeshBufferAllocator(library.Device))
-            {
-                MDLMesh mdl = MDLMesh.CreateBox(new Vector3(2f, 2f, 2f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, bufferAllocator);
-                var boxMesh = new MTKMesh(mdl, library.Device, out var error);
-                if (error != null)
-                {
-                    throw new NSErrorException(error);
-                }
-                return boxMesh;
-            }
         }
     }
 }

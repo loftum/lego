@@ -76,17 +76,25 @@ namespace Visualizer.Rendering.Car
             return new Vector3(-(float)rotation.Y, (float)rotation.Z, -(float)rotation.X);
         }
 
-        private void UpdateUniforms()
+        private void UpdateUniforms(MTKView view)
         {
-            var rotation = GetRotation();
-            var node = _scene.NodeNamed("car");
-            node.ModelMatrix = Float4x4.Identity; //.Rotate(rotation);
+            _projectionMatrix = CreateProjectionMatrix(view);
+
+            
+            var rotation = _positionProvider.GetRotation();
+            var q = _positionProvider.GetQuaternion();
+            var quaternion = new Quatf((float)q.W, (float)q.X, (float)q.Y, (float)q.Z);
+
+            _scene.NodeNamed("car").ModelMatrix = Float4x4.Scale(.5f) * Float4x4.CreateFromQuaternion(quaternion);
+            // _scene.NodeNamed("box").ModelMatrix = Float4x4.Identity.Rotate(rotation * .5f) * Float4x4.CreateTranslation(-1f, 0, 0);
+            //_scene.NodeNamed("car").ModelMatrix = Float4x4.CreateTranslation(2f, 0, 0) * Float4x4.Identity.Rotate(rotation);
+            //_scene.NodeNamed("box").ModelMatrix = Float4x4.CreateTranslation(-2f, 0, 0) * Float4x4.Identity.Rotate(rotation);
         }
 
         public override void Draw(MTKView view)
         {
             _inflightSemaphore.WaitOne();
-            UpdateUniforms();
+            UpdateUniforms(view);
 
             // Create a new command buffer for each renderpass to the current drawable
             var commandBuffer = _commandQueue.CommandBuffer();
@@ -185,11 +193,14 @@ namespace Visualizer.Rendering.Car
 
         private void Reshape()
         {
-            _viewMatrix = Float4x4.CreateTranslation(-_cameraWorldPosition); // * Float4x4.CreateFromAxisAngle(new Vector3(1, 0, 0), (float)(Math.PI / 6));
-            var aspectRatio = (float)(_view.DrawableSize.Width / _view.DrawableSize.Height);
-            //_projectionMatrix = Float4x4.CreatePerspectiveFieldOfView((float)(Math.PI / 6), aspectRatio, .1f, 100f);
-            _projectionMatrix = Float4x4.CreatePerspectiveFieldOfView(65f * ((float)Math.PI / 180f), aspectRatio, .1f, 100f);
-            _viewProjectionMatrix = _projectionMatrix * _viewMatrix;
+            _viewMatrix = Float4x4.CreateTranslation(-_cameraWorldPosition);
+            _projectionMatrix = CreateProjectionMatrix(_view);
+        }
+        
+        private static Float4x4 CreateProjectionMatrix(MTKView view)
+        {
+            var aspectRatio = (float)(view.DrawableSize.Width / view.DrawableSize.Height);
+            return Float4x4.CreatePerspectiveFieldOfView((float)Math.PI / 3, aspectRatio, .1f, 100f);
         }
     }
 }
