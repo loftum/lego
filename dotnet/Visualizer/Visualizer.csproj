@@ -81,7 +81,7 @@
   <ItemGroup>
     <Folder Include="Resources\" />
     <Folder Include="ViewControllers\" />
-    <Folder Include="Rendering\Test\" />
+    <Folder Include="Rendering\Car\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -92,10 +92,6 @@
     <Compile Include="AppDelegate.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="MainWindowController.cs" />
-    <Compile Include="Rendering\Car\CarRenderer.cs" />
-    <Compile Include="Rendering\Car\FragmentUniforms.cs" />
-    <Compile Include="Rendering\Car\CarRendererFactory.cs" />
-    <Compile Include="Rendering\Car\VertexUniforms.cs" />
     <Compile Include="Rendering\ModelFactory.cs" />
     <Compile Include="Rendering\MtlBufferExtensions.cs" />
     <Compile Include="Rendering\SceneGraph\Light.cs" />
@@ -104,13 +100,12 @@
     <Compile Include="Rendering\SceneGraph\Scene.cs" />
     <Compile Include="ViewControllers\ConnectViewController.cs" />
     <Compile Include="ViewControllers\NSViewExtensions.cs" />
-    <Compile Include="ViewControllers\TriangleViewController.cs" />
     <Compile Include="ViewControllers\VisualizerViewController.cs" />
     <Compile Include="ViewControllers\MetalTestViewController.cs" />
-    <Compile Include="Rendering\Test\TestRenderer.cs" />
-    <Compile Include="Rendering\Test\TestRendererFactory.cs" />
-    <Compile Include="Rendering\Test\TestVertexUniforms.cs" />
-    <Compile Include="Rendering\Test\TestFragmentUniforms.cs" />
+    <Compile Include="Rendering\Car\CarRenderer.cs" />
+    <Compile Include="Rendering\Car\CarRendererFactory.cs" />
+    <Compile Include="Rendering\Car\VertexUniforms.cs" />
+    <Compile Include="Rendering\Car\FragmentUniforms.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />

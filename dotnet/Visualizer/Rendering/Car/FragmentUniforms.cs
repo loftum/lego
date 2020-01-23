@@ -1,7 +1,6 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 using Maths;
-using Visualizer.Rendering.SceneGraph;
 
 namespace Visualizer.Rendering.Car
 {
@@ -13,8 +12,5 @@ namespace Visualizer.Rendering.Car
         public Float3 AmbientLightColor;
         public Float3 SpecularColor;
         public float SpecularPower;
-        public Light Light0;
-        public Light Light1;
-        public Light Light2;
     }
 }

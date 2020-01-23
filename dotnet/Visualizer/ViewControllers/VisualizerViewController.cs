@@ -7,7 +7,6 @@ using Lego.Client;
 using Maths;
 using Metal;
 using MetalKit;
-using Visualizer.Rendering;
 using Visualizer.Rendering.Car;
 
 namespace Visualizer.ViewControllers
@@ -126,7 +125,7 @@ namespace Visualizer.ViewControllers
             return DispatchQueue.MainQueue.DispatchAsync(() => _steerSlider.IntValue);
         }
 
-        public Double3 GetRotation() => _client?.GetRotation() ?? Double3.Zero;
+        public Double3 GetEulerAngles() => _client?.GetEulerAngles() ?? Double3.Zero;
 
         public Quatd GetQuaternion() => _client?.GetQuaternion() ?? new Quatd(0, 0, 0);
 

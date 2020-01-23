@@ -101,17 +101,16 @@ namespace Devices.Adafruit.BNO055
         
         public Double3 ReadEulerData()
         {
-            var bytes = ReadBytes(Registers.BNO055_EULER_H_LSB_ADDR, 6);
-
-            // var shorts = bytes.ToComposedShorts();
-            // Console.WriteLine($"[{string.Join(", ", shorts.Select(s => s.ToBinaryString()))}]");
-            
-            
-            
             // Stupid bug in the chip.
             // Sometimes msb is set for no apparent reason, which makes the int16 value negative.
             // Let's MacGyver it:
-            var vector = bytes.FixMsb().ToVector3();
+            var buffer = ReadBytes(Registers.BNO055_EULER_H_LSB_ADDR, 6).FixMsb();
+            
+            var yaw = (short) (buffer[1] << 8 | buffer[0]);
+            var roll = (short) (buffer[3] << 8 | buffer[2]);
+            var pitch = (short) (buffer[5] << 8 | buffer[4]);
+            var vector = new Double3(roll,pitch,-yaw);
+            
             switch (UnitSelection.EulerAngleUnit)
             {
                 case EulerAngleUnit.Radians:
@@ -197,6 +196,7 @@ namespace Devices.Adafruit.BNO055
             PowerMode = PowerMode.POWER_MODE_NORMAL;
             RegisterPage = 0;
             ClockSelection = ClockSelection.External;
+            
             OperationMode = mode;
         }
 

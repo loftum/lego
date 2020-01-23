@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Maths;
 
@@ -13,31 +14,40 @@ namespace Lego.Core
 
         public string Serialize()
         {
-            return $"{EulerAngles};[{string.Join(",", Distances)}]";
+            return $"{EulerAngles};{Quaternion};[{string.Join(",", Distances)}]";
         }
 
         public static bool TryParse(string serialized, out LegoCarState state)
         {
             state = null;
             var parts = serialized.Split(';');
-            if (parts.Length != 2)
+            if (parts.Length != 3)
             {
+                Console.WriteLine("Bad length");
                 return false;
             }
 
-            if (!Double3.TryParse(parts[0], out var orientation))
+            if (!Double3.TryParse(parts[0], out var euler))
             {
+                Console.WriteLine("Bad euler");
+                return false;
+            }
+            if (!Quatd.TryParse(parts[1], out var quaternion))
+            {
+                Console.WriteLine("Bad quaternion");
                 return false;
             }
 
-            if (!Doubles.TryParse(parts[1], out var distances))
+            if (!Doubles.TryParse(parts[2], out var distances))
             {
+                Console.WriteLine("Bad doubles");
                 return false;
             }
 
             state = new LegoCarState
             {
-                EulerAngles = orientation,
+                EulerAngles = euler,
+                Quaternion = quaternion,
                 Distances = distances
             };
             return true;

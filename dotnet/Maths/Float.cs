@@ -4,7 +4,7 @@ namespace Maths
 {
     public static class Float
     {
-        public const float Pi = (float) Math.PI;
+        public const float PI = (float) Math.PI;
 
         public static float Cos(float angle) => (float) Math.Cos(angle);
         public static float Sin(float angle) => (float) Math.Sin(angle);

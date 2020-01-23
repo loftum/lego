@@ -94,7 +94,7 @@ namespace Lego.Client
                 }
                 else
                 {
-                    Console.WriteLine($"Bad state state string: {stateResult.Content}");
+                    Console.WriteLine($"Bad state string: {stateResult.Content}");
                 }
                 
             }
@@ -124,7 +124,7 @@ namespace Lego.Client
             _client.Disconnect();
         }
 
-        public Double3 GetRotation() => _state.EulerAngles;
+        public Double3 GetEulerAngles() => _state.EulerAngles;
 
         public Quatd GetQuaternion() => _state.Quaternion;
     }

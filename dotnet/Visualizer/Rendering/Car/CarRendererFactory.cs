@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Foundation;
@@ -7,19 +7,18 @@ using Metal;
 using MetalKit;
 using ModelIO;
 using Visualizer.Rendering.SceneGraph;
-using Visualizer.Rendering.Test;
 
 namespace Visualizer.Rendering.Car
 {
     public class CarRendererFactory
     {
         public const int MaxInflightBuffers = 1;
-        
+
         public static IMTLRenderPipelineState CreateRenderPipeline(IMTLDevice device, IMTLLibrary library, MTKView view, MDLVertexDescriptor vertexDescriptor)
         {
             var mtlVertexDescriptor = MTLVertexDescriptor.FromModelIO(vertexDescriptor);
-            var vertexFunction = library.CreateFunction("vertex_main");
-            var fragmentFunction = library.CreateFunction("fragment_main");
+            var vertexFunction = library.CreateFunction("vertex_test");
+            var fragmentFunction = library.CreateFunction("fragment_test");
             var pipelineDescriptor = new MTLRenderPipelineDescriptor
             {
                 Label = "RenderPipeline",
@@ -27,10 +26,11 @@ namespace Visualizer.Rendering.Car
                 VertexFunction = vertexFunction,
                 FragmentFunction = fragmentFunction,
                 DepthAttachmentPixelFormat = view.DepthStencilPixelFormat,
-                StencilAttachmentPixelFormat = view.DepthStencilPixelFormat,
+                //StencilAttachmentPixelFormat = view.DepthStencilPixelFormat,
                 VertexDescriptor = mtlVertexDescriptor
             };
             pipelineDescriptor.ColorAttachments[0].PixelFormat = view.ColorPixelFormat;
+            pipelineDescriptor.DepthAttachmentPixelFormat = view.DepthStencilPixelFormat;
 
             var state = device.CreateRenderPipelineState(pipelineDescriptor, out var error);
             if (error != null)
@@ -66,10 +66,15 @@ namespace Visualizer.Rendering.Car
 
         public static MDLVertexDescriptor CreateVertexDescriptor()
         {
-            var vertextDescriptor = new MDLVertexDescriptor();
-            vertextDescriptor.Layouts[0] = new MDLVertexBufferLayout((nuint) (Marshal.SizeOf<float>() * 6));
-            vertextDescriptor.Attributes[0] = new MDLVertexAttribute(MDLVertexAttributes.Position.ToString(), MDLVertexFormat.Float3, 0, 0);
-            vertextDescriptor.Attributes[1] = new MDLVertexAttribute(MDLVertexAttributes.Normal.ToString(), MDLVertexFormat.Float3, (nuint) (Marshal.SizeOf<float>() * 3), 0);
+            var vertextDescriptor = new MDLVertexDescriptor
+            {
+                Layouts = {[0] = new MDLVertexBufferLayout((nuint) (Marshal.SizeOf<float>() * 6))},
+                Attributes =
+                {
+                    [0] = new MDLVertexAttribute(MDLVertexAttributes.Position.ToString(), MDLVertexFormat.Float3, 0, 0),
+                    [1] = new MDLVertexAttribute(MDLVertexAttributes.Normal.ToString(), MDLVertexFormat.Float3, (nuint) (Marshal.SizeOf<float>() * 3), 0)
+                }
+            };
             //vertextDescriptor.Attributes[2] = new MDLVertexAttribute(MDLVertexAttributes.TextureCoordinate.ToString(), MDLVertexFormat.Float2, (nuint) (Marshal.SizeOf<float>() * 6), 0);
             return vertextDescriptor;
         }
@@ -79,7 +84,7 @@ namespace Visualizer.Rendering.Car
             var bufferAllocator = new MTKMeshBufferAllocator(library.Device);
             var scene = new Scene
             {
-                AmbientLightColor = new Float3(.1f, .1f, .1f),
+                AmbientLightColor = new Float3(.5f, .5f, 0f),
                 Lights = new List<Light>
                 {
                     new Light {WorldPosition = new Float3(5, 5, 0), Color = new Float3(.3f, .3f, .3f)},
@@ -90,10 +95,10 @@ namespace Visualizer.Rendering.Car
 
             var car = new Node("car")
             {
-                Material = new Material {SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f)},
-                VertexUniformsBuffer = library.Device.CreateBuffer((nuint) Marshal.SizeOf<VertexUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
-                FragmentUniformsBuffer = library.Device.CreateBuffer((nuint) Marshal.SizeOf<FragmentUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
-                Mesh = ModelFactory.CreateTeapot(library, vertexDescriptor, bufferAllocator)
+                Material = new Material { SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f) },
+                VertexUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<VertexUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
+                FragmentUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<FragmentUniforms>() * MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
+                Mesh = ModelFactory.CreateRaceCar(library, vertexDescriptor, bufferAllocator),
             };
             car.VertexUniformsBuffer.Label = "Car VertexUniformsBuffer";
             car.FragmentUniformsBuffer.Label = "Car FragmentUniformsBuffer";

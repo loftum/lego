@@ -21,7 +21,8 @@ namespace LegoCarServer
             Get("motor/(\\d{1})/speed", GetMotorSpeed);
             Set("motor/(\\d{1})/speed", SetMotorSpeed);
             Set("steer", SetSteer);
-            Get("orientation", GetOrientation);
+            Get("orientation/euler", GetEulerAngles);
+            Get("orientation/quaternion", GetEulerAngles);
             Get("state", GetState);
         }
 
@@ -30,7 +31,7 @@ namespace LegoCarServer
             return Task.FromResult(ResponseMessage.Ok(_car.GetState()));
         }
 
-        private Task<ResponseMessage> GetOrientation(RequestMessage request, Match match)
+        private Task<ResponseMessage> GetEulerAngles(RequestMessage request, Match match)
         {
             return Task.FromResult(ResponseMessage.Ok(_car.GetEulerAngles()));
         }
