@@ -99,7 +99,7 @@ namespace Maths
             // Stupid bug in the chip.
             // Sometimes msb is set for no apparent reason, which makes the int16 value negative.
             // Let's MacGyver it:
-            for (var ii = 1; ii < 6; ii += 2)
+            for (var ii = 1; ii < bytes.Length; ii += 2)
             {
                 var msb = bytes[ii];
                 if (msb > 0b_0000_1011 && msb <= 0b_1001_0110)

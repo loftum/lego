@@ -96,7 +96,7 @@ namespace Devices.Adafruit.BNO055
         public Quatd ReadQuaternion()
         {
             var bytes = ReadBytes(Registers.BNO055_QUATERNION_DATA_W_LSB_ADDR, 8);
-            return bytes.ToQuaternion() / 16384; // 2 ^ 14 LSB
+            return bytes.FixMsb().ToQuaternion() / 16384; // 2 ^ 14 LSB
         }
         
         public Double3 ReadEulerData()
@@ -109,16 +109,16 @@ namespace Devices.Adafruit.BNO055
             var yaw = (short) (buffer[1] << 8 | buffer[0]);
             var roll = (short) (buffer[3] << 8 | buffer[2]);
             var pitch = (short) (buffer[5] << 8 | buffer[4]);
-            var vector = new Double3(roll,pitch,-yaw);
+            var eulerAngles = new Double3(roll,pitch,-yaw);
             
             switch (UnitSelection.EulerAngleUnit)
             {
                 case EulerAngleUnit.Radians:
-                    vector /= 900;
-                    return vector;
+                    eulerAngles /= 900;
+                    return eulerAngles;
                 case EulerAngleUnit.Degrees:
-                    vector /= 16;
-                    return vector;
+                    eulerAngles /= 16;
+                    return eulerAngles;
                 default:
                     throw new InvalidOperationException($"Unknown euler angle unit {UnitSelection.EulerAngleUnit}");
             }
