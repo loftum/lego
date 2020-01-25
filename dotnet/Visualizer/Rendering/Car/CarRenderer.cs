@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Threading;
 using Lego.Client;
 using Maths;
@@ -11,23 +10,20 @@ namespace Visualizer.Rendering.Car
 {
     public class CarRenderer : MTKViewDelegate
     {
-        private static readonly int VertexUniformsSize = Marshal.SizeOf<VertexUniforms>();
-        private static readonly int FragmentUniformsSize = Marshal.SizeOf<FragmentUniforms>();
-
         private readonly MTKView _view;
         private readonly Semaphore _inflightSemaphore;
         private int _uniformsIndex;
 
-        private readonly IMTLCommandQueue _commandQueue;
-
+        private readonly Float3 _cameraWorldPosition = new Float3(0, 0, 5f);
         private Float4x4 _projectionMatrix = Float4x4.Identity;
         private Float4x4 _viewMatrix = Float4x4.Identity;
 
+        private readonly IMTLCommandQueue _commandQueue;
         private readonly IMTLRenderPipelineState _renderPipeline;
         private readonly IMTLSamplerState _samplerState;
         private readonly IMTLDepthStencilState _depthStencilState;
         private readonly Scene _scene;
-        private readonly Float3 _cameraWorldPosition = new Float3(0, 0, 5f);
+        
         private readonly IRotationProvider _rotationProvider;
 
         public CarRenderer(MTKView view, IRotationProvider rotationProvider)
@@ -43,21 +39,19 @@ namespace Visualizer.Rendering.Car
 
             // Setup the render target, choose values based on your app
             view.SampleCount = 4;
-            //view.DepthStencilPixelFormat = MTLPixelFormat.Depth32Float;
             view.DepthStencilPixelFormat = MTLPixelFormat.Depth32Float_Stencil8;
 
             _view = view;
             _rotationProvider = rotationProvider;
 
             var library = device.CreateDefaultLibrary();
-            
-            _commandQueue = device.CreateCommandQueue();
             var vertexDescriptor = CarRendererFactory.CreateVertexDescriptor();
+            _commandQueue = device.CreateCommandQueue();
             _renderPipeline = CarRendererFactory.CreateRenderPipeline(device, library, view, vertexDescriptor);
             _samplerState = CarRendererFactory.CreateSamplerState(device);
             _depthStencilState = CarRendererFactory.CreateDepthStencilState(device);
 
-            _scene = CarRendererFactory.BuildScene(library, vertexDescriptor);
+            _scene = SceneFactory.BuildScene(library, vertexDescriptor);
             Reshape();
         }
 
@@ -86,19 +80,18 @@ namespace Visualizer.Rendering.Car
             var rotation = GetEulerAngles();
             var quaternion = GetQuaternion();
 
-            _scene.NodeNamed("car").ModelMatrix = Float4x4.Scale(.5f) * Float4x4.CreateFromQuaternion(quaternion) *
-                Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * 
-                Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
-                ;
-            // _scene.NodeNamed("car").ModelMatrix = Float4x4.Scale(.5f) *
-            //                                       Float4x4.CreateRotation(rotation.Z, 0, 0, 1) *
-            //                                       Float4x4.CreateRotation(-rotation.Y, 0, 1, 0) *
-            //                                       Float4x4.CreateRotation(rotation.X, 1, 0, 0) *
-            //                                       
-            //                                       Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * 
-            //                                       Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
-            //                                       
+            // _scene.NodeNamed("car").ModelMatrix = Float4x4.Scale(.5f) * Float4x4.CreateFromQuaternion(quaternion) *
+            //     Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * 
+            //     Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
             //     ;
+            _scene.NodeNamed("car").ModelMatrix = Float4x4.Scale(.5f) *
+                                                  Float4x4.CreateRotation(rotation.Z, 0, 0, 1) *
+                                                  Float4x4.CreateRotation(-rotation.Y, 0, 1, 0) *
+                                                  Float4x4.CreateRotation(rotation.X, 1, 0, 0) *
+                                                  
+                                                  Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * 
+                                                  Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
+                ;
         }
 
         public override void Draw(MTKView view)
@@ -169,7 +162,7 @@ namespace Visualizer.Rendering.Car
 
                 node.VertexUniformsBuffer.Copy(vertexUniforms, _uniformsIndex);
 
-                encoder.SetVertexBuffer(node.VertexUniformsBuffer, (nuint)(VertexUniformsSize * _uniformsIndex), 1);
+                encoder.SetVertexBuffer(node.VertexUniformsBuffer, (nuint)(VertexUniforms.SizeInBytes * _uniformsIndex), 1);
 
                 var fragmentUniforms = new FragmentUniforms
                 {
@@ -180,7 +173,7 @@ namespace Visualizer.Rendering.Car
                 };
 
                 node.FragmentUniformsBuffer.Copy(fragmentUniforms, _uniformsIndex);
-                encoder.SetFragmentBuffer(node.FragmentUniformsBuffer, (nuint)(FragmentUniformsSize * _uniformsIndex), 0);
+                encoder.SetFragmentBuffer(node.FragmentUniformsBuffer, (nuint)(FragmentUniforms.SizeInBytes * _uniformsIndex), 0);
 
                 encoder.SetVertexBuffer(mesh.VertexBuffers[0].Buffer, mesh.VertexBuffers[0].Offset, 0);
 

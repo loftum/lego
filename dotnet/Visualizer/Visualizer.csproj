@@ -92,6 +92,7 @@
     <Compile Include="AppDelegate.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="MainWindowController.cs" />
+    <Compile Include="Rendering\Car\SceneFactory.cs" />
     <Compile Include="Rendering\ModelFactory.cs" />
     <Compile Include="Rendering\MtlBufferExtensions.cs" />
     <Compile Include="Rendering\SceneGraph\Light.cs" />

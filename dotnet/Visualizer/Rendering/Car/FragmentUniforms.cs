@@ -8,6 +8,8 @@ namespace Visualizer.Rendering.Car
     [StructLayout(LayoutKind.Sequential)]
     public struct FragmentUniforms
     {
+        public static readonly int SizeInBytes = Marshal.SizeOf<FragmentUniforms>();
+        
         public Float3 CameraWorldPosition;
         public Float3 AmbientLightColor;
         public Float3 SpecularColor;

@@ -8,6 +8,8 @@ namespace Visualizer.Rendering.Car
     [StructLayout(LayoutKind.Sequential)]
     public struct VertexUniforms
     {
+        public static readonly int SizeInBytes = Marshal.SizeOf<VertexUniforms>();
+        
         public Float4x4 ViewProjectionMatrix;
         public Float4x4 ModelMatrix;
         public Float4x4 NormalMatrix;
