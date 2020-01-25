@@ -10,6 +10,7 @@ namespace Visualizer.Rendering.SceneGraph
         public string Name { get; }
         public Node Parent { get; set; }
         public List<Node> Children { get; set; } = new List<Node>();
+        public Float4x4 InitialModelMatrix { get; set; } = Float4x4.Identity;
         public Float4x4 ModelMatrix { get; set; } = Float4x4.Identity;
         public MTKMesh Mesh { get; set; }
         public Material Material { get; set; }

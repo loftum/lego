@@ -1,10 +1,9 @@
-﻿using System;
 using System.Collections.Generic;
 using Devices.ThePiHut.ADCPiZero;
 
 namespace Devices.Distance.Sharp.GP2Y0A41SK0F
 {
-    public class DistanceSensor
+    public class DistanceSensor_GP2Y0A02YK
     {
         private readonly IAnalogInput _input;
 
@@ -14,14 +13,14 @@ namespace Devices.Distance.Sharp.GP2Y0A41SK0F
              
         };
 
-        public DistanceSensor(IAnalogInput input)
+        public DistanceSensor_GP2Y0A02YK(IAnalogInput input)
         {
             _input = input;
+            
         }
 
         public double GetCm()
         {
-            
             var voltage = _input.ReadVoltage() * 1.465; // 0-3 V
             if (voltage < 0)
             {

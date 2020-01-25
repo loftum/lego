@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using Lego.Client;
 using Maths;
@@ -24,9 +25,9 @@ namespace Visualizer.Rendering.Car
         private readonly IMTLDepthStencilState _depthStencilState;
         private readonly Scene _scene;
         
-        private readonly IRotationProvider _rotationProvider;
+        private readonly ILegoCarStateProvider _stateProvider;
 
-        public CarRenderer(MTKView view, IRotationProvider rotationProvider)
+        public CarRenderer(MTKView view, ILegoCarStateProvider stateProvider)
         {
             // Set the view to use the default device
             var device = MTLDevice.SystemDefault ?? throw new Exception("Metal is not supported on this device");
@@ -42,7 +43,7 @@ namespace Visualizer.Rendering.Car
             view.DepthStencilPixelFormat = MTLPixelFormat.Depth32Float_Stencil8;
 
             _view = view;
-            _rotationProvider = rotationProvider;
+            _stateProvider = stateProvider;
 
             var library = device.CreateDefaultLibrary();
             var vertexDescriptor = CarRendererFactory.CreateVertexDescriptor();
@@ -51,7 +52,7 @@ namespace Visualizer.Rendering.Car
             _samplerState = CarRendererFactory.CreateSamplerState(device);
             _depthStencilState = CarRendererFactory.CreateDepthStencilState(device);
 
-            _scene = SceneFactory.BuildScene(library, vertexDescriptor);
+            _scene = new SceneFactory(library, vertexDescriptor, CarRendererFactory.MaxInflightBuffers).BuildScene();
             Reshape();
         }
 
@@ -60,38 +61,32 @@ namespace Visualizer.Rendering.Car
             Reshape();
         }
 
-        private Float3 GetEulerAngles()
-        {
-            var r = _rotationProvider.GetEulerAngles();
-            return new Float3((float)r.X, (float)r.Y, (float)r.Z);
-        }
-
-        private Quatf GetQuaternion()
-        {
-            var q = _rotationProvider.GetQuaternion();
-            return new Quatf((float)q.W, (float)q.X, (float)q.Y, (float)q.Z);
-        }
-
         private void UpdateUniforms(MTKView view)
         {
             _projectionMatrix = CreateProjectionMatrix(view);
 
-            
-            var rotation = GetEulerAngles();
-            var quaternion = GetQuaternion();
+            var state = _stateProvider.GetState();
+            var rotation = state.EulerAngles.ToFloat3();
+            var quaternion = state.Quaternion.ToQuatF();
 
             // _scene.NodeNamed("car").ModelMatrix = Float4x4.Scale(.5f) * Float4x4.CreateFromQuaternion(quaternion) *
             //     Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * 
             //     Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
             //     ;
-            _scene.NodeNamed("car").ModelMatrix = Float4x4.Scale(.5f) *
+            var car = _scene.NodeNamed("car");
+            car.ModelMatrix = Float4x4.Scale(.5f) *
                                                   Float4x4.CreateRotation(rotation.Z, 0, 0, 1) *
                                                   Float4x4.CreateRotation(-rotation.Y, 0, 1, 0) *
                                                   Float4x4.CreateRotation(rotation.X, 1, 0, 0) *
-                                                  
-                                                  Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * 
-                                                  Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
+                                                  car.InitialModelMatrix
                 ;
+            if (state.Distances.Any())
+            {
+                var d = state.Distances[0] / 10;
+                Console.WriteLine($"Distance: {d}");
+                var distance = _scene.NodeNamed("frontDistance");
+                distance.ModelMatrix = Float4x4.CreateTranslation((float)(-d), 0, 0) * distance.InitialModelMatrix;
+            }
         }
 
         public override void Draw(MTKView view)

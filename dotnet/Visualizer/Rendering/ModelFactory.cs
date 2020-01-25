@@ -7,22 +7,33 @@ using OpenTK;
 
 namespace Visualizer.Rendering
 {
-    public static class ModelFactory
+    public class ModelFactory
     {
-        public static MTKMesh CreateRaceCar(IMTLLibrary library, MDLVertexDescriptor vertexDescriptor, MTKMeshBufferAllocator bufferAllocator)
+        private readonly IMTLLibrary _library;
+        private readonly MDLVertexDescriptor _vertexDescriptor;
+        private readonly MTKMeshBufferAllocator _bufferAllocator;
+
+        public ModelFactory(IMTLLibrary library, MDLVertexDescriptor vertexDescriptor, MTKMeshBufferAllocator bufferAllocator)
         {
-            return CreateFromModelFile(library, "3DModels/Aventador/Avent.obj", vertexDescriptor, bufferAllocator);
+            _library = library;
+            _vertexDescriptor = vertexDescriptor;
+            _bufferAllocator = bufferAllocator;
         }
 
-        public static MTKMesh CreateTeapot(IMTLLibrary library, MDLVertexDescriptor vertexDescriptor, MTKMeshBufferAllocator bufferAllocator)
+        public MTKMesh CreateRaceCar()
         {
-            return CreateFromModelFile(library, "teapot.obj", vertexDescriptor, bufferAllocator);
+            return CreateFromModelFile("3DModels/Aventador/Avent.obj");
         }
 
-        public static MTKMesh CreateFromModelFile(IMTLLibrary library, string filename, MDLVertexDescriptor vertexDescriptor, MTKMeshBufferAllocator bufferAllocator)
+        public MTKMesh CreateTeapot()
         {
-            var asset = new MDLAsset(NSUrl.FromFilename(filename), vertexDescriptor, bufferAllocator);
-            var mesh = MTKMesh.FromAsset(asset, library.Device, out _, out var error);
+            return CreateFromModelFile("teapot.obj");
+        }
+
+        public MTKMesh CreateFromModelFile(string filename)
+        {
+            var asset = new MDLAsset(NSUrl.FromFilename(filename), _vertexDescriptor, _bufferAllocator);
+            var mesh = MTKMesh.FromAsset(asset, _library.Device, out _, out var error);
             if (error != null)
             {
                 throw new NSErrorException(error);
@@ -30,11 +41,11 @@ namespace Visualizer.Rendering
             return mesh.First();
         }
 
-        public static MTKMesh CreatePlane(IMTLLibrary library, MDLVertexDescriptor vertexDescriptor, MTKMeshBufferAllocator bufferAllocator)
+        public MTKMesh CreatePlane()
         {
-            var mdl = MDLMesh.CreatePlane(new Vector2(1f, 1f), new Vector2i(1, 1), MDLGeometryType.Triangles, bufferAllocator);
-            mdl.VertexDescriptor = vertexDescriptor;
-            var mesh = new MTKMesh(mdl, library.Device, out var error);
+            var mdl = MDLMesh.CreatePlane(new Vector2(1f, 1f), new Vector2i(1, 1), MDLGeometryType.Triangles, _bufferAllocator);
+            mdl.VertexDescriptor = _vertexDescriptor;
+            var mesh = new MTKMesh(mdl, _library.Device, out var error);
             if (error != null)
             {
                 throw new NSErrorException(error);
@@ -42,11 +53,11 @@ namespace Visualizer.Rendering
             return mesh;
         }
 
-        public static MTKMesh CreateBox(IMTLLibrary library, MDLVertexDescriptor vertexDescriptor, MTKMeshBufferAllocator bufferAllocator)
+        public MTKMesh CreateBox()
         {
-            var mdl = MDLMesh.CreateBox(new Vector3(1f, 1f, 1f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, bufferAllocator);
-            mdl.VertexDescriptor = vertexDescriptor;
-            var mesh = new MTKMesh(mdl, library.Device, out var error);
+            var mdl = MDLMesh.CreateBox(new Vector3(1f, 1f, 1f), new Vector3i(1, 1, 1), MDLGeometryType.Triangles, false, _bufferAllocator);
+            mdl.VertexDescriptor = _vertexDescriptor;
+            var mesh = new MTKMesh(mdl, _library.Device, out var error);
             
             if (error != null)
             {

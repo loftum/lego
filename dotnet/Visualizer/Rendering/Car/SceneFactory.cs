@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Maths;
 using Metal;
@@ -9,11 +10,23 @@ using Visualizer.Rendering.SceneGraph;
 
 namespace Visualizer.Rendering.Car
 {
-    public static class SceneFactory
+    public class SceneFactory
     {
-        public static Scene BuildScene(IMTLLibrary library, MDLVertexDescriptor vertexDescriptor)
+        private readonly IMTLLibrary _library;
+        private readonly MDLVertexDescriptor _vertexDescriptor;
+        private readonly ModelFactory _modelFactory;
+        private readonly int _maxInflightBuffers;
+
+        public SceneFactory(IMTLLibrary library, MDLVertexDescriptor vertexDescriptor, int maxInflightBuffers)
         {
-            var bufferAllocator = new MTKMeshBufferAllocator(library.Device);
+            _library = library;
+            _vertexDescriptor = vertexDescriptor;
+            _maxInflightBuffers = maxInflightBuffers;
+            _modelFactory = new ModelFactory(library, _vertexDescriptor, new MTKMeshBufferAllocator(_library.Device));
+        }
+
+        public Scene BuildScene()
+        {
             var scene = new Scene
             {
                 AmbientLightColor = new Float3(.5f, .5f, 0f),
@@ -28,16 +41,28 @@ namespace Visualizer.Rendering.Car
             var car = new Node("car")
             {
                 Material = new Material { SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f) },
-                VertexUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<VertexUniforms>() * CarRendererFactory.MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
-                FragmentUniformsBuffer = library.Device.CreateBuffer((nuint)Marshal.SizeOf<FragmentUniforms>() * CarRendererFactory.MaxInflightBuffers, MTLResourceOptions.CpuCacheModeDefault),
-                Mesh = ModelFactory.CreateRaceCar(library, vertexDescriptor, bufferAllocator),
+                VertexUniformsBuffer = _library.Device.CreateBuffer((nuint)(VertexUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
+                FragmentUniformsBuffer = _library.Device.CreateBuffer((nuint)(FragmentUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
+                Mesh = _modelFactory.CreateRaceCar(),
+                InitialModelMatrix = Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * 
+                                     Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
             };
             car.VertexUniformsBuffer.Label = "Car VertexUniformsBuffer";
             car.FragmentUniformsBuffer.Label = "Car FragmentUniformsBuffer";
             Console.WriteLine($"VertexUniformsBuffer.length = {car.VertexUniformsBuffer.Length}");
             Console.WriteLine($"FragmentUniformsBuffer.length = {car.FragmentUniformsBuffer.Length}");
             scene.RootNode.Children.Add(car);
-
+            
+            var distance = new Node("frontDistance")
+            {
+                Material = new Material { SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f) },
+                VertexUniformsBuffer = _library.Device.CreateBuffer((nuint)(VertexUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
+                FragmentUniformsBuffer = _library.Device.CreateBuffer((nuint)(FragmentUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
+                Mesh = _modelFactory.CreatePlane(),
+                InitialModelMatrix = Float4x4.CreateTranslation(-3.5f, 0, 0) * Float4x4.CreateRotation(Float.PI / 2, 0, 0, 1f)
+            };
+            car.Children.Add(distance);
+            
             return scene;
         }
     }

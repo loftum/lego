@@ -1,8 +1,6 @@
 ﻿using System;
 using AppKit;
 using CoreGraphics;
-using Lego.Client;
-using Maths;
 using Metal;
 using MetalKit;
 using Visualizer.Rendering.Car;
@@ -47,36 +45,6 @@ namespace Visualizer.ViewControllers
                 _mtkView.Dispose();
             }
             base.Dispose(disposing);
-        }
-    }
-
-    public class TestRotationProvider : IRotationProvider
-    {
-        private double _angle;
-
-        private double NextAngle()
-        {
-            _angle += (float) (2 * Math.PI / 1000);
-            if (_angle >= 2 * Math.PI)
-            {
-                _angle = 0;
-            }
-
-            return _angle;
-        }
-        
-        public Double3 GetEulerAngles()
-        {
-            var angle = NextAngle();
-            return new Double3(0, angle, 0);
-        }
-
-        public Quatd GetQuaternion()
-        {
-            var angle = NextAngle();
-            // Camera on top of car
-            var wiggle = Math.PI / 12 * Math.Sin(angle * 12);
-            return new Quatd(-Math.PI / 2 + wiggle, 0, Math.PI / 2 + angle);
         }
     }
 }

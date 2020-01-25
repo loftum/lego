@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 using Devices.Adafruit.BNO055;
+using Devices.Distance.Sharp.GP2Y0A41SK0F;
 using Devices.ThePiHut.ADCPiZero;
 using Devices.ThePiHut.MotoZero;
 using Devices.ThePiHut.ServoPWMPiZero;
@@ -27,7 +28,7 @@ namespace Lego.Server
         public ILight RightBlinker { get; }
         public ILight Headlights { get; }
         private readonly Timer _blinker = new Timer(2 * Math.PI * 100);
-        private readonly ADCPiZeroInput _frontDistance;
+        private readonly DistanceSensor_GP2Y0A41SK0F _frontDistance;
         private readonly InterlockedTimer _updateTimer = new InterlockedTimer(10);
         
         public Sampled<double> Distance { get; } = new Sampled<double>();
@@ -40,9 +41,11 @@ namespace Lego.Server
             _motoZero = motoZero;
             _adcBoard = adcBoard;
             _imu = imu;
-            _frontDistance = adcBoard.Inputs[0];
-            _frontDistance.Bitrate = Bitrate._16;
-            _frontDistance.ConversionMode = ConversionMode.Continuous;
+            var input = adcBoard.Inputs[0];
+            input.Bitrate = Bitrate._12;
+            input.ConversionMode = ConversionMode.Continuous;
+            _frontDistance = new DistanceSensor_GP2Y0A41SK0F(input);
+            
             _motoZero.Motors[0].Enabled = true;
             _motoZero.Motors[1].Enabled = true;
             SteerFront = pwmBoard.Outputs[15].AsServo();
@@ -68,7 +71,7 @@ namespace Lego.Server
         {
             var sw = new Stopwatch();
             sw.Start();
-            Distance.Value = _frontDistance.ReadVoltage();
+            Distance.Value = _frontDistance.GetCm();
             sw.Stop();
             sw.Restart();
             EulerAngles.Value = _imu.ReadEulerData();

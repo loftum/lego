@@ -101,6 +101,7 @@
     <Compile Include="Rendering\SceneGraph\Scene.cs" />
     <Compile Include="ViewControllers\ConnectViewController.cs" />
     <Compile Include="ViewControllers\NSViewExtensions.cs" />
+    <Compile Include="ViewControllers\TestRotationProvider.cs" />
     <Compile Include="ViewControllers\VisualizerViewController.cs" />
     <Compile Include="ViewControllers\MetalTestViewController.cs" />
     <Compile Include="Rendering\Car\CarRenderer.cs" />
@@ -119,6 +120,10 @@
     <ProjectReference Include="..\Lego.Client\Lego.Client.csproj">
       <Project>{938afe20-be61-44b5-bf69-05e95056189e}</Project>
       <Name>Lego.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Lego\Lego.csproj">
+      <Project>{cf2492f8-a1f2-41a5-b319-db2c19662a0c}</Project>
+      <Name>Lego</Name>
     </ProjectReference>
     <ProjectReference Include="..\Maths\Maths.csproj">
       <Project>{f7c77102-12a6-48d7-8431-ab0f3c77fb6f}</Project>

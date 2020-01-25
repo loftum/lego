@@ -4,6 +4,7 @@ using AppKit;
 using CoreFoundation;
 using CoreGraphics;
 using Lego.Client;
+using Lego.Core;
 using Maths;
 using Metal;
 using MetalKit;
@@ -11,7 +12,7 @@ using Visualizer.Rendering.Car;
 
 namespace Visualizer.ViewControllers
 {
-    public class VisualizerViewController : NSViewController, ICarInput, IRotationProvider
+    public class VisualizerViewController : NSViewController, ICarInput, IRotationProvider, ILegoCarStateProvider
     {
         public event EventHandler OnDisconnect;
         private readonly NSSlider _throttleSlider;
@@ -123,6 +124,11 @@ namespace Visualizer.ViewControllers
         public Task<int> GetSteerAngleDegAsync()
         {
             return DispatchQueue.MainQueue.DispatchAsync(() => _steerSlider.IntValue);
+        }
+
+        public LegoCarState GetState()
+        {
+            return _client?.GetState() ?? new LegoCarState();
         }
 
         public Double3 GetEulerAngles() => _client?.GetEulerAngles() ?? Double3.Zero;

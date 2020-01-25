@@ -9,7 +9,7 @@ using Timer = System.Timers.Timer;
 
 namespace Lego.Client
 {
-    public class LegoCarClient : IRotationProvider, IDisposable
+    public class LegoCarClient : IRotationProvider, ILegoCarStateProvider, IDisposable
     {
         private readonly Sampled<int> _throttle = new Sampled<int>();
         private readonly Sampled<int> _steer = new Sampled<int>();
@@ -134,6 +134,8 @@ namespace Lego.Client
             _timer.Dispose();
             _client?.Dispose();
         }
+
+        public LegoCarState GetState() => _state;
 
         public Double3 GetEulerAngles() => _state.EulerAngles;
 
