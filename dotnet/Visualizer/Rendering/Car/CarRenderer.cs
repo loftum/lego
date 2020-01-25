@@ -86,19 +86,19 @@ namespace Visualizer.Rendering.Car
             var rotation = GetEulerAngles();
             var quaternion = GetQuaternion();
 
-            // _scene.NodeNamed("car").ModelMatrix = Float4x4.Scale(.5f) * Float4x4.CreateFromQuaternion(quaternion) *
-            //     Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * 
-            //     Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
-            //     ;
-            _scene.NodeNamed("car").ModelMatrix = Float4x4.Scale(.5f) *
-                                                  Float4x4.CreateRotation(rotation.Z, 0, 0, 1) *
-                                                  Float4x4.CreateRotation(-rotation.Y, 0, 1, 0) *
-                                                  Float4x4.CreateRotation(rotation.X, 1, 0, 0) *
-                                                  
-                                                  Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * 
-                                                  Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
-                                                  
+            _scene.NodeNamed("car").ModelMatrix = Float4x4.Scale(.5f) * Float4x4.CreateFromQuaternion(quaternion) *
+                Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * 
+                Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
                 ;
+            // _scene.NodeNamed("car").ModelMatrix = Float4x4.Scale(.5f) *
+            //                                       Float4x4.CreateRotation(rotation.Z, 0, 0, 1) *
+            //                                       Float4x4.CreateRotation(-rotation.Y, 0, 1, 0) *
+            //                                       Float4x4.CreateRotation(rotation.X, 1, 0, 0) *
+            //                                       
+            //                                       Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * 
+            //                                       Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
+            //                                       
+            //     ;
         }
 
         public override void Draw(MTKView view)

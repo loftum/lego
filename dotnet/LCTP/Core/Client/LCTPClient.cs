@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using LCTP.Core.Extensions;
 
@@ -20,6 +21,7 @@ namespace LCTP.Core.Client
         private readonly Socket _socket;
         private StreamReader _reader;
         private StreamWriter _writer;
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
         public LctpClient(string host, int port)
         {
@@ -56,6 +58,7 @@ namespace LCTP.Core.Client
             {
                 return;
             }
+            
             _writer.Close();
             _writer.Dispose();
             _writer = null;
@@ -67,9 +70,18 @@ namespace LCTP.Core.Client
 
         public async Task<ResponseMessage> Send(RequestMessage request)
         {
-            await _writer.WriteLineAndFlushAsync(request.Format());
-            var response = await _reader.ReadLineAsync();
-            return ResponseMessage.Parse(response);
+            await _semaphore.WaitAsync();
+            try
+            {
+                await _writer?.WriteLineAndFlushAsync(request.Format());
+                var response = await _reader?.ReadLineAsync();
+                return ResponseMessage.Parse(response);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+            
         }
 
         public async Task<ResponseMessage> Ping()

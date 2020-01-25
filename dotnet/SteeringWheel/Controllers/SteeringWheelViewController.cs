@@ -112,19 +112,19 @@ namespace SteeringWheel.Controllers
             _throttleSlider.Value = 0;
         }
 
-        private void DisconnectButton_TouchUpInside(object sender, EventArgs e)
+        private async void DisconnectButton_TouchUpInside(object sender, EventArgs e)
         {
-            Disconnect();
+            await DisconnectAsync();
             DismissViewController(true, () => { });
         }
 
-        private void Disconnect()
+        private async Task DisconnectAsync()
         {
             if (!_client.Connected)
             {
                 return;
             }
-            _client.Disconnect();
+            await _client.DisconnectAsync();
             _motionManager.StopDeviceMotionUpdates();
         }
 

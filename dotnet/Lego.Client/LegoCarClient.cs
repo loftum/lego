@@ -15,6 +15,7 @@ namespace Lego.Client
         private readonly Sampled<int> _steer = new Sampled<int>();
         private readonly Timer _timer = new Timer(25);
         private int _running;
+        private bool _isUpdating;
         private readonly LctpClient _client;
         private readonly ICarInput _input;
 
@@ -39,6 +40,7 @@ namespace Lego.Client
             }
             try
             {
+                _isUpdating = true;
                 if (!await DoUpdate())
                 {
                     await _client.Ping();
@@ -46,12 +48,14 @@ namespace Lego.Client
             }
             finally
             {
+                _isUpdating = false;
                 Interlocked.Exchange(ref _running, 0);
             }
         }
 
         private async Task<bool> DoUpdate()
         {
+            
             var updated = false;
 
             _throttle.Value = await _input.GetThrottleAsync();
@@ -102,26 +106,33 @@ namespace Lego.Client
             {
                 Console.WriteLine($"Bad state status code: {stateResult.StatusCode}");
             }
-
+            
             return updated;
         }
         
-        public void Dispose()
-        {
-            _timer.Dispose();
-            _client?.Dispose();
-        }
-
         public void Connect()
         {
             _client.Connect();
             _timer.Start();
         }
 
-        public void Disconnect()
+        public async Task DisconnectAsync()
         {
             _timer.Stop();
+            
+            Console.WriteLine("Waiting for update to finish");
+            while (_isUpdating)
+            {
+                await Task.Delay(10);
+            }
+            Console.WriteLine("Disconnecting");
             _client.Disconnect();
+        }
+        
+        public void Dispose()
+        {
+            _timer.Dispose();
+            _client?.Dispose();
         }
 
         public Double3 GetEulerAngles() => _state.EulerAngles;

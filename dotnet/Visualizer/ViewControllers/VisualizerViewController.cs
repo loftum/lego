@@ -101,7 +101,7 @@ namespace Visualizer.ViewControllers
             if (disposing)
             {
                 _disconnectButton.Activated -= Disconnect;
-                _client.Disconnect();
+                _client.DisconnectAsync();
                 _client.Dispose();
                 _renderer.Dispose();
                 _mtkView.Dispose();
@@ -109,9 +109,9 @@ namespace Visualizer.ViewControllers
             base.Dispose(disposing);
         }
 
-        private void Disconnect(object sender, EventArgs e)
+        private async void Disconnect(object sender, EventArgs e)
         {
-            _client.Disconnect();
+            await _client.DisconnectAsync();
             OnDisconnect?.Invoke(this, EventArgs.Empty);
         }
 
