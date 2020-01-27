@@ -19,10 +19,7 @@ namespace Devices.ThePiHut.ADCPiZero
         public int Number { get; }
         private readonly int _baseConfig;
         public Bitrate Bitrate { get; set; } = Bitrate._12;
-        public Pga Pga
-        {
-            get; set;
-        }
+        public Pga Pga { get; set; }
         public ConversionMode ConversionMode { get; set; } = ConversionMode.Continuous;
 
         public ADCPiZeroInput(II2CDevice device, int input)
@@ -130,12 +127,11 @@ namespace Devices.ThePiHut.ADCPiZero
             byte hi = 0;
             byte med = 0;
             byte lo = 0;
-            byte status = 0;
-
             var attempts = 0;
 
             while (true)
             {
+                byte status = 0;
                 if (Bitrate == Bitrate._18)
                 {
                     var readbuffer = Device.ReadBlock(config, 4);
