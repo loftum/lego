@@ -15,8 +15,9 @@
         {
             var dy = next.Y - previous.Y;
             var dx = next.X - previous.X;
-            var y = previous.Y + x * dy / dx;
-            return y;
+            var deltaX = x - previous.X;
+            var deltaY = deltaX * dy / dx;
+            return previous.Y + deltaY;
         }
     }
 }

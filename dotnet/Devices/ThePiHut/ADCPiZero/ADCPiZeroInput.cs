@@ -19,7 +19,7 @@ namespace Devices.ThePiHut.ADCPiZero
         public int Number { get; }
         private readonly int _baseConfig;
         public Bitrate Bitrate { get; set; } = Bitrate._12;
-        public Pga Pga { get; set; }
+        public Pga Pga { get; set; } = Pga._8;
         public ConversionMode ConversionMode { get; set; } = ConversionMode.Continuous;
 
         public ADCPiZeroInput(II2CDevice device, int input)
@@ -62,50 +62,44 @@ namespace Devices.ThePiHut.ADCPiZero
             switch (Pga)
             {
                 case Pga._1:
-                    config &= 0b11111100;
+                    config &= 0b1111_1100;
                     break;
                 case Pga._2:
-                    config &= 0b11111101;
+                    config &= 0b1111_1101;
                     break;
                 case Pga._4:
-                    config &= 0b11111110;
+                    config &= 0b1111_1110;
                     break;
                 case Pga._8:
-                    config &= 0b11111111;
+                    config &= 0b1111_1111;
                     break;
             }
 
             return config;
         }
 
-        private double GetLsb()
+        private double GetLsbVoltage()
         {
-            switch (Bitrate)
+            return Bitrate switch
             {
-                case Bitrate._12:
-                    return 0.001;
-                case Bitrate._14:
-                    return 0.000_250;
-                case Bitrate._16:
-                    return 0.000_0625;
-                case Bitrate._18:
-                    return 0.000_015_625;
-                default:
-                    return 9999;
-            }
+                Bitrate._12 => 0.001,
+                Bitrate._14 => 0.000_250,
+                Bitrate._16 => 0.000_062_5,
+                Bitrate._18 => 0.000_015_625,
+                _ => 9999
+            };
         }
 
         private double GetGain()
         {
-            switch (Pga)
+            return Pga switch
             {
-                case Pga._1: return 1;
-                case Pga._2: return 2;
-                case Pga._4: return 4;
-                case Pga._8: return 8;
-                default:
-                    return 1;
-            }
+                Pga._1 => 1,
+                Pga._2 => 2,
+                Pga._4 => 4,
+                Pga._8 => 8,
+                _ => 1
+            };
         }
 
         /**
@@ -114,10 +108,10 @@ namespace Devices.ThePiHut.ADCPiZero
         public double ReadVoltage()
         {
             var raw = ReadRaw();
+            Console.WriteLine($"Raw: {raw}");
             var gain = GetGain();
-            var lsb = GetLsb();
-            //double voltage = raw * (lsb / gain) * 2.471;
-            double voltage = raw * (lsb / gain) * 1.465;
+            var lsbVoltage = GetLsbVoltage();
+            var voltage = raw * lsbVoltage / gain;
             return voltage;
         }
 
@@ -149,7 +143,7 @@ namespace Devices.ThePiHut.ADCPiZero
                 }
 
                 // check bit 7 of s to see if the conversion result is ready
-                if ((status & 0b1000_0000) != 1)
+                if ((status & 0b1000_0000) == 0)
                 {
                     break;
                 }
@@ -163,19 +157,14 @@ namespace Devices.ThePiHut.ADCPiZero
                 attempts++;
             }
 
-            switch (Bitrate)
+            return Bitrate switch
             {
-                case Bitrate._18:
-                    return ((hi & 3) << 16) | (med << 8) | lo;
-                case Bitrate._16:
-                    return (hi << 8) | med;
-                case Bitrate._14:
-                    return ((hi & 63) << 8) | med;
-                case Bitrate._12:
-                    return ((hi & 15) << 8) | med;
-                default:
-                    return 0;
-            }
+                Bitrate._18 => ((hi & 3) << 16) | (med << 8) | lo,
+                Bitrate._16 => (hi << 8) | med,
+                Bitrate._14 => ((hi & 63) << 8) | med,
+                Bitrate._12 => ((hi & 15) << 8) | med,
+                _ => 0
+            };
         }
     }
 }

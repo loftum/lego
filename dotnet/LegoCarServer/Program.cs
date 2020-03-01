@@ -23,7 +23,6 @@ namespace LegoCarServer
             {
                 return await ConsoleRunner.RunAsync(RunSimulatorAsync);    
             }
-
             return await ConsoleRunner.RunAsync(RunAsync);
         }
 
@@ -48,9 +47,10 @@ namespace LegoCarServer
                 using (var motoZero = new MotoZeroBoard(Pi.Gpio))
                 {
                     var adcBoard = new ADCPiZeroBoard(Pi.I2C);
-                    var imu = new BNO055Sensor(Pi.I2C, OperationMode.NDOF);
-                    imu.UnitSelection.EulerAngleUnit = EulerAngleUnit.Radians;
-                    var car = new LegoCar(pwm, motoZero, adcBoard, imu);
+                    // var imu = new BNO055Sensor(Pi.I2C, OperationMode.NDOF);
+                    // imu.UnitSelection.EulerAngleUnit = EulerAngleUnit.Radians;
+                    //var car = new LegoCar(pwm, motoZero, adcBoard, imu);
+                    var car = new LegoCar(pwm, motoZero, adcBoard, null);
                     var controller = new LegoCarController(car);
                     using (var server = new LctpServer(5080, controller))
                     {

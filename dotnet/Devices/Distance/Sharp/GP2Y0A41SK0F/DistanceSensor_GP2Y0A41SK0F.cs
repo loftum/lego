@@ -7,23 +7,30 @@ namespace Devices.Distance.Sharp.GP2Y0A41SK0F
     {
         private readonly IAnalogInput _input;
         private readonly DistanceCalculator _calculator = new DistanceCalculator(new [] {
-            new PlotSample(3.0, 3.5),
-            new PlotSample(2.63, 8),
-            new PlotSample(2.26, 10),
-            new PlotSample(2.3, 5),
-            new PlotSample(2, 6),
-            new PlotSample(1.75, 7),
-            new PlotSample(1.45, 8),
-            new PlotSample(1.4, 9),
-            new PlotSample(1.25, 10),
-            new PlotSample(1.05, 12),
-            new PlotSample(0.9, 14),
-            new PlotSample(0.8, 16),
-            new PlotSample(0.7, 20),
-            new PlotSample(0.5, 25),
-            new PlotSample(0.4, 30),
-            new PlotSample(0.35, 35),
-            new PlotSample(0.3, 40)
+            
+            new PlotSample(0.75, 42),
+            new PlotSample(0.85, 37.6),
+            new PlotSample(1.035, 31.6),
+            new PlotSample(1.13, 25.6),
+            new PlotSample(1.22, 20.8),
+            new PlotSample(1.31, 19.9),
+            new PlotSample(1.41, 18.6),
+            new PlotSample(1.5, 17.1),
+            new PlotSample(1.6, 16.3),
+            new PlotSample(1.69, 15.5),
+            new PlotSample(1.79, 14.7),
+            new PlotSample(1.88, 14.3),
+            new PlotSample(1.98, 13.6),
+            new PlotSample(2.07, 13),
+            new PlotSample(2.16, 12.3),
+            new PlotSample(2.26, 12),
+            new PlotSample(2.35, 11.4),
+            new PlotSample(2.45, 10.9),
+            new PlotSample(2.54, 10.3),
+            new PlotSample(2.64, 9.9),
+            new PlotSample(2.73, 9.5),
+            new PlotSample(2.82, 9.2),
+            new PlotSample(2.91, 9)
         });
 
         public DistanceSensor_GP2Y0A41SK0F(IAnalogInput input)
@@ -34,10 +41,10 @@ namespace Devices.Distance.Sharp.GP2Y0A41SK0F
         public double GetCm()
         {
             var voltage = _input.ReadVoltage() * 1.465; // 0-3 V
-            if (voltage < 0)
-            {
-                return double.MaxValue;
-            }
+            // if (voltage < 0)
+            // {
+            //     return double.MaxValue;
+            // }
             var distance = Map(voltage);
             return distance;
         }

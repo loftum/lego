@@ -10,16 +10,16 @@ namespace Devices.Distance.Sharp.GP2Y0A41SK0F
 
         public DistanceCalculator(IEnumerable<PlotSample> samples)
         {
-            _samples = samples.OrderByDescending(s => s.X).ToList();
+            _samples = samples.OrderBy(s => s.X).ToList();
         }
 
         public double CalculateDistance(double voltage)
         {
-            var previous = new PlotSample(double.MaxValue, 0);
+            var previous = _samples.First();
             
-            foreach (var next in _samples)
+            foreach (var next in _samples.Skip(1))
             {
-                if (next.X > voltage)
+                if (next.X < voltage)
                 {
                     previous = next;
                     continue;
@@ -29,7 +29,7 @@ namespace Devices.Distance.Sharp.GP2Y0A41SK0F
                 Console.WriteLine($"V:{voltage}, cm:{cm}");
                 return cm;
             }
-            return double.MaxValue;
+            return double.MinValue;
         }
     }
 }

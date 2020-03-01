@@ -29,7 +29,7 @@ namespace Lego.Server
         public ILight Headlights { get; }
         private readonly Timer _blinker = new Timer(2 * Math.PI * 100);
         private readonly DistanceSensor_GP2Y0A41SK0F _frontDistance;
-        private readonly InterlockedTimer _updateTimer = new InterlockedTimer(10);
+        private readonly InterlockedTimer _updateTimer = new InterlockedTimer(15);
         
         public Sampled<double> Distance { get; } = new Sampled<double>();
         public Sampled<Double3> EulerAngles { get; } = new Sampled<Double3>();
@@ -42,7 +42,8 @@ namespace Lego.Server
             _adcBoard = adcBoard;
             _imu = imu;
             var input = adcBoard.Inputs[0];
-            input.Bitrate = Bitrate._12;
+            input.Bitrate = Bitrate._14;
+            input.Pga = Pga._1;
             input.ConversionMode = ConversionMode.Continuous;
             _frontDistance = new DistanceSensor_GP2Y0A41SK0F(input);
             
@@ -74,8 +75,11 @@ namespace Lego.Server
             Distance.Value = _frontDistance.GetCm();
             sw.Stop();
             sw.Restart();
-            EulerAngles.Value = _imu.ReadEulerData();
-            Quaternion.Value = _imu.ReadQuaternion();
+            if (_imu != null)
+            {
+                EulerAngles.Value = _imu.ReadEulerData();
+                Quaternion.Value = _imu.ReadQuaternion();    
+            }
             sw.Stop();
         }
 
