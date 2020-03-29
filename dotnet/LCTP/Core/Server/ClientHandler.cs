@@ -47,17 +47,20 @@ namespace LCTP.Core.Server
 
         private async Task DoHandle(CancellationToken cancellationToken)
         {
+            const int timeout = 1000;
             while (true)
             {
                 var receive = Receive(cancellationToken);
-                if (await Task.WhenAny(receive, Task.Delay(500, cancellationToken)) != receive)
+                if (await Task.WhenAny(receive, Task.Delay(timeout, cancellationToken)) != receive)
                 {
+                    Console.WriteLine($"Client has not sent any data for {timeout} ms. Closing connection");
                     return;
                 }
 
                 var request = await receive;
                 if (request == null)
                 {
+                    Console.WriteLine("Request is null. Closing connection");
                     return;
                 }
 

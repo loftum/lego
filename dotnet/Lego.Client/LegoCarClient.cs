@@ -1,11 +1,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using LCTP.Core.Client;
 using Lego.Core;
 using Maths;
-using Timer = System.Timers.Timer;
 
 namespace Lego.Client
 {
@@ -13,7 +11,6 @@ namespace Lego.Client
     {
         private readonly Sampled<int> _throttle = new Sampled<int>();
         private readonly Sampled<int> _steer = new Sampled<int>();
-        //private readonly Timer _timer = new Timer(25);
         private int _running;
         private bool _isUpdating;
         private readonly LctpClient _client;
@@ -27,7 +24,6 @@ namespace Lego.Client
         public LegoCarClient(string host, int port)
         {
             _client = new LctpClient(host, port);
-            //_timer.Elapsed += UpdateAsync;
         }
 
         public async Task UpdateAsync()
@@ -122,13 +118,10 @@ namespace Lego.Client
         public void Connect()
         {
             _client.Connect();
-            //_timer.Start();
         }
 
         public async Task DisconnectAsync()
         {
-            //_timer.Stop();
-            
             Console.WriteLine("Waiting for update to finish");
             while (_isUpdating)
             {
@@ -140,7 +133,6 @@ namespace Lego.Client
         
         public void Dispose()
         {
-            //_timer.Dispose();
             _client?.Dispose();
         }
 
