@@ -20,6 +20,14 @@ namespace LCTP.Core
 
         public static ResponseMessage Parse(string response)
         {
+            if (response == null)
+            {
+                return new ResponseMessage
+                {
+                    StatusCode = 0,
+                    Content = ""
+                };
+            }
             var parts = response.Split(' ');
             return new ResponseMessage
             {

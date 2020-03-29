@@ -60,7 +60,7 @@ namespace LegoCarClient
                     switch (key.Key)
                     {
                         case ConsoleKey.UpArrow:
-                            response = speed < 0 ? await client.Set("motor/speed", "0") : await client.Set("motor/increasespeed", "15");
+                            response = speed < 0 ? await client.SetAsync("motor/speed", "0") : await client.SetAsync("motor/increasespeed", "15");
                             if (response.StatusCode == 200)
                             {
                                 speed = int.Parse(response.Content);
@@ -71,7 +71,7 @@ namespace LegoCarClient
                             }
                             break;
                         case ConsoleKey.DownArrow:
-                            response = speed > 0 ? await client.Set("motor/speed", "0") : await client.Set("motor/decreasespeed", "15");
+                            response = speed > 0 ? await client.SetAsync("motor/speed", "0") : await client.SetAsync("motor/decreasespeed", "15");
                             if (response.StatusCode == 200)
                             {
                                 speed = int.Parse(response.Content);
@@ -82,7 +82,7 @@ namespace LegoCarClient
                             }
                             break;
                         case ConsoleKey.LeftArrow:
-                            response = await client.Set("steer/decrease", "15");
+                            response = await client.SetAsync("steer/decrease", "15");
                             if (response.StatusCode == 200)
                             {
                                 steer = int.Parse(response.Content);
@@ -93,7 +93,7 @@ namespace LegoCarClient
                             }
                             break;
                         case ConsoleKey.RightArrow:
-                            response = await client.Set("steer/increase", "15");
+                            response = await client.SetAsync("steer/increase", "15");
                             if (response.StatusCode == 200)
                             {
                                 steer = int.Parse(response.Content);
@@ -104,7 +104,7 @@ namespace LegoCarClient
                             }
                             break;
                         case ConsoleKey.Spacebar:
-                            response = await client.Set("motor/speed", "0");
+                            response = await client.SetAsync("motor/speed", "0");
                             if (response.StatusCode == 200)
                             {
                                 speed = int.Parse(response.Content);
@@ -113,7 +113,7 @@ namespace LegoCarClient
                             {
                                 Console.WriteLine(response);
                             }
-                            response = await client.Set("steer/angle", "90");
+                            response = await client.SetAsync("steer/angle", "90");
                             if (response.StatusCode == 200)
                             {
                                 steer = int.Parse(response.Content);

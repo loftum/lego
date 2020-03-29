@@ -27,19 +27,6 @@ namespace Lego.Server.Simulator
             SteerBack = new ServoSimulator("Steer back");
             Motors = Enumerable.Range(0, motors).Select(i => new MotorSimulator($"Motor {i}")).ToArray();
             _timer = new Timer(10);
-            _timer.Elapsed += Elapsed;
-        }
-
-        private void Elapsed(object sender, ElapsedEventArgs e)
-        {
-            var previous = _eulerAngles;
-            var speed = GetMotorSpeed(0);
-            if (speed == 0 || SteerFront.Value == 0 && SteerBack.Value == 0)
-            {
-                return;
-            }
-            var diff = speed * (SteerFront.Value + SteerBack.Value) * _timer.Interval;
-            _eulerAngles = previous + new Double3(previous.X, previous.Y, diff);
         }
 
         public LegoCarState GetState()
@@ -49,6 +36,14 @@ namespace Lego.Server.Simulator
                 EulerAngles = GetEulerAngles(),
                 Distances = new List<double>()
             };
+        }
+
+        public void StopEngine()
+        {
+        }
+
+        public void StartEngine()
+        {
         }
 
         public Double3 GetEulerAngles()
@@ -62,22 +57,17 @@ namespace Lego.Server.Simulator
             return new Quatd(eulerAngles.X, eulerAngles.Y, eulerAngles.Z);
         }
 
-        public int GetMotorSpeed(int motorNumber)
-        {
-            return Motors[motorNumber].Speed;
-        }
-
-        public void SetMotorSpeed(int motorNumber, int speed)
-        {
-            Motors[motorNumber].Speed = speed;
-        }
-
         public void SetMotorSpeed(int speed)
         {
             foreach (var motor in Motors)
             {
                 motor.Speed = speed;
             }
+        }
+
+        public void SetSteer(int angle)
+        {
+            
         }
 
         public void Reset()

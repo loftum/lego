@@ -26,7 +26,7 @@ namespace Devices.Distance.Sharp.GP2Y0A41SK0F
                 }
 
                 var cm = PlotSample.CalculateLinear(previous, next, voltage);
-                Console.WriteLine($"V:{voltage}, cm:{cm}");
+                //Console.WriteLine($"V:{voltage}, cm:{cm}");
                 return cm;
             }
             return double.MinValue;

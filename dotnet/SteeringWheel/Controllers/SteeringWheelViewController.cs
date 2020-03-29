@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Net.Sockets;
 using System.Threading.Tasks;
+using System.Timers;
 using CoreFoundation;
 using CoreGraphics;
 using CoreMotion;
@@ -9,7 +11,7 @@ using UIKit;
 
 namespace SteeringWheel.Controllers
 {
-    public class SteeringWheelViewController : UIViewController, ICarInput
+    public class SteeringWheelViewController : UIViewController
     {
         private readonly LegoCarClient _client;
         private readonly CMMotionManager _motionManager = MotionManager.Instance;
@@ -19,6 +21,7 @@ namespace SteeringWheel.Controllers
         private readonly UIButton _leftBlinkerButton;
         private readonly UIButton _rightBlinkerButton;
         private readonly UIButton _disconnectButton;
+        private readonly Timer _timer = new Timer(15);
 
         public SteeringWheelViewController(string host, int port) : base(null, null)
         {
@@ -76,25 +79,63 @@ namespace SteeringWheel.Controllers
 
             // Set throttle positions
             var frame = View.GetFrame();
-            var width = 50;
-            var height = 200;
+            const int width = 50;
+            const int height = 200;
             _throttleSlider.Frame = new CGRect(frame.Width - 100, frame.Height / 2 - height / 2, width, height);
 
-            _client = new LegoCarClient(host, port, this);
+            _client = new LegoCarClient(host, port);
             _client.Connect();
             _motionManager.DeviceMotionUpdateInterval = 0.1;
             _motionManager.StartDeviceMotionUpdates();
+            _timer.Elapsed += Update;
+            _timer.Start();
+        }
+
+        private async void Update(object sender, ElapsedEventArgs e)
+        {
+            DispatchQueue.MainQueue.DispatchSync(() =>
+            {
+                _client.SetMotorSpeed((int)_throttleSlider.Value);
+                _client.SetSteer(GetSteerAngle());
+                
+            });
+            try
+            {
+                await _client.UpdateAsync();
+            }
+            catch (Exception exception)
+            {
+                var inner = exception.GetBaseException();
+                switch (inner)
+                {
+                    case null:
+                        Console.WriteLine(exception);
+                        await DisconnectAndDismissAsync();
+                        break;
+                    case SocketException socketException:
+                        Console.WriteLine($"SocketException: {socketException.SocketErrorCode}");
+                        Console.WriteLine(exception);
+                        await DisconnectAndDismissAsync();
+                        break;
+                    default:
+                        Console.WriteLine(exception);
+                        await DisconnectAndDismissAsync();
+                        break;
+                }
+            }
+        }
+
+        private int GetSteerAngle()
+        {
+            var attitude = _motionManager.DeviceMotion?.Attitude;
+            var angle = 90 - attitude?.Pitch.ToDeg() ?? 0;
+            Console.WriteLine($"Angle: {angle}");
+            return angle;
         }
 
         private void HeadlightsButton_TouchUpInside(object sender, EventArgs e)
         {
             _client.HeadlightSwitch.Toggle();
-        }
-
-        public override void DidReceiveMemoryWarning()
-        {
-            base.DidReceiveMemoryWarning();
-            // Release any cached data, images, etc that aren't in use.
         }
 
         private void RightBlinkerButton_TouchUpInside(object sender, EventArgs e)
@@ -114,8 +155,13 @@ namespace SteeringWheel.Controllers
 
         private async void DisconnectButton_TouchUpInside(object sender, EventArgs e)
         {
+            await DisconnectAndDismissAsync();
+        }
+
+        private async Task DisconnectAndDismissAsync()
+        {
             await DisconnectAsync();
-            DismissViewController(true, () => { });
+            await DismissViewControllerAsync(true);
         }
 
         private async Task DisconnectAsync()
@@ -124,34 +170,10 @@ namespace SteeringWheel.Controllers
             {
                 return;
             }
+            _timer.Stop();
+            _timer.Elapsed -= Update;
             await _client.DisconnectAsync();
             _motionManager.StopDeviceMotionUpdates();
-        }
-
-        public Task<int> GetThrottleAsync() => DispatchQueue.MainQueue.DispatchAsync(() => (int)_throttleSlider.Value);
-
-        public Task<int> GetSteerAngleDegAsync()
-        {
-            return DispatchQueue.MainQueue.DispatchAsync(() =>
-            {
-                var attitude = _motionManager.DeviceMotion?.Attitude;
-                var angle = attitude == null ? 0 : 90 - attitude.Pitch.ToDeg();
-                Console.WriteLine($"Angle: {angle}");
-                return angle;
-            });
-        }
-    }
-    
-    public static class DispatchQueueExtensions
-    {
-        public static Task<T> DispatchAsync<T>(this DispatchQueue queue, Func<T> getValue)
-        {
-            var tcs = new TaskCompletionSource<T>();
-            queue.DispatchSync(() =>
-            {
-                tcs.SetResult(getValue());
-            });
-            return tcs.Task;
         }
     }
 }

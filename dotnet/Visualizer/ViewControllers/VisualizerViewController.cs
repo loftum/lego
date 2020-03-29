@@ -1,5 +1,5 @@
 using System;
-using System.Threading.Tasks;
+using System.Timers;
 using AppKit;
 using CoreFoundation;
 using CoreGraphics;
@@ -12,7 +12,7 @@ using Visualizer.Rendering.Car;
 
 namespace Visualizer.ViewControllers
 {
-    public class VisualizerViewController : NSViewController, ICarInput, IRotationProvider, ILegoCarStateProvider
+    public class VisualizerViewController : NSViewController, IRotationProvider, ILegoCarStateProvider
     {
         public event EventHandler OnDisconnect;
         private readonly NSSlider _throttleSlider;
@@ -22,6 +22,7 @@ namespace Visualizer.ViewControllers
         private readonly IMTKViewDelegate _renderer;
         private readonly MTKView _mtkView;
         private readonly NSButton _disconnectButton;
+        private readonly InterlockedTimer _timer = new InterlockedTimer(25);
 
         public VisualizerViewController()
         {
@@ -89,11 +90,27 @@ namespace Visualizer.ViewControllers
                     c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor),
                     c.CenterXAnchor.ConstraintEqualToAnchor(p.CenterXAnchor)
                 });
+            _timer.Elapsed += Update;
+            _timer.Start();
+        }
+
+        private async void Update(object sender, ElapsedEventArgs e)
+        {
+            if (_client == null)
+            {
+                return;
+            }
+            DispatchQueue.MainQueue.DispatchSync(() =>
+            {
+                _client.SetMotorSpeed(_throttleSlider.IntValue);
+                _client.SetSteer(_throttleSlider.IntValue);    
+            });
+            await _client.UpdateAsync();
         }
 
         public void Connect(string host, int port)
         {
-            _client = new LegoCarClient(host, port, this);
+            _client = new LegoCarClient(host, port);
             _client.Connect();
         }
 
@@ -101,6 +118,8 @@ namespace Visualizer.ViewControllers
         {
             if (disposing)
             {
+                _timer.Stop();
+                _timer.Elapsed -= Update;
                 _disconnectButton.Activated -= Disconnect;
                 _client.DisconnectAsync();
                 _client.Dispose();
@@ -116,16 +135,6 @@ namespace Visualizer.ViewControllers
             OnDisconnect?.Invoke(this, EventArgs.Empty);
         }
 
-        public Task<int> GetThrottleAsync()
-        {
-            return DispatchQueue.MainQueue.DispatchAsync(() => _throttleSlider.IntValue);
-        }
-
-        public Task<int> GetSteerAngleDegAsync()
-        {
-            return DispatchQueue.MainQueue.DispatchAsync(() => _steerSlider.IntValue);
-        }
-
         public LegoCarState GetState()
         {
             return _client?.GetState() ?? new LegoCarState();
@@ -135,18 +144,5 @@ namespace Visualizer.ViewControllers
 
         public Quatd GetQuaternion() => _client?.GetQuaternion() ?? new Quatd(0, 0, 0);
 
-    }
-
-    public static class DispatchQueueExtensions
-    {
-        public static Task<T> DispatchAsync<T>(this DispatchQueue queue, Func<T> getValue)
-        {
-            var tcs = new TaskCompletionSource<T>();
-            queue.DispatchSync(() =>
-            {
-                tcs.SetResult(getValue());
-            });
-            return tcs.Task;
-        }
     }
 }

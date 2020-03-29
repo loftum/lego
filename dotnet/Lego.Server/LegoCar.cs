@@ -29,11 +29,17 @@ namespace Lego.Server
         public ILight Headlights { get; }
         private readonly Timer _blinker = new Timer(2 * Math.PI * 100);
         private readonly DistanceSensor_GP2Y0A41SK0F _frontDistance;
-        private readonly InterlockedTimer _updateTimer = new InterlockedTimer(15);
+        private readonly InterlockedTimer _updateTimer = new InterlockedTimer(25);
         
         public Sampled<double> Distance { get; } = new Sampled<double>();
         public Sampled<Double3> EulerAngles { get; } = new Sampled<Double3>();
         public Sampled<Quatd> Quaternion { get; } = new Sampled<Quatd>();
+
+        private int _throttle;
+        private Sampled<int> _sampledThrottle = new Sampled<int>();
+
+        private int _steer;
+        private Sampled<int> _sampledSteer = new Sampled<int>();
 
         public LegoCar(ServoPwmBoard pwmBoard, MotoZeroBoard motoZero, ADCPiZeroBoard adcBoard, BNO055Sensor imu)
         {
@@ -64,11 +70,45 @@ namespace Lego.Server
             
             _blinker.Elapsed += Blink;
             _blinker.Start();
-            _updateTimer.Elapsed += ReadSensors;
+            _updateTimer.Elapsed += Update;
+        }
+        
+        public void StopEngine()
+        {
+            Reset();
+            Headlights.On = false;
+            _updateTimer.Stop();
+        }
+
+        public void StartEngine()
+        {
+            Reset();
+            Headlights.On = true;
             _updateTimer.Start();
         }
 
-        private void ReadSensors(object sender, ElapsedEventArgs e)
+        private void Update(object sender, ElapsedEventArgs e)
+        {
+            var sw = new Stopwatch();
+            sw.Start();
+            SetInputs();
+            ReadSensors();
+            sw.Stop();
+            Console.WriteLine($"E:{sw.ElapsedMilliseconds}");
+        }
+
+        private void SetInputs()
+        {
+            var throttle = _throttle;
+            _motoZero.Motors[0].Speed = throttle;
+            _motoZero.Motors[1].Speed = throttle;
+
+            var steer = _steer;
+            SteerFront.Value = steer;
+            SteerBack.Value = 180 - steer;
+        }
+
+        private void ReadSensors()
         {
             var sw = new Stopwatch();
             sw.Start();
@@ -97,35 +137,21 @@ namespace Lego.Server
 
         public Quatd GetQuaternion() => Quaternion.Value;
 
-        public int GetMotorSpeed(int motorNumber)
-        {
-            return _motoZero.Motors[motorNumber].Speed;
-        }
-
-        public void SetMotorSpeed(int motorNumber, int speed)
-        {
-            var motor = _motoZero.Motors[motorNumber];
-            motor.Speed = speed;
-        }
-        
         public void SetMotorSpeed(int speed)
         {
-            if (Distance.Value > DistanceLimit && Distance.LastValue > DistanceLimit && speed >= 0)
+            if (Distance.Value < DistanceLimit && Distance.LastValue > DistanceLimit && speed >= 0)
             {
-                if (_motoZero.Motors[0].Speed > 0)
-                {
-                    _motoZero.Motors[0].Speed = 0;
-                }
-                if (_motoZero.Motors[1].Speed > 0)
-                {
-                    _motoZero.Motors[1].Speed = 0;
-                }
+                _throttle = 0;
             }
             else
             {
-                _motoZero.Motors[0].Speed = speed;
-                _motoZero.Motors[1].Speed = speed;
+                _throttle = speed;
             }
+        }
+
+        public void SetSteer(int angle)
+        {
+            _steer = angle;
         }
 
         private void Blink(object sender, ElapsedEventArgs e)

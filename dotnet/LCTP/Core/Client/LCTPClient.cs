@@ -68,7 +68,7 @@ namespace LCTP.Core.Client
             _socket.Disconnect(false);
         }
 
-        public async Task<ResponseMessage> Send(RequestMessage request)
+        public async Task<ResponseMessage> SendAsync(RequestMessage request)
         {
             await _semaphore.WaitAsync();
             try
@@ -84,7 +84,7 @@ namespace LCTP.Core.Client
             
         }
 
-        public async Task<ResponseMessage> Ping()
+        public async Task<ResponseMessage> PingAsync()
         {
             var message = new RequestMessage
             {
@@ -105,9 +105,9 @@ namespace LCTP.Core.Client
 
     public static class LctpClientExtensions
     {
-        public static Task<ResponseMessage> Set(this LctpClient client, string path, string content)
+        public static Task<ResponseMessage> SetAsync(this LctpClient client, string path, string content)
         {
-            return client.Send(new RequestMessage
+            return client.SendAsync(new RequestMessage
             {
                 Method = "SET",
                 Path = path,
@@ -115,9 +115,9 @@ namespace LCTP.Core.Client
             });
         }
 
-        public static Task<ResponseMessage> Get(this LctpClient client, string path)
+        public static Task<ResponseMessage> GetAsync(this LctpClient client, string path)
         {
-            return client.Send(new RequestMessage
+            return client.SendAsync(new RequestMessage
             {
                 Method = "GET",
                 Path = path,

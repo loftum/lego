@@ -64,7 +64,7 @@ namespace MotoZeroClient
                         Console.WriteLine("Expected <method> <path> [content]");
                         continue;
                     }
-                    var response = await client.Send(new RequestMessage
+                    var response = await client.SendAsync(new RequestMessage
                     {
                         Method = parts[0],
                         Path = parts[1],

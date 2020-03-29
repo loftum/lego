@@ -13,11 +13,10 @@ namespace Lego.Client
     {
         private readonly Sampled<int> _throttle = new Sampled<int>();
         private readonly Sampled<int> _steer = new Sampled<int>();
-        private readonly Timer _timer = new Timer(25);
+        //private readonly Timer _timer = new Timer(25);
         private int _running;
         private bool _isUpdating;
         private readonly LctpClient _client;
-        private readonly ICarInput _input;
 
         public Switch HeadlightSwitch { get; } = new Switch();
         public Switch LeftBlinkerSwitch { get; } = new Switch();
@@ -25,14 +24,13 @@ namespace Lego.Client
         public bool Connected => _client.Connected;
         private LegoCarState _state = new LegoCarState();
 
-        public LegoCarClient(string host, int port, ICarInput input)
+        public LegoCarClient(string host, int port)
         {
-            _input = input;
             _client = new LctpClient(host, port);
-            _timer.Elapsed += Update;
+            //_timer.Elapsed += UpdateAsync;
         }
 
-        private async void Update(object sender, ElapsedEventArgs e)
+        public async Task UpdateAsync()
         {
             if (Interlocked.CompareExchange(ref _running, 1, 0) != 0)
             {
@@ -43,7 +41,7 @@ namespace Lego.Client
                 _isUpdating = true;
                 if (!await DoUpdate())
                 {
-                    await _client.Ping();
+                    await _client.PingAsync();
                 }
             }
             finally
@@ -53,43 +51,55 @@ namespace Lego.Client
             }
         }
 
+        private int _speed;
+        public void SetMotorSpeed(int speed)
+        {
+            _speed = speed;
+        }
+
+
+        private int _steerAngle;
+        public void SetSteer(int steer)
+        {
+            _steerAngle = steer;
+        }
+
         private async Task<bool> DoUpdate()
         {
-            
             var updated = false;
 
-            _throttle.Value = await _input.GetThrottleAsync();
+            _throttle.Value = _speed;
             if (_throttle.HasChanged)
             {
-                await _client.Set("motor/speed", $"{_throttle.Value}");
+                await _client.SetAsync("motor/speed", $"{_throttle.Value}");
             }
 
-            _steer.Value = await _input.GetSteerAngleDegAsync();
+            _steer.Value = _steerAngle;
             if (_steer.HasChanged)
             {
-                await _client.Set("steer", $"{_steer.Value}");
+                await _client.SetAsync("steer", $"{_steer.Value}");
             }
 
             if (HeadlightSwitch.HasChanged())
             {
-                await _client.Set("headlights", "toggle");
+                await _client.SetAsync("headlights", "toggle");
                 HeadlightSwitch.UpdateWasOn();
                 updated = true;
             }
             if (LeftBlinkerSwitch.HasChanged())
             {
-                await _client.Set("blinker/left", "toggle");
+                await _client.SetAsync("blinker/left", "toggle");
                 LeftBlinkerSwitch.UpdateWasOn();
                 updated = true;
             }
             if (RightBlinkerSwitch.HasChanged())
             {
-                await _client.Set("blinker/right", "toggle");
+                await _client.SetAsync("blinker/right", "toggle");
                 RightBlinkerSwitch.UpdateWasOn();
                 updated = true;
             }
 
-            var stateResult = await _client.Get("state");
+            var stateResult = await _client.GetAsync("state");
             if (stateResult.StatusCode == 200)
             {
                 if (LegoCarState.TryParse(stateResult.Content, out var state))
@@ -100,7 +110,6 @@ namespace Lego.Client
                 {
                     Console.WriteLine($"Bad state string: {stateResult.Content}");
                 }
-                
             }
             else
             {
@@ -113,12 +122,12 @@ namespace Lego.Client
         public void Connect()
         {
             _client.Connect();
-            _timer.Start();
+            //_timer.Start();
         }
 
         public async Task DisconnectAsync()
         {
-            _timer.Stop();
+            //_timer.Stop();
             
             Console.WriteLine("Waiting for update to finish");
             while (_isUpdating)
@@ -131,7 +140,7 @@ namespace Lego.Client
         
         public void Dispose()
         {
-            _timer.Dispose();
+            //_timer.Dispose();
             _client?.Dispose();
         }
 

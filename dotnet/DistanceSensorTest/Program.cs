@@ -1,5 +1,4 @@
-﻿using Unosquare;
-using System;
+﻿using System;
 using Unosquare.RaspberryIO;
 using Devices.ThePiHut.ADCPiZero;
 using System.Threading;
@@ -46,7 +45,7 @@ namespace DistanceSensorTest
                 {
                     Console.WriteLine($"Read: {read}");
                 }
-                await Task.Delay(100);
+                await Task.Delay(100, token);
             }
         }
     }

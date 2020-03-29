@@ -108,7 +108,7 @@ namespace Devices.ThePiHut.ADCPiZero
         public double ReadVoltage()
         {
             var raw = ReadRaw();
-            Console.WriteLine($"Raw: {raw}");
+            //Console.WriteLine($"Raw: {raw}");
             var gain = GetGain();
             var lsbVoltage = GetLsbVoltage();
             var voltage = raw * lsbVoltage / gain;

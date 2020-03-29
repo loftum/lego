@@ -11,10 +11,11 @@ namespace Lego.Core
         IServo SteerBack { get; }
         Double3 GetEulerAngles();
         Quatd GetQuaternion();
-        int GetMotorSpeed(int motorNumber);
-        void SetMotorSpeed(int motorNumber, int speed);
         void SetMotorSpeed(int speed);
+        void SetSteer(int angle);
         void Reset();
         LegoCarState GetState();
+        void StopEngine();
+        void StartEngine();
     }
 }

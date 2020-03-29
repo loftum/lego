@@ -41,10 +41,6 @@ namespace Devices.Distance.Sharp.GP2Y0A41SK0F
         public double GetCm()
         {
             var voltage = _input.ReadVoltage() * 1.465; // 0-3 V
-            // if (voltage < 0)
-            // {
-            //     return double.MaxValue;
-            // }
             var distance = Map(voltage);
             return distance;
         }
@@ -53,7 +49,7 @@ namespace Devices.Distance.Sharp.GP2Y0A41SK0F
         {
             if (voltage >= 3)
             {
-                Console.WriteLine($"V:{voltage}, cm:{0}");
+                //Console.WriteLine($"V:{voltage}, cm:{0}");
                 return 0;
             }
 
