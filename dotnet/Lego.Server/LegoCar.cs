@@ -70,21 +70,21 @@ namespace Lego.Server
             
             _blinker.Elapsed += Blink;
             _blinker.Start();
-            //_updateTimer.Elapsed += Update;
+            _updateTimer.Elapsed += Update;
         }
         
         public void StopEngine()
         {
             Reset();
             Headlights.On = false;
-            //_updateTimer.Stop();
+            _updateTimer.Stop();
         }
 
         public void StartEngine()
         {
             Reset();
             Headlights.On = true;
-            //_updateTimer.Start();
+            _updateTimer.Start();
         }
 
         private void Update(object sender, ElapsedEventArgs e)
@@ -113,7 +113,6 @@ namespace Lego.Server
 
         public LegoCarState GetState()
         {
-            ReadSensors();
             return new LegoCarState
             {
                 EulerAngles = EulerAngles.Value,

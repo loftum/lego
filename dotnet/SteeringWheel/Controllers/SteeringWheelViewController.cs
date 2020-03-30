@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using System.Timers;
 using CoreFoundation;
 using CoreGraphics;
 using CoreMotion;
@@ -93,47 +92,6 @@ namespace SteeringWheel.Controllers
             _timer.Start();
         }
 
-        private void Update(object sender, ElapsedEventArgs e)
-        {
-            var sw = new Stopwatch();
-            sw.Start();
-            DispatchQueue.MainQueue.DispatchSync(() =>
-            {
-                _client.SetMotorSpeed((int)_throttleSlider.Value);
-                _client.SetSteer(GetSteerAngle());
-                
-            });
-            try
-            {
-                _client.Update();
-            }
-            catch (Exception exception)
-            {
-                var inner = exception.GetBaseException();
-                switch (inner)
-                {
-                    case null:
-                        Console.WriteLine(exception);
-                        DisconnectAndDismiss();
-                        break;
-                    case SocketException socketException:
-                        Console.WriteLine($"SocketException: {socketException.SocketErrorCode}");
-                        Console.WriteLine(exception);
-                        DisconnectAndDismiss();
-                        break;
-                    default:
-                        Console.WriteLine(exception);
-                        DisconnectAndDismiss();
-                        break;
-                }
-            }
-            finally
-            {
-                sw.Stop();
-                Console.WriteLine($"Elapsed: {sw.ElapsedMilliseconds}ms");
-            }
-        }
-
         private async Task UpdateAsync()
         {
             var sw = new Stopwatch();
@@ -207,15 +165,6 @@ namespace SteeringWheel.Controllers
         {
             await DisconnectAndDismissAsync();
         }
-
-        private void DisconnectAndDismiss()
-        {
-            Disconnect();
-            DispatchQueue.MainQueue.DispatchAsync(() =>
-            {
-                DismissViewController(true, () => { });    
-            });
-        }
         
         private async Task DisconnectAndDismissAsync()
         {
@@ -224,30 +173,13 @@ namespace SteeringWheel.Controllers
             {
                 DismissViewController(true, () => { });    
             });
-            
         }
 
         private async Task DisconnectAsync()
         {
-            if (!_client.Connected)
-            {
-                return;
-            }
             _timer.Stop();
             _timer.Elapsed = null;
             await _client.DisconnectAsync();
-            _motionManager.StopDeviceMotionUpdates();
-        }
-
-        private void Disconnect()
-        {
-            if (!_client.Connected)
-            {
-                return;
-            }
-            _timer.Stop();
-            //_timer.Elapsed -= Update;
-            _client.Disconnect();
             _motionManager.StopDeviceMotionUpdates();
         }
     }

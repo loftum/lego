@@ -25,6 +25,19 @@ namespace Lego.Client
             _client = new LctpClient(host, port);
         }
 
+        private int _speed;
+        public void SetMotorSpeed(int speed)
+        {
+            _speed = speed;
+        }
+
+
+        private int _steerAngle;
+        public void SetSteer(int steer)
+        {
+            _steerAngle = steer;
+        }
+        
         public async Task UpdateAsync()
         {
             try
@@ -41,42 +54,24 @@ namespace Lego.Client
             }
         }
 
-        private int _speed;
-        public void SetMotorSpeed(int speed)
-        {
-            _speed = speed;
-        }
-
-
-        private int _steerAngle;
-        public void SetSteer(int steer)
-        {
-            _steerAngle = steer;
-        }
+        
 
         private async Task<bool> DoUpdateAsync()
         {
-            var updated = false;
+            _throttle.Value = _speed;
+            _steer.Value = _steerAngle;
+
+            var request = _throttle.HasChanged || _steer.HasChanged
+                ? _client.SetAsync("input", new LegoCarInput
+                {
+                    Throttle = _speed,
+                    SteerAngle = _steerAngle
+                }.Serialize())
+                : _client.GetAsync("state");
             
             
-            // _throttle.Value = _speed;
-            // if (_throttle.HasChanged)
-            // {
-            //     await _client.SetAsync("motor/speed", $"{_throttle.Value}");
-            // }
-            //
-            // _steer.Value = _steerAngle;
-            // if (_steer.HasChanged)
-            // {
-            //     await _client.SetAsync("steer", $"{_steer.Value}");
-            // }
-            
-            var response = await _client.SetAsync("input", new LegoCarInput
-            {
-                Throttle = _speed,
-                SteerAngle = _steerAngle
-            }.Serialize());
-            
+            var response = await request;
+        
             if (response.StatusCode == 200)
             {
                 if (LegoCarState.TryParse(response.Content, out var state))
@@ -93,43 +88,21 @@ namespace Lego.Client
                 Console.WriteLine($"Bad state status code: {response.StatusCode}");
             }
 
-            
-
             if (HeadlightSwitch.HasChanged())
             {
                 await _client.SetAsync("headlights", "toggle");
                 HeadlightSwitch.UpdateWasOn();
-                updated = true;
             }
             if (LeftBlinkerSwitch.HasChanged())
             {
                 await _client.SetAsync("blinker/left", "toggle");
                 LeftBlinkerSwitch.UpdateWasOn();
-                updated = true;
             }
             if (RightBlinkerSwitch.HasChanged())
             {
                 await _client.SetAsync("blinker/right", "toggle");
                 RightBlinkerSwitch.UpdateWasOn();
-                updated = true;
             }
-
-            // var stateResult = await _client.GetAsync("state");
-            // if (stateResult.StatusCode == 200)
-            // {
-            //     if (LegoCarState.TryParse(stateResult.Content, out var state))
-            //     {
-            //         _state = state;    
-            //     }
-            //     else
-            //     {
-            //         Console.WriteLine($"Bad state string: {stateResult.Content}");
-            //     }
-            // }
-            // else
-            // {
-            //     Console.WriteLine($"Bad state status code: {stateResult.StatusCode}");
-            // }
             
             return true;
         }
@@ -150,17 +123,6 @@ namespace Lego.Client
             _client.Disconnect();
         }
         
-        public void Disconnect()
-        {
-            Console.WriteLine("Waiting for update to finish");
-            while (_isUpdating)
-            {
-                Thread.Sleep(10);
-            }
-            Console.WriteLine("Disconnecting");
-            _client.Disconnect();
-        }
-        
         public void Dispose()
         {
             _client?.Dispose();
@@ -171,81 +133,5 @@ namespace Lego.Client
         public Double3 GetEulerAngles() => _state.EulerAngles;
 
         public Quatd GetQuaternion() => _state.Quaternion;
-
-        public void Update()
-        {
-            try
-            {
-                _isUpdating = true;
-                if (!DoUpdate())
-                {
-                    _client.Ping();
-                }
-            }
-            finally
-            {
-                _isUpdating = false;
-            }
-        }
-
-        private bool DoUpdate()
-        {
-            var updated = false;
-
-            var response = _client.Set("input", new LegoCarInput
-            {
-                Throttle = _speed,
-                SteerAngle = _steerAngle
-            }.Serialize());
-            
-            if (response.StatusCode == 200)
-            {
-                if (LegoCarState.TryParse(response.Content, out var state))
-                {
-                    _state = state;    
-                }
-                else
-                {
-                    Console.WriteLine($"Bad state string: {response.Content}");
-                }
-            }
-            else
-            {
-                Console.WriteLine($"Bad state status code: {response.StatusCode}");
-            }
-            
-            // _throttle.Value = _speed;
-            // if (_throttle.HasChanged)
-            // {
-            //     _client.Set("motor/speed", $"{_throttle.Value}");
-            // }
-            //
-            // _steer.Value = _steerAngle;
-            // if (_steer.HasChanged)
-            // {
-            //     _client.Set("steer", $"{_steer.Value}");
-            // }
-
-            if (HeadlightSwitch.HasChanged())
-            {
-                _client.Set("headlights", "toggle");
-                HeadlightSwitch.UpdateWasOn();
-                updated = true;
-            }
-            if (LeftBlinkerSwitch.HasChanged())
-            {
-                _client.Set("blinker/left", "toggle");
-                LeftBlinkerSwitch.UpdateWasOn();
-                updated = true;
-            }
-            if (RightBlinkerSwitch.HasChanged())
-            {
-                _client.Set("blinker/right", "toggle");
-                RightBlinkerSwitch.UpdateWasOn();
-                updated = true;
-            }
-            
-            return updated;
-        }
     }
 }
