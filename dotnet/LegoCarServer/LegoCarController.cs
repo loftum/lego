@@ -15,13 +15,23 @@ namespace LegoCarServer
         {
             _car = car;
             //_car.Reset();
+            Set("input", SetInput);
             Set("blinker/(.+)", SetBlinker);
             Set("headlights", SetHeadlights);
-            Set("motor/speed", SetMotorSpeed);
-            Set("steer", SetSteer);
             Get("orientation/euler", GetEulerAngles);
             Get("orientation/quaternion", GetEulerAngles);
             Get("state", GetState);
+        }
+
+        private Task<ResponseMessage> SetInput(RequestMessage request, Match match)
+        {
+            if (!LegoCarInput.TryParse(request.Content, out var input))
+            {
+                return Task.FromResult(ResponseMessage.BadRequest("Bad input"));
+            }
+            _car.SetThrottle(input.Throttle);
+            _car.SetSteerAngle(input.SteerAngle);
+            return Task.FromResult(ResponseMessage.Ok(_car.GetState().Serialize()));
         }
 
         private Task<ResponseMessage> GetState(RequestMessage arg1, Match arg2)
@@ -76,7 +86,7 @@ namespace LegoCarServer
             {
                 return Task.FromResult(ResponseMessage.BadRequest($"Bad angle: {request.Content}"));
             }
-            _car.SetSteer(angle);
+            _car.SetSteerAngle(angle);
             return Task.FromResult(ResponseMessage.Ok());
         }
 
@@ -87,7 +97,7 @@ namespace LegoCarServer
                 Console.WriteLine($"Bad motor speed {speed}");
                 return Task.FromResult(ResponseMessage.BadRequest("Bad motor speed"));
             }
-            _car.SetMotorSpeed(speed);
+            _car.SetThrottle(speed);
             return Task.FromResult(ResponseMessage.Ok());
         }
 

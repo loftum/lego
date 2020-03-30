@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Timers;
@@ -6,6 +7,7 @@ using CoreFoundation;
 using CoreGraphics;
 using CoreMotion;
 using Lego.Client;
+using Lego.Core;
 using Maths;
 using UIKit;
 
@@ -21,7 +23,7 @@ namespace SteeringWheel.Controllers
         private readonly UIButton _leftBlinkerButton;
         private readonly UIButton _rightBlinkerButton;
         private readonly UIButton _disconnectButton;
-        private readonly Timer _timer = new Timer(15);
+        private readonly InterlockedAsyncTimer _timer = new InterlockedAsyncTimer(15);
 
         public SteeringWheelViewController(string host, int port) : base(null, null)
         {
@@ -87,12 +89,55 @@ namespace SteeringWheel.Controllers
             _client.Connect();
             _motionManager.DeviceMotionUpdateInterval = 0.1;
             _motionManager.StartDeviceMotionUpdates();
-            _timer.Elapsed += Update;
+            _timer.Elapsed = UpdateAsync;
             _timer.Start();
         }
 
-        private async void Update(object sender, ElapsedEventArgs e)
+        private void Update(object sender, ElapsedEventArgs e)
         {
+            var sw = new Stopwatch();
+            sw.Start();
+            DispatchQueue.MainQueue.DispatchSync(() =>
+            {
+                _client.SetMotorSpeed((int)_throttleSlider.Value);
+                _client.SetSteer(GetSteerAngle());
+                
+            });
+            try
+            {
+                _client.Update();
+            }
+            catch (Exception exception)
+            {
+                var inner = exception.GetBaseException();
+                switch (inner)
+                {
+                    case null:
+                        Console.WriteLine(exception);
+                        DisconnectAndDismiss();
+                        break;
+                    case SocketException socketException:
+                        Console.WriteLine($"SocketException: {socketException.SocketErrorCode}");
+                        Console.WriteLine(exception);
+                        DisconnectAndDismiss();
+                        break;
+                    default:
+                        Console.WriteLine(exception);
+                        DisconnectAndDismiss();
+                        break;
+                }
+            }
+            finally
+            {
+                sw.Stop();
+                Console.WriteLine($"Elapsed: {sw.ElapsedMilliseconds}ms");
+            }
+        }
+
+        private async Task UpdateAsync()
+        {
+            var sw = new Stopwatch();
+            sw.Start();
             DispatchQueue.MainQueue.DispatchSync(() =>
             {
                 _client.SetMotorSpeed((int)_throttleSlider.Value);
@@ -123,13 +168,18 @@ namespace SteeringWheel.Controllers
                         break;
                 }
             }
+            finally
+            {
+                sw.Stop();
+                Console.WriteLine($"Elapsed: {sw.ElapsedMilliseconds}ms");
+            }
         }
 
         private int GetSteerAngle()
         {
             var attitude = _motionManager.DeviceMotion?.Attitude;
             var angle = 90 - attitude?.Pitch.ToDeg() ?? 0;
-            Console.WriteLine($"Angle: {angle}");
+            //Console.WriteLine($"Angle: {angle}");
             return angle;
         }
 
@@ -158,10 +208,23 @@ namespace SteeringWheel.Controllers
             await DisconnectAndDismissAsync();
         }
 
+        private void DisconnectAndDismiss()
+        {
+            Disconnect();
+            DispatchQueue.MainQueue.DispatchAsync(() =>
+            {
+                DismissViewController(true, () => { });    
+            });
+        }
+        
         private async Task DisconnectAndDismissAsync()
         {
             await DisconnectAsync();
-            await DismissViewControllerAsync(true);
+            DispatchQueue.MainQueue.DispatchAsync(() =>
+            {
+                DismissViewController(true, () => { });    
+            });
+            
         }
 
         private async Task DisconnectAsync()
@@ -171,8 +234,20 @@ namespace SteeringWheel.Controllers
                 return;
             }
             _timer.Stop();
-            _timer.Elapsed -= Update;
+            _timer.Elapsed = null;
             await _client.DisconnectAsync();
+            _motionManager.StopDeviceMotionUpdates();
+        }
+
+        private void Disconnect()
+        {
+            if (!_client.Connected)
+            {
+                return;
+            }
+            _timer.Stop();
+            //_timer.Elapsed -= Update;
+            _client.Disconnect();
             _motionManager.StopDeviceMotionUpdates();
         }
     }

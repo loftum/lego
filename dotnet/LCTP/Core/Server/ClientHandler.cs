@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
@@ -48,8 +49,11 @@ namespace LCTP.Core.Server
         private async Task DoHandle(CancellationToken cancellationToken)
         {
             const int timeout = 1000;
+            var sw = new Stopwatch();
             while (true)
             {
+                sw.Reset();
+                sw.Start();
                 var receive = Receive(cancellationToken);
                 if (await Task.WhenAny(receive, Task.Delay(timeout, cancellationToken)) != receive)
                 {
@@ -57,22 +61,24 @@ namespace LCTP.Core.Server
                     return;
                 }
 
-                var request = await receive;
+                var request = receive.Result;
                 if (request == null)
                 {
                     Console.WriteLine("Request is null. Closing connection");
                     return;
                 }
 
-                if (request.Method == "PING")
-                {
-                    await _writer.WriteLineAndFlushAsync(ResponseMessage.Pong.Format());
-                    continue;
-                }
                 try
                 {
-                    var response = await _controller.Execute(request);
-                    await _writer.WriteLineAndFlushAsync(response.Format());
+                    if (request.Method == "PING")
+                    {
+                        await _writer.WriteLineAndFlushAsync(ResponseMessage.Pong.Format());
+                    }
+                    else
+                    {
+                        var response = await _controller.Execute(request);
+                        await _writer.WriteLineAndFlushAsync(response.Format());    
+                    }
                 }
                 catch (Exception e)
                 {
@@ -81,6 +87,11 @@ namespace LCTP.Core.Server
                         StatusCode = 500,
                         Content = e.Message
                     }.Format());
+                }
+                finally
+                {
+                    sw.Stop();
+                    Console.WriteLine($"Elapsed: {sw.ElapsedMilliseconds}ms");
                 }
             }
         }

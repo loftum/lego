@@ -10,5 +10,11 @@ namespace LCTP.Core.Extensions
             await writer.WriteLineAsync(line);
             await writer.FlushAsync();
         }
+        
+        public static void WriteLineAndFlush(this StreamWriter writer, string line)
+        {
+            writer.WriteLine(line);
+            writer.Flush();
+        }
     }
 }

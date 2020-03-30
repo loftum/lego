@@ -1,21 +1,19 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 using Timer = System.Timers.Timer;
 
 namespace Lego.Core
 {
-    /// <summary>
-    /// Timer which allows only one Elapsed to be run at a time. Supports async void Elapsed.
-    /// </summary>
-    public class InterlockedTimer : IDisposable
+    public class InterlockedAsyncTimer : IDisposable
     {
-        public EventHandler<ElapsedEventArgs> Elapsed;
+        public Func<Task> Elapsed { get; set; }
         
         private int _running;
         private readonly Timer _timer;
 
-        public InterlockedTimer(double interval)
+        public InterlockedAsyncTimer(double interval)
         {
             _timer = new Timer(interval);
             _timer.Elapsed += TimerElapsed;
@@ -24,7 +22,7 @@ namespace Lego.Core
         public void Start() => _timer.Start();
         public void Stop() => _timer.Stop();
 
-        private void TimerElapsed(object sender, ElapsedEventArgs e)
+        private async void TimerElapsed(object sender, ElapsedEventArgs e)
         {
             var elapsed = Elapsed;
             if (elapsed == null || Interlocked.CompareExchange(ref _running, 1, 0) != 0)
@@ -33,7 +31,7 @@ namespace Lego.Core
             }
             try
             {
-                elapsed(sender, e);
+                await elapsed();
             }
             finally
             {

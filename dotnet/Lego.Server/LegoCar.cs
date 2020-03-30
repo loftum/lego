@@ -70,42 +70,30 @@ namespace Lego.Server
             
             _blinker.Elapsed += Blink;
             _blinker.Start();
-            _updateTimer.Elapsed += Update;
+            //_updateTimer.Elapsed += Update;
         }
         
         public void StopEngine()
         {
             Reset();
             Headlights.On = false;
-            _updateTimer.Stop();
+            //_updateTimer.Stop();
         }
 
         public void StartEngine()
         {
             Reset();
             Headlights.On = true;
-            _updateTimer.Start();
+            //_updateTimer.Start();
         }
 
         private void Update(object sender, ElapsedEventArgs e)
         {
             var sw = new Stopwatch();
             sw.Start();
-            SetInputs();
             ReadSensors();
             sw.Stop();
             Console.WriteLine($"E:{sw.ElapsedMilliseconds}");
-        }
-
-        private void SetInputs()
-        {
-            var throttle = _throttle;
-            _motoZero.Motors[0].Speed = throttle;
-            _motoZero.Motors[1].Speed = throttle;
-
-            var steer = _steer;
-            SteerFront.Value = steer;
-            SteerBack.Value = 180 - steer;
         }
 
         private void ReadSensors()
@@ -125,11 +113,12 @@ namespace Lego.Server
 
         public LegoCarState GetState()
         {
+            ReadSensors();
             return new LegoCarState
             {
                 EulerAngles = EulerAngles.Value,
                 Quaternion = Quaternion.Value,
-                Distances = new List<double> {Distance.Value}
+                Distances = new List<double> { Distance.Value }
             };
         }
 
@@ -137,21 +126,24 @@ namespace Lego.Server
 
         public Quatd GetQuaternion() => Quaternion.Value;
 
-        public void SetMotorSpeed(int speed)
+        public void SetThrottle(int speed)
         {
             if (Distance.Value < DistanceLimit && Distance.LastValue > DistanceLimit && speed >= 0)
             {
-                _throttle = 0;
+                _motoZero.Motors[0].Speed = 0;
+                _motoZero.Motors[1].Speed = 0;
             }
             else
             {
-                _throttle = speed;
+                _motoZero.Motors[0].Speed = speed;
+                _motoZero.Motors[1].Speed = speed;
             }
         }
 
-        public void SetSteer(int angle)
+        public void SetSteerAngle(int angle)
         {
-            _steer = angle;
+            SteerFront.Value = angle;
+            SteerBack.Value = 180 - angle;
         }
 
         private void Blink(object sender, ElapsedEventArgs e)

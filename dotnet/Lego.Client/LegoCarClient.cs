@@ -11,7 +11,6 @@ namespace Lego.Client
     {
         private readonly Sampled<int> _throttle = new Sampled<int>();
         private readonly Sampled<int> _steer = new Sampled<int>();
-        private int _running;
         private bool _isUpdating;
         private readonly LctpClient _client;
 
@@ -28,14 +27,10 @@ namespace Lego.Client
 
         public async Task UpdateAsync()
         {
-            if (Interlocked.CompareExchange(ref _running, 1, 0) != 0)
-            {
-                return;
-            }
             try
             {
                 _isUpdating = true;
-                if (!await DoUpdate())
+                if (!await DoUpdateAsync())
                 {
                     await _client.PingAsync();
                 }
@@ -43,7 +38,6 @@ namespace Lego.Client
             finally
             {
                 _isUpdating = false;
-                Interlocked.Exchange(ref _running, 0);
             }
         }
 
@@ -60,21 +54,46 @@ namespace Lego.Client
             _steerAngle = steer;
         }
 
-        private async Task<bool> DoUpdate()
+        private async Task<bool> DoUpdateAsync()
         {
             var updated = false;
-
-            _throttle.Value = _speed;
-            if (_throttle.HasChanged)
+            
+            
+            // _throttle.Value = _speed;
+            // if (_throttle.HasChanged)
+            // {
+            //     await _client.SetAsync("motor/speed", $"{_throttle.Value}");
+            // }
+            //
+            // _steer.Value = _steerAngle;
+            // if (_steer.HasChanged)
+            // {
+            //     await _client.SetAsync("steer", $"{_steer.Value}");
+            // }
+            
+            var response = await _client.SetAsync("input", new LegoCarInput
             {
-                await _client.SetAsync("motor/speed", $"{_throttle.Value}");
+                Throttle = _speed,
+                SteerAngle = _steerAngle
+            }.Serialize());
+            
+            if (response.StatusCode == 200)
+            {
+                if (LegoCarState.TryParse(response.Content, out var state))
+                {
+                    _state = state;    
+                }
+                else
+                {
+                    Console.WriteLine($"Bad state string: {response.Content}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Bad state status code: {response.StatusCode}");
             }
 
-            _steer.Value = _steerAngle;
-            if (_steer.HasChanged)
-            {
-                await _client.SetAsync("steer", $"{_steer.Value}");
-            }
+            
 
             if (HeadlightSwitch.HasChanged())
             {
@@ -95,24 +114,24 @@ namespace Lego.Client
                 updated = true;
             }
 
-            var stateResult = await _client.GetAsync("state");
-            if (stateResult.StatusCode == 200)
-            {
-                if (LegoCarState.TryParse(stateResult.Content, out var state))
-                {
-                    _state = state;    
-                }
-                else
-                {
-                    Console.WriteLine($"Bad state string: {stateResult.Content}");
-                }
-            }
-            else
-            {
-                Console.WriteLine($"Bad state status code: {stateResult.StatusCode}");
-            }
+            // var stateResult = await _client.GetAsync("state");
+            // if (stateResult.StatusCode == 200)
+            // {
+            //     if (LegoCarState.TryParse(stateResult.Content, out var state))
+            //     {
+            //         _state = state;    
+            //     }
+            //     else
+            //     {
+            //         Console.WriteLine($"Bad state string: {stateResult.Content}");
+            //     }
+            // }
+            // else
+            // {
+            //     Console.WriteLine($"Bad state status code: {stateResult.StatusCode}");
+            // }
             
-            return updated;
+            return true;
         }
         
         public void Connect()
@@ -131,6 +150,17 @@ namespace Lego.Client
             _client.Disconnect();
         }
         
+        public void Disconnect()
+        {
+            Console.WriteLine("Waiting for update to finish");
+            while (_isUpdating)
+            {
+                Thread.Sleep(10);
+            }
+            Console.WriteLine("Disconnecting");
+            _client.Disconnect();
+        }
+        
         public void Dispose()
         {
             _client?.Dispose();
@@ -141,5 +171,81 @@ namespace Lego.Client
         public Double3 GetEulerAngles() => _state.EulerAngles;
 
         public Quatd GetQuaternion() => _state.Quaternion;
+
+        public void Update()
+        {
+            try
+            {
+                _isUpdating = true;
+                if (!DoUpdate())
+                {
+                    _client.Ping();
+                }
+            }
+            finally
+            {
+                _isUpdating = false;
+            }
+        }
+
+        private bool DoUpdate()
+        {
+            var updated = false;
+
+            var response = _client.Set("input", new LegoCarInput
+            {
+                Throttle = _speed,
+                SteerAngle = _steerAngle
+            }.Serialize());
+            
+            if (response.StatusCode == 200)
+            {
+                if (LegoCarState.TryParse(response.Content, out var state))
+                {
+                    _state = state;    
+                }
+                else
+                {
+                    Console.WriteLine($"Bad state string: {response.Content}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Bad state status code: {response.StatusCode}");
+            }
+            
+            // _throttle.Value = _speed;
+            // if (_throttle.HasChanged)
+            // {
+            //     _client.Set("motor/speed", $"{_throttle.Value}");
+            // }
+            //
+            // _steer.Value = _steerAngle;
+            // if (_steer.HasChanged)
+            // {
+            //     _client.Set("steer", $"{_steer.Value}");
+            // }
+
+            if (HeadlightSwitch.HasChanged())
+            {
+                _client.Set("headlights", "toggle");
+                HeadlightSwitch.UpdateWasOn();
+                updated = true;
+            }
+            if (LeftBlinkerSwitch.HasChanged())
+            {
+                _client.Set("blinker/left", "toggle");
+                LeftBlinkerSwitch.UpdateWasOn();
+                updated = true;
+            }
+            if (RightBlinkerSwitch.HasChanged())
+            {
+                _client.Set("blinker/right", "toggle");
+                RightBlinkerSwitch.UpdateWasOn();
+                updated = true;
+            }
+            
+            return updated;
+        }
     }
 }

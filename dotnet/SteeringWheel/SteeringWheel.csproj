@@ -128,6 +128,10 @@
       <Project>{938afe20-be61-44b5-bf69-05e95056189e}</Project>
       <Name>Lego.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Lego\Lego.csproj">
+      <Project>{cf2492f8-a1f2-41a5-b319-db2c19662a0c}</Project>
+      <Name>Lego</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Maths\Maths.csproj">
       <Project>{f7c77102-12a6-48d7-8431-ab0f3c77fb6f}</Project>
       <Name>Maths</Name>

@@ -83,6 +83,22 @@ namespace LCTP.Core.Client
             }
             
         }
+        
+        public ResponseMessage Send(RequestMessage request)
+        {
+            _semaphore.Wait();
+            try
+            {
+                _writer?.WriteLineAndFlush(request.Format());
+                var response = _reader?.ReadLine();
+                return ResponseMessage.Parse(response);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+            
+        }
 
         public async Task<ResponseMessage> PingAsync()
         {
@@ -92,6 +108,17 @@ namespace LCTP.Core.Client
             };
             await _writer.WriteLineAndFlushAsync(message.Format());
             var response = await _reader.ReadLineAsync();
+            return ResponseMessage.Parse(response);
+        }
+        
+        public ResponseMessage Ping()
+        {
+            var message = new RequestMessage
+            {
+                Method = "PING"
+            };
+            _writer.WriteLineAndFlush(message.Format());
+            var response = _reader.ReadLine();
             return ResponseMessage.Parse(response);
         }
 
@@ -114,10 +141,29 @@ namespace LCTP.Core.Client
                 Content = content
             });
         }
+        
+        public static ResponseMessage Set(this LctpClient client, string path, string content)
+        {
+            return client.Send(new RequestMessage
+            {
+                Method = "SET",
+                Path = path,
+                Content = content
+            });
+        }
 
         public static Task<ResponseMessage> GetAsync(this LctpClient client, string path)
         {
             return client.SendAsync(new RequestMessage
+            {
+                Method = "GET",
+                Path = path,
+            });
+        }
+        
+        public static ResponseMessage Get(this LctpClient client, string path)
+        {
+            return client.Send(new RequestMessage
             {
                 Method = "GET",
                 Path = path,

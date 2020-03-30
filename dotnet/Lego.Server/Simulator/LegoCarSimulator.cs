@@ -57,7 +57,7 @@ namespace Lego.Server.Simulator
             return new Quatd(eulerAngles.X, eulerAngles.Y, eulerAngles.Z);
         }
 
-        public void SetMotorSpeed(int speed)
+        public void SetThrottle(int speed)
         {
             foreach (var motor in Motors)
             {
@@ -65,14 +65,14 @@ namespace Lego.Server.Simulator
             }
         }
 
-        public void SetSteer(int angle)
+        public void SetSteerAngle(int angle)
         {
             
         }
 
         public void Reset()
         {
-            SetMotorSpeed(0);
+            SetThrottle(0);
         }
     }
 }
