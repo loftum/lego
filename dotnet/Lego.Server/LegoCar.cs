@@ -29,9 +29,12 @@ namespace Lego.Server
         public ILight Headlights { get; }
         private readonly Timer _blinker = new Timer(2 * Math.PI * 100);
         private readonly DistanceSensor_GP2Y0A41SK0F _frontDistance;
+        private readonly DistanceSensor_GP2Y0A02YK _longDistance;
+        
         private readonly InterlockedTimer _updateTimer = new InterlockedTimer(25);
         
         public Sampled<double> Distance { get; } = new Sampled<double>();
+        public Sampled<double> LongDistance { get; } = new Sampled<double>();
         public Sampled<Double3> EulerAngles { get; } = new Sampled<Double3>();
         public Sampled<Quatd> Quaternion { get; } = new Sampled<Quatd>();
 
@@ -41,7 +44,10 @@ namespace Lego.Server
         private int _steer;
         private Sampled<int> _sampledSteer = new Sampled<int>();
 
-        public LegoCar(ServoPwmBoard pwmBoard, MotoZeroBoard motoZero, ADCPiZeroBoard adcBoard, BNO055Sensor imu)
+        public LegoCar(ServoPwmBoard pwmBoard,
+            MotoZeroBoard motoZero,
+            ADCPiZeroBoard adcBoard,
+            BNO055Sensor imu)
         {
             _pwmBoard = pwmBoard;
             _motoZero = motoZero;
@@ -52,6 +58,7 @@ namespace Lego.Server
             input.Pga = Pga._1;
             input.ConversionMode = ConversionMode.Continuous;
             _frontDistance = new DistanceSensor_GP2Y0A41SK0F(input);
+            _longDistance = new DistanceSensor_GP2Y0A02YK(input);
             
             _motoZero.Motors[0].Enabled = true;
             _motoZero.Motors[1].Enabled = true;
@@ -98,17 +105,13 @@ namespace Lego.Server
 
         private void ReadSensors()
         {
-            var sw = new Stopwatch();
-            sw.Start();
             Distance.Value = _frontDistance.GetCm();
-            sw.Stop();
-            sw.Restart();
+            LongDistance.Value = _longDistance.GetCm();
             if (_imu != null)
             {
                 EulerAngles.Value = _imu.ReadEulerData();
                 Quaternion.Value = _imu.ReadQuaternion();    
             }
-            sw.Stop();
         }
 
         public LegoCarState GetState()
@@ -117,7 +120,11 @@ namespace Lego.Server
             {
                 EulerAngles = EulerAngles.Value,
                 Quaternion = Quaternion.Value,
-                Distances = new List<double> { Distance.Value }
+                Distances = new List<double>
+                {
+                    Distance.Value,
+                    LongDistance.Value
+                }
             };
         }
 

@@ -3,6 +3,9 @@ using Devices.ThePiHut.ADCPiZero;
 
 namespace Devices.Distance.Sharp.GP2Y0A41SK0F
 {
+    /// <summary>
+    /// 4-30 cm
+    /// </summary>
     public class DistanceSensor_GP2Y0A41SK0F
     {
         private readonly IAnalogInput _input;
@@ -47,18 +50,9 @@ namespace Devices.Distance.Sharp.GP2Y0A41SK0F
 
         private double Map(double voltage)
         {
-            if (voltage >= 3)
-            {
-                //Console.WriteLine($"V:{voltage}, cm:{0}");
-                return 0;
-            }
-
-            if (voltage < 0.3)
-            {
-                return double.MaxValue;
-            }
-
-            return _calculator.CalculateDistance(voltage);
+            var cm = _calculator.CalculateDistance(voltage);
+            Console.WriteLine($"V:{voltage}, cm:{cm}");
+            return cm;
         }
     }
 }

@@ -72,11 +72,6 @@ namespace Visualizer.ViewControllers
                     c.CenterYAnchor.ConstraintEqualToAnchor(p.CenterYAnchor),
                     c.WidthAnchor.ConstraintEqualToAnchor(p.WidthAnchor, .8f),
                     c.HeightAnchor.ConstraintEqualToAnchor(p.HeightAnchor, .8f)
-                    
-                    // c.LeadingAnchor.ConstraintEqualToAnchor(p.LeadingAnchor),
-                    // c.TopAnchor.ConstraintEqualToAnchor(p.TopAnchor),
-                    // c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor),
-                    // c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor)
                 })
                 .WithSubview(_throttleSlider, (c, p) => new[]
                 {
@@ -126,7 +121,7 @@ namespace Visualizer.ViewControllers
                 _timer.Stop();
                 _timer.Elapsed -= Update;
                 _disconnectButton.Activated -= Disconnect;
-                _client.DisconnectAsync().Wait();
+                _client.DisconnectAsync().Wait(1000);
                 _client.Dispose();
                 _renderer.Dispose();
                 _mtkView.Dispose();
@@ -136,7 +131,7 @@ namespace Visualizer.ViewControllers
 
         private void Disconnect(object sender, EventArgs e)
         {
-            _client.DisconnectAsync().Wait();
+            _client.DisconnectAsync().Wait(1000);
             OnDisconnect?.Invoke(this, EventArgs.Empty);
         }
 

@@ -33,7 +33,8 @@ namespace DistanceSensorTest
         {
             var board = new ADCPiZeroBoard(Pi.I2C);
             var input = board.Inputs[inputNumber];
-            input.Bitrate = Bitrate._16;
+            input.Pga = Pga._1;
+            input.Bitrate = Bitrate._14;
             input.ConversionMode = ConversionMode.Continuous;
             
 
