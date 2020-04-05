@@ -5,18 +5,6 @@ using LCTP.Core.Server;
 
 namespace Visualizer.ViewControllers
 {
-    public class ConnectEventArgs : EventArgs
-    {
-        public string Host { get; }
-        public int Port { get; }
-
-        public ConnectEventArgs(string host, int port)
-        {
-            Host = host;
-            Port = port;
-        }
-    }
-    
     public class ConnectViewController : NSViewController
     {
         public event EventHandler<ConnectEventArgs> OnConnect; 
@@ -25,7 +13,7 @@ namespace Visualizer.ViewControllers
         private readonly NSButton _connectButton;
         private readonly NSUserDefaults _userDefaults = new NSUserDefaults("app", NSUserDefaultsType.SuiteName);
         
-        public ConnectViewController()
+        public ConnectViewController() : base(null, null)
         {
             _hostField = new NSTextField
             {
@@ -45,13 +33,17 @@ namespace Visualizer.ViewControllers
                         Bezeled = true
                     }
                 };
+            
             _connectButton.Activated += ConnectButtonClicked;
 
+            
+            
             _errorField = new NSTextField
             {
                 TextColor = NSColor.Red,
                 Editable = false,
-                Bordered = false
+                Bordered = false,
+                BackgroundColor = NSColor.Clear
             };
             
             View = new NSView()

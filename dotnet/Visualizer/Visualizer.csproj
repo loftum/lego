@@ -99,6 +99,7 @@
     <Compile Include="Rendering\SceneGraph\Material.cs" />
     <Compile Include="Rendering\SceneGraph\Node.cs" />
     <Compile Include="Rendering\SceneGraph\Scene.cs" />
+    <Compile Include="ViewControllers\ConnectEventArgs.cs" />
     <Compile Include="ViewControllers\ConnectViewController.cs" />
     <Compile Include="ViewControllers\NSViewExtensions.cs" />
     <Compile Include="ViewControllers\TestRotationProvider.cs" />

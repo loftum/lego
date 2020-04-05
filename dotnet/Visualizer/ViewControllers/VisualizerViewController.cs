@@ -68,26 +68,31 @@ namespace Visualizer.ViewControllers
             View = new NSView()
                 .WithSubview(_mtkView, (c, p) => new []
                 {
-                    c.LeadingAnchor.ConstraintEqualToAnchor(p.LeadingAnchor),
-                    c.TopAnchor.ConstraintEqualToAnchor(p.TopAnchor),
-                    c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor),
-                    c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor)
+                    c.CenterXAnchor.ConstraintEqualToAnchor(p.CenterXAnchor),
+                    c.CenterYAnchor.ConstraintEqualToAnchor(p.CenterYAnchor),
+                    c.WidthAnchor.ConstraintEqualToAnchor(p.WidthAnchor, .8f),
+                    c.HeightAnchor.ConstraintEqualToAnchor(p.HeightAnchor, .8f)
+                    
+                    // c.LeadingAnchor.ConstraintEqualToAnchor(p.LeadingAnchor),
+                    // c.TopAnchor.ConstraintEqualToAnchor(p.TopAnchor),
+                    // c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor),
+                    // c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor)
                 })
                 .WithSubview(_throttleSlider, (c, p) => new[]
                 {
                     c.TopAnchor.ConstraintEqualToAnchor(p.TopAnchor, 40),
-                    c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor, -10),
+                    c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor, -20),
                     c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor, -40)
                 })
                 .WithSubview(_steerSlider, (c, p) => new[]
                 {
                     c.LeadingAnchor.ConstraintEqualToAnchor(p.LeadingAnchor, 40),
                     c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor, -40),
-                    c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor, -10)
+                    c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor, -20)
                 })
                 .WithSubview(_disconnectButton, (c, p) => new[]
                 {
-                    c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor),
+                    c.TopAnchor.ConstraintEqualToAnchor(p.TopAnchor, 20),
                     c.CenterXAnchor.ConstraintEqualToAnchor(p.CenterXAnchor)
                 });
             _timer.Elapsed += Update;
@@ -103,7 +108,7 @@ namespace Visualizer.ViewControllers
             DispatchQueue.MainQueue.DispatchSync(() =>
             {
                 _client.SetMotorSpeed(_throttleSlider.IntValue);
-                _client.SetSteer(_throttleSlider.IntValue);    
+                _client.SetSteer(_steerSlider.IntValue);    
             });
             await _client.UpdateAsync();
         }
@@ -121,7 +126,7 @@ namespace Visualizer.ViewControllers
                 _timer.Stop();
                 _timer.Elapsed -= Update;
                 _disconnectButton.Activated -= Disconnect;
-                _client.DisconnectAsync();
+                _client.DisconnectAsync().Wait();
                 _client.Dispose();
                 _renderer.Dispose();
                 _mtkView.Dispose();
@@ -129,9 +134,9 @@ namespace Visualizer.ViewControllers
             base.Dispose(disposing);
         }
 
-        private async void Disconnect(object sender, EventArgs e)
+        private void Disconnect(object sender, EventArgs e)
         {
-            await _client.DisconnectAsync();
+            _client.DisconnectAsync().Wait();
             OnDisconnect?.Invoke(this, EventArgs.Empty);
         }
 

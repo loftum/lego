@@ -19,6 +19,7 @@ namespace Lego.Client
         public Switch RightBlinkerSwitch { get; } = new Switch();
         public bool Connected => _client.Connected;
         private LegoCarState _state = new LegoCarState();
+        private bool _isDisconnecting;
 
         public LegoCarClient(string host, int port)
         {
@@ -40,6 +41,10 @@ namespace Lego.Client
         
         public async Task UpdateAsync()
         {
+            if (_isDisconnecting)
+            {
+                return;
+            }
             try
             {
                 _isUpdating = true;
@@ -114,6 +119,7 @@ namespace Lego.Client
 
         public async Task DisconnectAsync()
         {
+            _isDisconnecting = true;
             Console.WriteLine("Waiting for update to finish");
             while (_isUpdating)
             {

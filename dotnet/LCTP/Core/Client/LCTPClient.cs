@@ -70,6 +70,10 @@ namespace LCTP.Core.Client
 
         public async Task<ResponseMessage> SendAsync(RequestMessage request)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
             await _semaphore.WaitAsync();
             try
             {
@@ -100,27 +104,16 @@ namespace LCTP.Core.Client
             
         }
 
-        public async Task<ResponseMessage> PingAsync()
+        public Task<ResponseMessage> PingAsync() => SendAsync(new RequestMessage
         {
-            var message = new RequestMessage
-            {
-                Method = "PING"
-            };
-            await _writer.WriteLineAndFlushAsync(message.Format());
-            var response = await _reader.ReadLineAsync();
-            return ResponseMessage.Parse(response);
-        }
-        
-        public ResponseMessage Ping()
+            Method = "PING"
+        });
+
+
+        public ResponseMessage Ping() => Send(new RequestMessage
         {
-            var message = new RequestMessage
-            {
-                Method = "PING"
-            };
-            _writer.WriteLineAndFlush(message.Format());
-            var response = _reader.ReadLine();
-            return ResponseMessage.Parse(response);
-        }
+            Method = "PING"
+        });
 
         public void Dispose()
         {
