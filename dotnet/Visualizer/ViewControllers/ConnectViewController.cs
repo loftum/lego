@@ -75,7 +75,7 @@ namespace Visualizer.ViewControllers
             }
             var parts = _hostField.StringValue.Split(':');
             var host = parts[0];
-            var port = parts.Length > 1 && int.TryParse(parts[1], out var v) ? v : LctpServer.DefaultPort;
+            var port = parts.Length > 1 && int.TryParse(parts[1], out var v) ? v : LctpTcpServer.DefaultPort;
             try
             {
                 OnConnect?.Invoke(this, new ConnectEventArgs(host, port));

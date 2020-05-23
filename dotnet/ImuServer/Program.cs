@@ -29,7 +29,7 @@ namespace ImuServer
             sensor.UnitSelection.EulerAngleUnit = EulerAngleUnit.Radians;
             using (var controller = new ImuController(sensor, Verbose))
             {
-                using (var server = new LctpServer(5080, 5081, controller))
+                using (var server = new LctpTcpServer(5080, controller))
                 {
                     await server.RunAsync(cancellationToken);
                 }    

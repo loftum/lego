@@ -9,4 +9,8 @@
     <Compile Remove="Client\SocketExtensions.cs" />
     <Compile Remove="Net\IfConfig.cs" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Convenient.Gooday" Version="0.0.1" />
+  </ItemGroup>
 </Project>

@@ -31,7 +31,7 @@ namespace LegoCarServer
             Console.WriteLine("LegoCar Server Simulator v1.0");
             var car = new LegoCarSimulator(2);
             var controller = new LegoCarController(car);
-            using (var server = new LctpServer(5080, controller))
+            using (var server = new LctpTcpServer(5080, controller))
             {
                 await server.RunAsync(cancellationToken);
             }
@@ -53,7 +53,7 @@ namespace LegoCarServer
                     
                     //var car = new LegoCar(pwm, motoZero, adcBoard, null);
                     var controller = new LegoCarController(car);
-                    using (var server = new LctpServer(5080, controller))
+                    using (var server = new LctpTcpServer(5080, controller))
                     {
                         await server.RunAsync(cancellationToken);
                     }

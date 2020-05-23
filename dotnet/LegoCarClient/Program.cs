@@ -22,7 +22,7 @@ namespace LegoCarClient
             var host = hostAndPort[0];
             var port = args.Length > 1 && int.TryParse(hostAndPort[1], out var p)
                 ? p
-                : LctpServer.DefaultPort;
+                : LctpTcpServer.DefaultPort;
 
             using (var source = new CancellationTokenSource())
             {
