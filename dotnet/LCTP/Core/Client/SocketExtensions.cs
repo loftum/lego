@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace LCTP.Core.Client
 {
@@ -16,6 +17,16 @@ namespace LCTP.Core.Client
             }
             socket.Close();
             throw new SocketException((int)SocketError.TimedOut);
+        }
+
+        public static async Task ConnectAsync(this Socket socket, EndPoint endpoint, TimeSpan timeout)
+        {
+            var connect = socket.ConnectAsync(endpoint);
+            if (await Task.WhenAny(connect, Task.Delay(timeout)) != connect)
+            {
+                socket.Close();
+                throw new SocketException((int)SocketError.TimedOut);
+            }
         }
     }
 }

@@ -11,7 +11,7 @@ namespace LCTP.Core.Server
     /// <summary>
     /// Lego Command Transfer Protocol Server
     /// </summary>
-    public class LctpTcpServer: IDisposable
+    public class LctpTcpServer: ILctpServer
     {
         public const int DefaultPort = 5080;
 
@@ -60,7 +60,7 @@ namespace LCTP.Core.Server
                     using (var socket = await _listener.AcceptAsync())
                     {
                         Console.WriteLine($"Got connection from {socket.RemoteEndPoint}");
-                        using (var handler = new TcpClientHandler(socket, _controller))
+                        using (var handler = new LctpTcpClientHandler(socket, _controller))
                         {
                             await handler.Handle(cancellationToken);
                         }

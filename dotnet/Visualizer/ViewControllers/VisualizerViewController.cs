@@ -3,6 +3,7 @@ using System.Timers;
 using AppKit;
 using CoreFoundation;
 using CoreGraphics;
+using LCTP.Core.Client;
 using Lego.Client;
 using Lego.Core;
 using Maths;
@@ -110,8 +111,9 @@ namespace Visualizer.ViewControllers
 
         public void Connect(string host, int port)
         {
-            _client = new LegoCarClient(host, port);
-            _client.Connect();
+            var client = new LctpUdpClient(host, port);
+            _client = new LegoCarClient(client);
+            _client.ConnectAsync();
         }
 
         protected override void Dispose(bool disposing)

@@ -48,7 +48,7 @@ namespace MotoZeroClient
         private static async Task Run(string host, int port, CancellationToken cancellationToken)
         {
             Console.WriteLine($"Connecting to {host}:{port}");
-            using (var client = new LctpClient(host, port))
+            using (var client = new LctpTcpClient(host, port))
             {
                 while (true)
                 {
@@ -64,14 +64,12 @@ namespace MotoZeroClient
                         Console.WriteLine("Expected <method> <path> [content]");
                         continue;
                     }
-                    var response = await client.SendAsync(new RequestMessage
+                    await client.SendAsync(new RequestMessage
                     {
                         Method = parts[0],
                         Path = parts[1],
                         Content = string.Join(" ", parts.Skip(2))
                     });
-                    Console.WriteLine("Response:");
-                    Console.WriteLine(response);
                 }
             }
         }

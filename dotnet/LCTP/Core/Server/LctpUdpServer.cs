@@ -3,10 +3,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using LCTP.Core.Extensions;
 
 namespace LCTP.Core.Server
 {
-    public class LctpUdpServer : IDisposable
+    public class LctpUdpServer : ILctpServer
     {
         public const int DefaultPort = 5081;
         private readonly IController _controller;
@@ -29,11 +30,15 @@ namespace LCTP.Core.Server
                 while (true)
                 {
                     Console.WriteLine($"Listening for connections on port {_port}");
-                    var data = await _client.ReceiveAsync();
-                    using (var handler = new UdpClientHandler(_client, data.RemoteEndPoint, _controller))
+                    var data = await _client.ReceiveRequestAsync();
+                    if (data.Request.Method != "CONNECT")
                     {
-                        await handler.Handle(cancellationToken);
+                        continue;
                     }
+
+                    await _client.SendAsync(ResponseMessage.Ok(), data.RemoteEndPoint);
+                    using var handler = new LctpUdpClientHandler(_client, data.RemoteEndPoint, _controller);
+                    await handler.Handle(cancellationToken);
                 }
 
             }

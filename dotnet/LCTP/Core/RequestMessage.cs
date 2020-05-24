@@ -2,7 +2,7 @@
 
 namespace LCTP.Core
 {
-    public class RequestMessage
+    public class RequestMessage : IMessage
     {
         public string Method { get; set; }
         public string Path { get; set; }
@@ -38,6 +38,18 @@ namespace LCTP.Core
         public static RequestMessage Ping => new RequestMessage
         {
             Method = "PING",
+            Path = "/"
+        };
+
+        public static RequestMessage Connect => new RequestMessage
+        {
+            Method = "CONNECT",
+            Path = "/"
+        };
+        
+        public static RequestMessage Disconnect => new RequestMessage
+        {
+            Method = "DISCONNECT",
             Path = "/"
         };
     }

@@ -4,17 +4,18 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using LCTP.Core.Extensions;
 
 namespace LCTP.Core.Server
 {
-    public class UdpClientHandler : IDisposable
+    public class LctpUdpClientHandler : ILctpClientHandler
     {
         private readonly Encoding _encoding = new UTF8Encoding();
         private readonly IController _controller;
         private readonly UdpClient _client;
         private readonly IPEndPoint _remoteEndpoint;
 
-        public UdpClientHandler(UdpClient client, IPEndPoint remoteEndpoint, IController controller)
+        public LctpUdpClientHandler(UdpClient client, IPEndPoint remoteEndpoint, IController controller)
         {
             _client = client;
             _remoteEndpoint = remoteEndpoint;
@@ -45,6 +46,7 @@ namespace LCTP.Core.Server
                 if (await Task.WhenAny(receive, Task.Delay(timeout, cancellationToken)) != receive)
                 {
                     Console.WriteLine($"Client has not sent any data for {timeout} ms. Closing connection");
+                    await _client.SendAsync(ResponseMessage.Disconnected(), _remoteEndpoint);
                     return;
                 }
 
@@ -52,21 +54,24 @@ namespace LCTP.Core.Server
                 if (request == null)
                 {
                     Console.WriteLine("Request is null. Closing connection");
+                    await _client.SendAsync(ResponseMessage.Disconnected(), _remoteEndpoint);
                     return;
                 }
 
                 try
                 {
-                    if (request.Method == "PING")
+                    switch (request.Method)
                     {
-                        var bytes = _encoding.GetBytes(ResponseMessage.Pong.Format());
-                        await _client.SendAsync(bytes, bytes.Length, _remoteEndpoint);
-                    }
-                    else
-                    {
-                        var response = await _controller.Execute(request);
-                        var bytes = _encoding.GetBytes(response.Format());
-                        await _client.SendAsync(bytes, bytes.Length, _remoteEndpoint);
+                        case "PING":
+                            await _client.SendAsync(ResponseMessage.Pong, _remoteEndpoint);
+                            break;
+                        case "DISCONNECT":
+                            Console.WriteLine("Client disconnected. Closing connection");
+                            return;
+                        default:
+                            var response = await _controller.Execute(request);
+                            await _client.SendAsync(response, _remoteEndpoint);
+                            break;
                     }
                 }
                 catch (Exception e)
@@ -80,7 +85,7 @@ namespace LCTP.Core.Server
         private async Task<RequestMessage> Receive(CancellationToken cancellationToken)
         {
             var data = await _client.ReceiveAsync();
-            while (data.RemoteEndPoint != _remoteEndpoint)
+            while (!_remoteEndpoint.Equals(data.RemoteEndPoint))
             {
                 data = await _client.ReceiveAsync();
             }

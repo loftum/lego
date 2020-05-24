@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CoreFoundation;
 using CoreGraphics;
 using CoreMotion;
+using LCTP.Core.Client;
 using Lego.Client;
 using Lego.Core;
 using Maths;
@@ -83,9 +84,14 @@ namespace SteeringWheel.Controllers
             const int width = 50;
             const int height = 200;
             _throttleSlider.Frame = new CGRect(frame.Width - 100, frame.Height / 2 - height / 2, width, height);
+            
+            var client = new LctpUdpClient(host, port);
+            _client = new LegoCarClient(client);
+        }
 
-            _client = new LegoCarClient(host, port);
-            _client.Connect();
+        public async Task ConnectAsync()
+        {
+            await _client.ConnectAsync();
             _motionManager.DeviceMotionUpdateInterval = 0.1;
             _motionManager.StartDeviceMotionUpdates();
             _timer.Elapsed = UpdateAsync;

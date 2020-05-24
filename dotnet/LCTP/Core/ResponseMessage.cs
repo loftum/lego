@@ -2,7 +2,7 @@
 
 namespace LCTP.Core
 {
-    public class ResponseMessage
+    public class ResponseMessage : IMessage
     {
         public int StatusCode { get; set; } = 200;
         public string Content { get; set; }
@@ -55,5 +55,7 @@ namespace LCTP.Core
         }
 
         public static ResponseMessage Pong => Ok("Pong");
+
+        public static ResponseMessage Disconnected() => Ok("DISCONNECTED");
     }
 }

@@ -53,7 +53,7 @@ namespace LegoCarServer
                     
                     //var car = new LegoCar(pwm, motoZero, adcBoard, null);
                     var controller = new LegoCarController(car);
-                    using (var server = new LctpTcpServer(5080, controller))
+                    using (var server = new LctpUdpServer(5081, controller))
                     {
                         await server.RunAsync(cancellationToken);
                     }

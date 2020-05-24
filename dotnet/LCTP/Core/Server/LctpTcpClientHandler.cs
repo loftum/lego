@@ -9,7 +9,7 @@ using LCTP.Core.Extensions;
 
 namespace LCTP.Core.Server
 {
-    public class TcpClientHandler: IDisposable
+    public class LctpTcpClientHandler: ILctpClientHandler
     {
         private readonly Encoding _encoding = new UTF8Encoding();
         private readonly Socket _socket;
@@ -17,7 +17,7 @@ namespace LCTP.Core.Server
         private readonly StreamWriter _writer;
         private readonly IController _controller;
 
-        public TcpClientHandler(Socket socket, IController controller)
+        public LctpTcpClientHandler(Socket socket, IController controller)
         {
             _socket = socket;
             _controller = controller;

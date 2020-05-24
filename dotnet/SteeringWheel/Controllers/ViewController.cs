@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Foundation;
 using LCTP.Core.Server;
 using UIKit;
@@ -46,12 +47,12 @@ namespace SteeringWheel.Controllers
             base.DidReceiveMemoryWarning();
         }
 
-        private void ConnectButton_TouchUpInside(object sender, EventArgs e)
+        private async void ConnectButton_TouchUpInside(object sender, EventArgs e)
         {
-            Connect();
+            await Connect();
         }
 
-        private void Connect()
+        private async Task Connect()
         {
             if (string.IsNullOrWhiteSpace(HostField.Text))
             {
@@ -59,10 +60,12 @@ namespace SteeringWheel.Controllers
             }
             var parts = HostField.Text.Split(':');
             var host = parts[0];
-            var port = parts.Length > 1 && int.TryParse(parts[1], out var v) ? v : LctpTcpServer.DefaultPort;
+            var port = parts.Length > 1 && int.TryParse(parts[1], out var v) ? v : LctpUdpServer.DefaultPort;
             try
             {
-                ShowViewController(new SteeringWheelViewController(host, port), this);
+                var vc = new SteeringWheelViewController(host, port);
+                await vc.ConnectAsync();
+                ShowViewController(vc, this);
                 _userDefaults.SetString(HostField.Text, "host");
             }
             catch (Exception ex)

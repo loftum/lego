@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using LCTP.Core;
 using LCTP.Core.Client;
 using Lego.Core;
 using Maths;
@@ -11,7 +12,7 @@ namespace Lego.Client
         private readonly Sampled<int> _throttle = new Sampled<int>();
         private readonly Sampled<int> _steer = new Sampled<int>();
         private bool _isUpdating;
-        private readonly LctpClient _client;
+        private readonly ILctpClient _client;
 
         public Switch HeadlightSwitch { get; } = new Switch();
         public Switch LeftBlinkerSwitch { get; } = new Switch();
@@ -20,9 +21,10 @@ namespace Lego.Client
         private LegoCarState _state = new LegoCarState();
         private bool _isDisconnecting;
 
-        public LegoCarClient(string host, int port)
+        public LegoCarClient(ILctpClient client)
         {
-            _client = new LctpClient(host, port);
+            _client = client;
+            _client.OnResponseReceived = OnResponseReceived;
         }
 
         private int _speed;
@@ -74,23 +76,7 @@ namespace Lego.Client
                 : _client.GetAsync("state");
             
             
-            var response = await request;
-        
-            if (response.StatusCode == 200)
-            {
-                if (LegoCarState.TryParse(response.Content, out var state))
-                {
-                    _state = state;    
-                }
-                else
-                {
-                    Console.WriteLine($"Bad state string: {response.Content}");
-                }
-            }
-            else
-            {
-                Console.WriteLine($"Bad state status code: {response.StatusCode}");
-            }
+            await request;
 
             if (HeadlightSwitch.HasChanged())
             {
@@ -111,9 +97,14 @@ namespace Lego.Client
             return true;
         }
         
-        public void Connect()
+        private Task OnResponseReceived(ResponseMessage response)
         {
-            _client.Connect();
+            return Task.CompletedTask;
+        }
+        
+        public Task ConnectAsync()
+        {
+            return _client.ConnectAsync();
         }
 
         public async Task DisconnectAsync()
@@ -125,7 +116,7 @@ namespace Lego.Client
                 await Task.Delay(10);
             }
             Console.WriteLine("Disconnecting");
-            _client.Disconnect();
+            await _client.DisconnectAsync();
         }
         
         public void Dispose()
