@@ -25,10 +25,30 @@ namespace Devices.ThePiHut.ADCPiZero
         public ADCPiZeroInput(II2CDevice device, int input)
         {
             Device = device;
-            Channel = input < 4 ? input : input - 4;
+            Channel = input < 4 ? input : input - 4; // 0-based
             Number = input;
-            var addressMask = 0b1111_1100 | Channel;
-            _baseConfig = 0x9c & addressMask;
+            var channelBits = 0b0110_0000 & (Channel << 5);
+            _baseConfig = 0b1001_1100 | channelBits;
+            /*
+             * Configuration register:
+             * Bit 7 (RDY): Ready bit
+             * Bit 6-5 (C1-C0): Channel selection bits. (1-based)
+             *   00: Channel 1 (default)
+             *   01: Channel 2
+             *   10: Channel 3
+             *   11: Channel 4
+             * Bit 4 (O/C): conversion mode bit. 1: Continuous, 0: One-shot
+             * Bit 3-2 (S1-S0): Sample selection Bit
+             *   00: 240 SPS (12 bits) (default)
+             *   01: 60 SPS (14 bits)
+             *   10: 15 SPS (16 bits)
+             *   11: 3.75 SPS (18 bits)
+             * Bit 1-0 (G1-G0): PGA Gain selection bits
+             *   00: x1 (default)
+             *   01: x2
+             *   10: x4
+             *   11: x8
+             */
         }
 
         private int GetConfig()

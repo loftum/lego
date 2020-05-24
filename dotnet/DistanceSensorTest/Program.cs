@@ -9,7 +9,7 @@ namespace DistanceSensorTest
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
             try
             {
@@ -19,24 +19,30 @@ namespace DistanceSensorTest
                 {
                     Console.CancelKeyPress += (s, e) => source.Cancel();
                     Console.WriteLine("Distance sensor test");
-                    Task.Run(() => Run(input, source.Token), source.Token).Wait();
+                    await RunAsync(input, source.Token);
                 }
+            }
+            catch (TaskCanceledException)
+            {
+                Console.WriteLine("Bye");
+                return 0;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                return;
+                return -1;
             }
+
+            return 0;
         }
 
-        private static async Task Run(int inputNumber, CancellationToken token)
+        private static async Task RunAsync(int inputNumber, CancellationToken token)
         {
             var board = new ADCPiZeroBoard(Pi.I2C);
             var input = board.Inputs[inputNumber];
             input.Pga = Pga._1;
             input.Bitrate = Bitrate._14;
             input.ConversionMode = ConversionMode.Continuous;
-            
 
             double lastRead = 0;
             while (!token.IsCancellationRequested)
@@ -46,6 +52,8 @@ namespace DistanceSensorTest
                 {
                     Console.WriteLine($"Read: {read}");
                 }
+
+                lastRead = read;
                 await Task.Delay(100, token);
             }
         }
