@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using System.Timers;
 using AppKit;
 using CoreFoundation;
@@ -64,7 +65,7 @@ namespace Visualizer.ViewControllers
                     Bezeled = true
                 }
             };
-            _disconnectButton.Activated += Disconnect;
+            _disconnectButton.Activated += DisconnectAsync;
             
             View = new NSView()
                 .WithSubview(_mtkView, (c, p) => new []
@@ -109,11 +110,12 @@ namespace Visualizer.ViewControllers
             await _client.UpdateAsync();
         }
 
-        public void Connect(string host, int port)
+        public Task ConnectAsync(string host, int port)
         {
             var client = new LctpUdpClient(host, port);
             _client = new LegoCarClient(client);
-            _client.ConnectAsync();
+            
+            return _client.ConnectAsync();
         }
 
         protected override void Dispose(bool disposing)
@@ -122,7 +124,7 @@ namespace Visualizer.ViewControllers
             {
                 _timer.Stop();
                 _timer.Elapsed -= Update;
-                _disconnectButton.Activated -= Disconnect;
+                _disconnectButton.Activated -= DisconnectAsync;
                 _client.DisconnectAsync().Wait(1000);
                 _client.Dispose();
                 _renderer.Dispose();
@@ -131,9 +133,9 @@ namespace Visualizer.ViewControllers
             base.Dispose(disposing);
         }
 
-        private void Disconnect(object sender, EventArgs e)
+        private async void DisconnectAsync(object sender, EventArgs e)
         {
-            _client.DisconnectAsync().Wait(1000);
+            await _client.DisconnectAsync();
             OnDisconnect?.Invoke(this, EventArgs.Empty);
         }
 

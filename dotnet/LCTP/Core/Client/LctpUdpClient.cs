@@ -40,7 +40,7 @@ namespace LCTP.Core.Client
                 return;
             }
             await _client.SendAsync(RequestMessage.Connect, _remoteEp);
-            var response = await _client.ReceiveResponseAsync();
+            var response = await _client.ReceiveResponseAsync(timeout);
             if (response.Message.StatusCode != 200)
             {
                 throw new Exception("Could not connect");

@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -33,6 +34,16 @@ namespace LCTP.Core.Extensions
             var data = await client.ReceiveAsync();
             var s = Utf8NoBom.GetString(data.Buffer);
             return new UdpReceiveResponse(ResponseMessage.Parse(s), data.RemoteEndPoint);
+        }
+        
+        public static async Task<UdpReceiveResponse> ReceiveResponseAsync(this UdpClient client, TimeSpan timeout)
+        {
+            var receive = client.ReceiveResponseAsync();
+            if (await Task.WhenAny(receive, Task.Delay(timeout)) != receive)
+            {
+                throw new Exception("Timeout on receive");
+            }
+            return receive.Result;
         }
     }
 

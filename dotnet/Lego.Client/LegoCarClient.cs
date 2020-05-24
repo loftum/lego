@@ -60,8 +60,6 @@ namespace Lego.Client
             }
         }
 
-        
-
         private async Task<bool> DoUpdateAsync()
         {
             _throttle.Value = _speed;
@@ -99,6 +97,10 @@ namespace Lego.Client
         
         private Task OnResponseReceived(ResponseMessage response)
         {
+            if (LegoCarState.TryParse(response.Content, out var state))
+            {
+                _state = state;
+            }
             return Task.CompletedTask;
         }
         

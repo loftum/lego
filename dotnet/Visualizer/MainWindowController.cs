@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Foundation;
 using AppKit;
 using CoreGraphics;
@@ -41,7 +42,7 @@ namespace Visualizer
 
         private void OnConnect(object sender, ConnectEventArgs e)
         {
-            _visualizerViewcontroller.Connect(e.Host, e.Port);
+            _visualizerViewcontroller.ConnectAsync(e.Host, e.Port).Wait(1000);
             Window.ContentView = _visualizerViewcontroller.View;
         }
 
