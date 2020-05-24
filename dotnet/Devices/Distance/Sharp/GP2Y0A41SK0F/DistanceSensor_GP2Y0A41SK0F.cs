@@ -4,7 +4,7 @@ using Devices.ThePiHut.ADCPiZero;
 namespace Devices.Distance.Sharp.GP2Y0A41SK0F
 {
     /// <summary>
-    /// 4-30 cm
+    /// 4-30 cm (or 9-42 cm in practice)
     /// </summary>
     public class DistanceSensor_GP2Y0A41SK0F
     {

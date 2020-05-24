@@ -4,7 +4,7 @@ using Devices.ThePiHut.ADCPiZero;
 namespace Devices.Distance.Sharp.GP2Y0A41SK0F
 {
     /// <summary>
-    /// 20 - 150 cm
+    /// 20 - 150 cm (or 45-
     /// </summary>
     public class DistanceSensor_GP2Y0A02YK
     {
@@ -12,6 +12,11 @@ namespace Devices.Distance.Sharp.GP2Y0A41SK0F
 
         private readonly DistanceCalculator _calculator = new DistanceCalculator(new [] {
             
+            new PlotSample(0.39, 168),
+            new PlotSample(0.45, 147),
+            new PlotSample(0.51, 134),
+            new PlotSample(0.58, 128),
+            new PlotSample(0.64, 120),
             new PlotSample(0.78, 110),
             new PlotSample(0.84, 103),
             new PlotSample(0.90, 98),

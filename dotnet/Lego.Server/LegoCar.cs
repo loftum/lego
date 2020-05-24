@@ -39,10 +39,7 @@ namespace Lego.Server
         public Sampled<Quatd> Quaternion { get; } = new Sampled<Quatd>();
 
         private int _throttle;
-        private Sampled<int> _sampledThrottle = new Sampled<int>();
-
         private int _steer;
-        private Sampled<int> _sampledSteer = new Sampled<int>();
 
         public LegoCar(ServoPwmBoard pwmBoard,
             MotoZeroBoard motoZero,
