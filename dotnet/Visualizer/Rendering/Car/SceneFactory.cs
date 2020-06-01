@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
+using Lego.Core.Description;
 using Maths;
 using Metal;
 using MetalKit;
@@ -25,7 +24,7 @@ namespace Visualizer.Rendering.Car
             _modelFactory = new ModelFactory(library, _vertexDescriptor, new MTKMeshBufferAllocator(_library.Device));
         }
 
-        public Scene BuildScene()
+        public Scene BuildScene(LegoCarDescriptor descriptor)
         {
             var scene = new Scene
             {
@@ -38,30 +37,50 @@ namespace Visualizer.Rendering.Car
                 }
             };
 
+            // Default orientation: Car nose pointing -X
+            //      ____
+            //  ---/    \
+            //  <--0---0--
+            //
             var car = new Node("car")
             {
                 Material = new Material { SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f) },
                 VertexUniformsBuffer = _library.Device.CreateBuffer((nuint)(VertexUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
                 FragmentUniformsBuffer = _library.Device.CreateBuffer((nuint)(FragmentUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
                 Mesh = _modelFactory.CreateRaceCar(),
-                InitialModelMatrix = Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * 
-                                     Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
+                // Make car point upwards, looking down on the car roof
+                InitialModelMatrix = Float4x4.Scale(.1f) * Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
             };
             car.VertexUniformsBuffer.Label = "Car VertexUniformsBuffer";
             car.FragmentUniformsBuffer.Label = "Car FragmentUniformsBuffer";
             Console.WriteLine($"VertexUniformsBuffer.length = {car.VertexUniformsBuffer.Length}");
             Console.WriteLine($"FragmentUniformsBuffer.length = {car.FragmentUniformsBuffer.Length}");
             scene.RootNode.Children.Add(car);
-            
-            var distance = new Node("frontDistance")
+
+            var ii = 0;
+            foreach (var distanceSensor in descriptor.DistanceSensors)
             {
-                Material = new Material { SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f) },
-                VertexUniformsBuffer = _library.Device.CreateBuffer((nuint)(VertexUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
-                FragmentUniformsBuffer = _library.Device.CreateBuffer((nuint)(FragmentUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
-                Mesh = _modelFactory.CreatePlane(),
-                InitialModelMatrix = Float4x4.CreateTranslation(-3.5f, 0, 0) * Float4x4.CreateRotation(Float.PI / 2, 0, 0, 1f)
-            };
-            car.Children.Add(distance);
+                var distance = new Node($"distance {ii}")
+                {
+                    Material = new Material { SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f) },
+                    VertexUniformsBuffer = _library.Device.CreateBuffer((nuint)(VertexUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
+                    FragmentUniformsBuffer = _library.Device.CreateBuffer((nuint)(FragmentUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
+                    Mesh = _modelFactory.CreatePlane(),
+                    InitialModelMatrix = distanceSensor.ModelMatrix// Float4x4.CreateTranslation(-3.5f, 0, 0) * Float4x4.CreateRotation(Float.PI / 2, 0, 0, 1f)
+                };
+                car.Children.Add(distance);
+                ii++;
+            }
+            
+            // var distance = new Node("frontDistance")
+            // {
+            //     Material = new Material { SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f) },
+            //     VertexUniformsBuffer = _library.Device.CreateBuffer((nuint)(VertexUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
+            //     FragmentUniformsBuffer = _library.Device.CreateBuffer((nuint)(FragmentUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
+            //     Mesh = _modelFactory.CreatePlane(),
+            //     InitialModelMatrix = Float4x4.CreateTranslation(-3.5f, 0, 0) * Float4x4.CreateRotation(Float.PI / 2, 0, 0, 1f)
+            // };
+            // car.Children.Add(distance);
             
             return scene;
         }

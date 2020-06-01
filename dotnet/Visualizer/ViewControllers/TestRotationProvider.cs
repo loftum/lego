@@ -1,6 +1,7 @@
 using System;
 using Lego.Client;
 using Lego.Core;
+using Lego.Core.Description;
 using Maths;
 
 namespace Visualizer.ViewControllers
@@ -39,5 +40,6 @@ namespace Visualizer.ViewControllers
         }
 
         public LegoCarState GetState() => _state;
+        public LegoCarDescriptor GetCarDescriptor() => new LegoCarDescriptor();
     }
 }

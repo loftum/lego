@@ -1,6 +1,6 @@
 ﻿namespace Devices.Distance.Sharp.GP2Y0A41SK0F
 {
-    public struct PlotSample
+    public readonly struct PlotSample
     {
         public double X { get; }
         public double Y { get; }

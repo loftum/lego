@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using LCTP.Core;
 using LCTP.Core.Client;
 using Lego.Core;
+using Lego.Core.Description;
 using Maths;
 
 namespace Lego.Client
@@ -127,6 +129,34 @@ namespace Lego.Client
         }
 
         public LegoCarState GetState() => _state;
+        public LegoCarDescriptor GetCarDescriptor()
+        {
+            return new LegoCarDescriptor
+            {
+                Length = 42,
+                Width = 20,
+                Height = 13,
+                DistanceSensors = new List<DistanceSensor>
+                {
+                    new DistanceSensor
+                    {
+                        ModelMatrix = Float4x4.CreateTranslation(-21f, 0, 0) *
+                                      Float4x4.CreateTranslation(0, 0, -7f) *
+                                      Float4x4.CreateRotation(Float.PI / 6, 0, 1f, 0)
+                    },
+                    new DistanceSensor
+                    {
+                        ModelMatrix = Float4x4.CreateTranslation(-21f, 0, 0)
+                    },
+                    new DistanceSensor
+                    {
+                        ModelMatrix = Float4x4.CreateTranslation(-21f, 0, 0) *
+                                      Float4x4.CreateTranslation(0, 0, 7f) *
+                                      Float4x4.CreateRotation(-Float.PI / 6, 0, 1f, 0)
+                    }
+                }
+            };
+        }
 
         public Double3 GetEulerAngles() => _state.EulerAngles;
 

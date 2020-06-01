@@ -52,7 +52,8 @@ namespace Visualizer.Rendering.Car
             _samplerState = CarRendererFactory.CreateSamplerState(device);
             _depthStencilState = CarRendererFactory.CreateDepthStencilState(device);
 
-            _scene = new SceneFactory(library, vertexDescriptor, CarRendererFactory.MaxInflightBuffers).BuildScene();
+            _scene = new SceneFactory(library, vertexDescriptor, CarRendererFactory.MaxInflightBuffers)
+                .BuildScene(stateProvider.GetCarDescriptor());
             Reshape();
         }
 
@@ -74,19 +75,32 @@ namespace Visualizer.Rendering.Car
             //     Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
             //     ;
             var car = _scene.NodeNamed("car");
-            car.ModelMatrix = Float4x4.Scale(.5f) *
-                                                  Float4x4.CreateRotation(rotation.Z, 0, 0, 1) *
-                                                  Float4x4.CreateRotation(-rotation.Y, 0, 1, 0) *
-                                                  Float4x4.CreateRotation(rotation.X, 1, 0, 0) *
-                                                  car.InitialModelMatrix
+            car.ModelMatrix = // Float4x4.CreateRotation(rotation.Z, 0, 0, 1) *
+                              // Float4x4.CreateRotation(-rotation.Y, 0, 1, 0) *
+                              // Float4x4.CreateRotation(rotation.X, 1, 0, 0) *
+                              car.InitialModelMatrix
                 ;
-            if (state.Distances.Any())
+
+            
+            var distances = car.Children.Where(c => c.Name.StartsWith("distance")).ToList();
+            if (distances.Count == state.Distances.Count)
             {
-                var d = state.Distances[0] / 10;
-                Console.WriteLine($"Distance: {d}");
-                var distance = _scene.NodeNamed("frontDistance");
-                distance.ModelMatrix = Float4x4.CreateTranslation((float)(-d), 0, 0) * distance.InitialModelMatrix;
+                
+                for (var ii = 0; ii < distances.Count; ii++)
+                {
+                    var distance = distances[ii];
+                    distance.ModelMatrix = Float4x4.CreateTranslation((float)(-state.Distances[ii]), 0, 0) * distance.InitialModelMatrix;
+                }
             }
+            
+            
+            // if (state.Distances.Any())
+            // {
+            //     var d = state.Distances[0] / 10;
+            //     Console.WriteLine($"Distance: {d}");
+            //     var distance = _scene.NodeNamed("frontDistance");
+            //     distance.ModelMatrix = Float4x4.CreateTranslation((float)(-d), 0, 0) * distance.InitialModelMatrix;
+            // }
         }
 
         public override void Draw(MTKView view)

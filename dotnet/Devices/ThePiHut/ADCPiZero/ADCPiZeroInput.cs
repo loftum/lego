@@ -4,14 +4,6 @@ using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.ThePiHut.ADCPiZero
 {
-    public interface IAnalogInput
-    {
-        /**
-         * Returns voltage between -2.048 and 2.048 V
-         */
-        double ReadVoltage();
-    }
-
     public class ADCPiZeroInput : IAnalogInput
     {
         public II2CDevice Device { get; }

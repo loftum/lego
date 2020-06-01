@@ -15,6 +15,13 @@ using Timer = System.Timers.Timer;
 
 namespace Lego.Server
 {
+    public enum DistanceMeasurement
+    {
+        Long,
+        Short,
+        Fusion
+    }
+    
     public class LegoCar : ILegoCar
     {
         private const double DistanceLimit = 1.1;
@@ -28,13 +35,15 @@ namespace Lego.Server
         public ILight RightBlinker { get; }
         public ILight Headlights { get; }
         private readonly Timer _blinker = new Timer(2 * Math.PI * 100);
-        private readonly DistanceSensor_GP2Y0A41SK0F _frontDistance;
-        private readonly DistanceSensor_GP2Y0A02YK _longDistance;
+        private readonly DistanceSensor _frontLeftDistance;
+        private readonly DistanceSensor _frontCenterDistance;
+        private readonly DistanceSensor _frontRightDistance;
         
         private readonly InterlockedTimer _updateTimer = new InterlockedTimer(25);
         
-        public Sampled<double> Distance { get; } = new Sampled<double>();
-        public Sampled<double> LongDistance { get; } = new Sampled<double>();
+        public Sampled<double> FrontLeftDistance { get; } = new Sampled<double>();
+        public Sampled<double> FrontCenterDistance { get; } = new Sampled<double>();
+        public Sampled<double> FrontRightDistance { get; } = new Sampled<double>();
         public Sampled<Double3> EulerAngles { get; } = new Sampled<Double3>();
         public Sampled<Quatd> Quaternion { get; } = new Sampled<Quatd>();
 
@@ -50,12 +59,10 @@ namespace Lego.Server
             _motoZero = motoZero;
             _adcBoard = adcBoard;
             _imu = imu;
-            var input = adcBoard.Inputs[0];
-            input.Bitrate = Bitrate._14;
-            input.Pga = Pga._1;
-            input.ConversionMode = ConversionMode.Continuous;
-            _frontDistance = new DistanceSensor_GP2Y0A41SK0F(input);
-            _longDistance = new DistanceSensor_GP2Y0A02YK(input);
+
+            _frontLeftDistance = CreateDistanceSensor(adcBoard.Inputs[0], DistanceCalculators.GP2Y0A41SK0F);
+            _frontCenterDistance = CreateDistanceSensor(adcBoard.Inputs[1], DistanceCalculators.GP2Y0A02YK);
+            _frontRightDistance = CreateDistanceSensor(adcBoard.Inputs[2], DistanceCalculators.GP2Y0A41SK0F);
             
             _motoZero.Motors[0].Enabled = true;
             _motoZero.Motors[1].Enabled = true;
@@ -75,6 +82,14 @@ namespace Lego.Server
             _blinker.Elapsed += Blink;
             _blinker.Start();
             _updateTimer.Elapsed += Update;
+        }
+
+        private static DistanceSensor CreateDistanceSensor(ADCPiZeroInput input, DistanceCalculator calculator)
+        {
+            input.Bitrate = Bitrate._14;
+            input.Pga = Pga._1;
+            input.ConversionMode = ConversionMode.Continuous;
+            return new DistanceSensor(input, calculator);
         }
         
         public void StopEngine()
@@ -97,13 +112,16 @@ namespace Lego.Server
             sw.Start();
             ReadSensors();
             sw.Stop();
-            Console.WriteLine($"E:{sw.ElapsedMilliseconds}");
+            //Console.WriteLine($"E:{sw.ElapsedMilliseconds}");
         }
 
         private void ReadSensors()
         {
-            Distance.Value = _frontDistance.GetCm();
-            LongDistance.Value = _longDistance.GetCm();
+            FrontLeftDistance.Value = _frontLeftDistance.GetCm().Value;
+            // FrontCenterDistance.Value = _frontCenterDistance.GetCm().Value;
+            // FrontRightDistance.Value = _frontRightDistance.GetCm().Value;
+            Console.WriteLine($"Distances: {FrontLeftDistance.Value} cm, {FrontCenterDistance.Value} cm, {FrontRightDistance.Value} cm");
+            
             if (_imu != null)
             {
                 EulerAngles.Value = _imu.ReadEulerData();
@@ -119,8 +137,9 @@ namespace Lego.Server
                 Quaternion = Quaternion.Value,
                 Distances = new List<double>
                 {
-                    Distance.Value,
-                    LongDistance.Value
+                    FrontLeftDistance.Value,
+                    FrontCenterDistance.Value,
+                    FrontRightDistance.Value
                 }
             };
         }
@@ -131,7 +150,7 @@ namespace Lego.Server
 
         public void SetThrottle(int speed)
         {
-            if (Distance.Value < DistanceLimit && Distance.LastValue > DistanceLimit && speed >= 0)
+            if (FrontCenterDistance.Value < DistanceLimit && FrontCenterDistance.LastValue > DistanceLimit && speed >= 0)
             {
                 _motoZero.Motors[0].Speed = 0;
                 _motoZero.Motors[1].Speed = 0;

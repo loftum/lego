@@ -24,7 +24,7 @@ namespace Visualizer
 
         public MainWindowController() : base("MainWindow")
         {
-            var contentRect = new CGRect(0, 0, 1000, 500);
+            var contentRect = new CGRect(0, 0, 1200, 1200);
             base.Window = new MainWindow(contentRect, NSWindowStyle.Titled | NSWindowStyle.Closable | NSWindowStyle.Miniaturizable | NSWindowStyle.Resizable, NSBackingStore.Buffered, false);
 
             //Window.ContentView = _metalTestViewController.View;

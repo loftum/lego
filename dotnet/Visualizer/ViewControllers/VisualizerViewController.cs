@@ -7,6 +7,7 @@ using CoreGraphics;
 using LCTP.Core.Client;
 using Lego.Client;
 using Lego.Core;
+using Lego.Core.Description;
 using Maths;
 using Metal;
 using MetalKit;
@@ -143,6 +144,8 @@ namespace Visualizer.ViewControllers
         {
             return _client?.GetState() ?? new LegoCarState();
         }
+
+        public LegoCarDescriptor GetCarDescriptor() => _client?.GetCarDescriptor() ?? new LegoCarDescriptor();
 
         public Double3 GetEulerAngles() => _client?.GetEulerAngles() ?? Double3.Zero;
 
