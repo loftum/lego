@@ -27,6 +27,7 @@ namespace LCTP.Core.Server
             try
             {
                 _controller.ConnectionOpened();
+                await Task.Delay(750, cancellationToken);
                 await DoHandle(cancellationToken);
             }
             catch (Exception e)

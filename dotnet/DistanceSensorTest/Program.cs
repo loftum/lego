@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Unosquare.RaspberryIO;
 using Devices.ThePiHut.ADCPiZero;
 using System.Threading;
@@ -14,12 +16,19 @@ namespace DistanceSensorTest
             try
             {
                 Pi.Init<BootstrapWiringPi>();
-                var input = args.Length > 0 && int.TryParse(args[0], out var v) ? v : 0;
+                var inputs = args.Select(a => int.TryParse(a, out var v) ? v : -1)
+                    .Where(v => v >= 0 && v <= 7)
+                    .Distinct()
+                    .ToList();
+                if (!inputs.Any())
+                {
+                    inputs = new List<int>{0};
+                }
                 using (var source = new CancellationTokenSource())
                 {
                     Console.CancelKeyPress += (s, e) => source.Cancel();
                     Console.WriteLine("Distance sensor test");
-                    await RunAsync(input, source.Token);
+                    await RunAsync(inputs, source.Token);
                 }
             }
             catch (TaskCanceledException)
@@ -36,26 +45,54 @@ namespace DistanceSensorTest
             return 0;
         }
 
-        private static async Task RunAsync(int inputNumber, CancellationToken token)
+        private static async Task RunAsync(IEnumerable<int> inputNumbers, CancellationToken token)
         {
-            var board = new ADCPiZeroBoard(Pi.I2C);
-            var input = board.Inputs[inputNumber];
-            input.Pga = Pga._1;
-            input.Bitrate = Bitrate._14;
-            input.ConversionMode = ConversionMode.Continuous;
-
-            double lastRead = 0;
+            var inputs = GetInputs(inputNumbers);
+            
+            var lastReadings = new List<Reading>();
             while (!token.IsCancellationRequested)
             {
-                var read = input.ReadVoltage();
-                if (Math.Abs(read - lastRead) > .1)
+                var values = new List<Reading>();
+                foreach (var input in inputs)
                 {
-                    Console.WriteLine($"Read: {read}");
+                    values.Add(new Reading(input.Number, input.ReadVoltage()));
+                    await Task.Delay(25, token);
+                }
+                if (values.Any(v => lastReadings.Any(r => r.InputNumber == v.InputNumber && Math.Abs(v.Voltage - r.Voltage) > .05)))
+                {
+                    Console.WriteLine(string.Join(", ", values.Select(v => $"{v.InputNumber}: {v.Voltage}")));
                 }
 
-                lastRead = read;
+                lastReadings = values;
+                
                 await Task.Delay(100, token);
             }
+        }
+
+        private static List<ADCPiZeroInput> GetInputs(IEnumerable<int> inputNumbers)
+        {
+            var board = new ADCPiZeroBoard(Pi.I2C);
+            var inputs = inputNumbers.Select(i => board.Inputs[i]).ToList();
+            foreach (var input in inputs)
+            {
+                input.Pga = Pga._1;
+                input.Bitrate = Bitrate._14;
+                input.ConversionMode = ConversionMode.Continuous;    
+            }
+
+            return inputs;
+        }
+    }
+
+    internal readonly struct Reading
+    {
+        internal int InputNumber { get; }
+        internal double Voltage { get; }
+        
+        public Reading(int inputNumber, double voltage)
+        {
+            InputNumber = inputNumber;
+            Voltage = voltage;
         }
     }
 }

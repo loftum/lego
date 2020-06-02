@@ -1,5 +1,4 @@
 ﻿using System;
-using Devices.Unosquare;
 using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.ThePiHut.ADCPiZero
@@ -9,7 +8,7 @@ namespace Devices.ThePiHut.ADCPiZero
         public II2CDevice Device { get; }
         public int Channel { get; }
         public int Number { get; }
-        private readonly int _baseConfig;
+        private readonly byte _baseConfig;
         public Bitrate Bitrate { get; set; } = Bitrate._12;
         public Pga Pga { get; set; } = Pga._8;
         public ConversionMode ConversionMode { get; set; } = ConversionMode.Continuous;
@@ -19,8 +18,8 @@ namespace Devices.ThePiHut.ADCPiZero
             Device = device;
             Channel = input < 4 ? input : input - 4; // 0-based
             Number = input;
-            var channelBits = 0b0110_0000 & (Channel << 5);
-            _baseConfig = 0b1001_1100 | channelBits;
+            var channelBits = (byte)(0b0110_0000 & (Channel << 5));
+            _baseConfig = (byte)(0b1001_1100 | channelBits);
             /*
              * Configuration register:
              * Bit 7 (RDY): Ready bit
@@ -43,7 +42,7 @@ namespace Devices.ThePiHut.ADCPiZero
              */
         }
 
-        private int GetConfig()
+        private byte GetConfig()
         {
             var config = _baseConfig;
             switch (ConversionMode)
@@ -120,7 +119,6 @@ namespace Devices.ThePiHut.ADCPiZero
         public double ReadVoltage()
         {
             var raw = ReadRaw();
-            //Console.WriteLine($"Raw: {raw}");
             var gain = GetGain();
             var lsbVoltage = GetLsbVoltage();
             var voltage = raw * lsbVoltage / gain;
@@ -138,9 +136,13 @@ namespace Devices.ThePiHut.ADCPiZero
             while (true)
             {
                 byte status = 0;
+                //Console.WriteLine($"Config: {config}, Channel: {Channel}, Input: {Number}");
+                //Device.WriteAddressByte(Device.DeviceId, config);
+                Device.Write(config);
                 if (Bitrate == Bitrate._18)
                 {
-                    var readbuffer = Device.ReadBlock(config, 4);
+                    //var readbuffer = Device.ReadBlock(Device.DeviceId, 4);
+                    var readbuffer = Device.Read(4);
                     hi = readbuffer[0];
                     med = readbuffer[1];
                     lo = readbuffer[2];
@@ -148,11 +150,14 @@ namespace Devices.ThePiHut.ADCPiZero
                 }
                 else
                 {
-                    var readbuffer = Device.ReadBlock(config, 3);
+                    //var readbuffer = Device.ReadBlock(Device.DeviceId, 3);
+                    var readbuffer = Device.Read(3);
                     hi = readbuffer[0];
                     med = readbuffer[1];
                     status = readbuffer[2];
                 }
+
+                var channel = (byte)(status & 0b0110_0000) >> 5;
 
                 // check bit 7 of s to see if the conversion result is ready
                 if ((status & 0b1000_0000) == 0)

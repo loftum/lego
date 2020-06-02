@@ -118,8 +118,8 @@ namespace Lego.Server
         private void ReadSensors()
         {
             FrontLeftDistance.Value = _frontLeftDistance.GetCm().Value;
-            // FrontCenterDistance.Value = _frontCenterDistance.GetCm().Value;
-            // FrontRightDistance.Value = _frontRightDistance.GetCm().Value;
+            FrontCenterDistance.Value = _frontCenterDistance.GetCm().Value;
+            FrontRightDistance.Value = _frontRightDistance.GetCm().Value;
             Console.WriteLine($"Distances: {FrontLeftDistance.Value} cm, {FrontCenterDistance.Value} cm, {FrontRightDistance.Value} cm");
             
             if (_imu != null)
