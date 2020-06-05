@@ -13,10 +13,10 @@ namespace Lego.Core.Description
         public float Length { get; set; }
         public float Width { get; set; }
         public float Height { get; set; }
-        public List<DistanceSensor> DistanceSensors { get; set; } = new List<DistanceSensor>();
+        public List<DistanceSensorDescriptor> DistanceSensors { get; set; } = new List<DistanceSensorDescriptor>();
     }
 
-    public class DistanceSensor
+    public class DistanceSensorDescriptor
     {
         public Float4x4 ModelMatrix { get; set; }
     }

@@ -11,6 +11,7 @@ using Lego.Server;
 using Lego.Server.Simulator;
 using Shared;
 using Unosquare.PiGpio;
+using Unosquare.PiGpio.NativeEnums;
 using Unosquare.PiGpio.NativeMethods;
 
 namespace LegoCarServer
@@ -21,6 +22,7 @@ namespace LegoCarServer
         {
             try
             {
+                Setup.GpioCfgSetInternals(ConfigFlags.NoSignalHandler); // NO SIGINT or SIGRTMIN (runtime)
                 Setup.GpioInitialise();
                 if (args.Contains("-simulator"))
                 {

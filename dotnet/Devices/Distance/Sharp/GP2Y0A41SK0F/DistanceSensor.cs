@@ -1,5 +1,4 @@
-﻿using System;
-using Devices.ThePiHut.ADCPiZero;
+﻿using Devices.ThePiHut.ADCPiZero;
 
 namespace Devices.Distance.Sharp.GP2Y0A41SK0F
 {
