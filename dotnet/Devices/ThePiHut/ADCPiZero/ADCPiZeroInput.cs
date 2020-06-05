@@ -1,4 +1,5 @@
 ﻿using System;
+using Maths;
 using Unosquare.PiGpio.ManagedModel;
 
 namespace Devices.ThePiHut.ADCPiZero
@@ -121,32 +122,25 @@ namespace Devices.ThePiHut.ADCPiZero
             var raw = ReadRaw();
             var gain = GetGain();
             var lsbVoltage = GetLsbVoltage();
-            var voltage = raw * lsbVoltage / gain;
+            var voltage = 2.471 * raw * lsbVoltage / gain;
             return voltage;
         }
         
-        
-        
-        public long ReadRaw()
+        private int ReadRaw()
         {
             var config = GetConfig();
             byte hi = 0;
             byte med = 0;
             byte lo = 0;
             var attempts = 0;
-
-            //Console.WriteLine($"Number: {Number}, Config: {config.Format()}");
             
             while (true)
             {
                 Device.Write(config);
                 byte status = 0;
-                //Console.WriteLine($"Config: {config}, Channel: {Channel}, Input: {Number}");
-                //Device.WriteAddressByte(Device.DeviceId, config);
                 
                 if (Bitrate == Bitrate._18)
                 {
-                    //var readbuffer = Device.ReadBlock(Device.DeviceId, 4);
                     var readbuffer = Device.ReadRaw(4);
                     hi = readbuffer[0];
                     med = readbuffer[1];
@@ -155,7 +149,6 @@ namespace Devices.ThePiHut.ADCPiZero
                 }
                 else
                 {
-                    //var readbuffer = Device.ReadBlock(Device.DeviceId, 3);
                     var readbuffer = Device.ReadRaw(3);
                     hi = readbuffer[0];
                     med = readbuffer[1];
@@ -177,14 +170,33 @@ namespace Devices.ThePiHut.ADCPiZero
                 attempts++;
             }
 
-            return Bitrate switch
+            int result;
+            // Supporting negative numbers, although that would be weird.
+            switch (Bitrate)
             {
-                Bitrate._18 => ((hi & 3) << 16) | (med << 8) | lo,
-                Bitrate._16 => (hi << 8) | med,
-                Bitrate._14 => ((hi & 63) << 8) | med,
-                Bitrate._12 => ((hi & 15) << 8) | med,
-                _ => 0
-            };
+                case Bitrate._18:
+                    result = ((hi & 0b_0000_0011) << 16) | (med << 8) | lo;
+                    return result >> 17 == 1
+                        ? result & ~(1 << 17)
+                        : result;
+                case Bitrate._16:
+                    result = (hi << 8) | med;
+                    return result >> 15 == 1
+                        ? result & ~(1 << 15)
+                        : result;
+                case Bitrate._14:
+                    result = ((hi & 0b_0011_1111) << 8) | med;
+                    return result >> 13 == 1
+                        ? result & ~(1 << 13)
+                        : result;
+                case Bitrate._12:
+                    result = ((hi & 0b_0000_1111) << 8) | med;
+                    return result >> 11 == 1
+                        ? result & ~(1 << 11)
+                        : result;
+                default:
+                    return 0;
+            }
         }
     }
 }
