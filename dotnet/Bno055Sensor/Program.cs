@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Devices;
 using Devices.Adafruit.BNO055;
 using Maths;
+using Unosquare.PiGpio;
 using Unosquare.RaspberryIO;
 using Unosquare.WiringPi;
 
@@ -183,7 +184,7 @@ namespace Bno055Sensor
 
         private static Task CalibrateAsync(CancellationToken token)
         {
-            var chip = new BNO055Sensor(Pi.I2C, OperationMode.NDOF);
+            var chip = new BNO055Sensor(Board.Peripherals, OperationMode.NDOF);
             return new Calibrator(chip).CalibrateAsync(token);
         }
         
@@ -192,7 +193,7 @@ namespace Bno055Sensor
         {
             while (true)
             {
-                var chip = new BNO055Sensor(Pi.I2C, OperationMode.NDOF);
+                var chip = new BNO055Sensor(Board.Peripherals, OperationMode.NDOF);
                 Console.WriteLine(chip.UnitSelection);
 
                 Double3 velocity = 0;

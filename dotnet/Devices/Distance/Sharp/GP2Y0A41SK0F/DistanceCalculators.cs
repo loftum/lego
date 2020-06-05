@@ -3,64 +3,68 @@ namespace Devices.Distance.Sharp.GP2Y0A41SK0F
     public class DistanceCalculators
     {
         /// <summary>
-        /// 4-30 cm (or 9-42 cm in practice)
+        /// 4-30 cm
         /// </summary>
         public static DistanceCalculator GP2Y0A41SK0F { get; } = new DistanceCalculator(new [] {
-            new PlotSample(0.75, 42),
-            new PlotSample(0.85, 37.6),
-            new PlotSample(1.035, 31.6),
-            new PlotSample(1.13, 25.6),
-            new PlotSample(1.22, 20.8),
-            new PlotSample(1.31, 19.9),
-            new PlotSample(1.41, 18.6),
-            new PlotSample(1.5, 17.1),
-            new PlotSample(1.6, 16.3),
-            new PlotSample(1.69, 15.5),
-            new PlotSample(1.79, 14.7),
-            new PlotSample(1.88, 14.3),
-            new PlotSample(1.98, 13.6),
-            new PlotSample(2.07, 13),
-            new PlotSample(2.16, 12.3),
-            new PlotSample(2.26, 12),
-            new PlotSample(2.35, 11.4),
-            new PlotSample(2.45, 10.9),
-            new PlotSample(2.54, 10.3),
-            new PlotSample(2.64, 9.9),
-            new PlotSample(2.73, 9.5),
-            new PlotSample(2.82, 9.2),
-            new PlotSample(2.91, 9)
+            
+            new PlotSample(0.76, 40),
+            new PlotSample(0.78, 39),
+            new PlotSample(0.80, 38),
+            new PlotSample(0.82, 37),
+            new PlotSample(0.84, 36),
+            new PlotSample(0.88, 35),
+            new PlotSample(0.90, 33),
+            new PlotSample(0.94, 32),
+            new PlotSample(0.96, 31),
+            new PlotSample(0.97, 30),
+            new PlotSample(1.00, 29),
+            new PlotSample(1.01, 28),
+            new PlotSample(1.05, 27),
+            new PlotSample(1.09, 26),
+            new PlotSample(1.11, 25),
+            new PlotSample(1.15, 24),
+            new PlotSample(1.19, 23),
+            new PlotSample(1.24, 22),
+            new PlotSample(1.28, 21),
+            new PlotSample(1.33, 20),
+            new PlotSample(1.41, 19),
+            new PlotSample(1.47, 18),
+            new PlotSample(1.54, 17),
+            new PlotSample(1.62, 16),
+            new PlotSample(1.70, 15),
+            new PlotSample(1.82, 14),
+            new PlotSample(1.92, 13),
+            new PlotSample(2.05, 12),
+            new PlotSample(2.21, 11),
+            new PlotSample(2.37, 10),
+            new PlotSample(2.58, 9),
+            new PlotSample(2.80, 8),
+            new PlotSample(3.04, 7),
+            new PlotSample(3.08, 5)
         });
         
         /// <summary>
-        /// 20 - 150 cm (or 45-
+        /// 20 - 150 cm (or 11-170)
         /// </summary>
         public static DistanceCalculator GP2Y0A02YK { get; } = new DistanceCalculator(new [] {
-            
-            new PlotSample(0.39, 168),
-            new PlotSample(0.45, 147),
-            new PlotSample(0.51, 134),
-            new PlotSample(0.58, 128),
-            new PlotSample(0.64, 120),
-            new PlotSample(0.78, 110),
-            new PlotSample(0.84, 103),
-            new PlotSample(0.90, 98),
-            new PlotSample(0.96, 95),
-            new PlotSample(1.03, 87),
-            new PlotSample(1.1, 83.5),
-            new PlotSample(1.16, 78),
-            new PlotSample(1.22, 74),
-            new PlotSample(1.29, 70),
-            new PlotSample(1.35, 68),
-            new PlotSample(1.41, 65.5),
-            new PlotSample(1.48, 62.5),
-            new PlotSample(1.54, 61),
-            new PlotSample(1.61, 58),
-            new PlotSample(1.67, 56.5),
-            new PlotSample(1.73, 54),
-            new PlotSample(1.80, 52),
-            new PlotSample(1.86, 51.5),
-            new PlotSample(1.93, 48),
-            new PlotSample(1.99, 45)
+
+            new PlotSample(0.25, 100),
+            new PlotSample(0.29, 160),
+            new PlotSample(0.40, 150),
+            new PlotSample(0.33, 140),
+            new PlotSample(0.51, 130),
+            new PlotSample(0.43, 120),
+            new PlotSample(0.51, 110),
+            new PlotSample(0.63, 100),
+            new PlotSample(0.49, 90),
+            new PlotSample(0.65, 80),
+            new PlotSample(0.72, 70),
+            new PlotSample(0.77, 60),
+            new PlotSample(1.07, 50),
+            new PlotSample(1.32, 40),
+            new PlotSample(1.81, 30),
+            new PlotSample(2.39, 20),
+            new PlotSample(2.75, 11)
         });
     }
 }

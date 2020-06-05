@@ -66,21 +66,12 @@ namespace Visualizer.Rendering.Car
                     VertexUniformsBuffer = _library.Device.CreateBuffer((nuint)(VertexUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
                     FragmentUniformsBuffer = _library.Device.CreateBuffer((nuint)(FragmentUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
                     Mesh = _modelFactory.CreatePlane(),
-                    InitialModelMatrix = distanceSensor.ModelMatrix// Float4x4.CreateTranslation(-3.5f, 0, 0) * Float4x4.CreateRotation(Float.PI / 2, 0, 0, 1f)
+                    // Flipping plane around Z-axis. Distances are translated along plane's Y axis
+                    InitialModelMatrix = distanceSensor.ModelMatrix * Float4x4.CreateRotation(Float.PI / 2, 0, 0, 1f)
                 };
                 car.Children.Add(distance);
                 ii++;
             }
-            
-            // var distance = new Node("frontDistance")
-            // {
-            //     Material = new Material { SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f) },
-            //     VertexUniformsBuffer = _library.Device.CreateBuffer((nuint)(VertexUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
-            //     FragmentUniformsBuffer = _library.Device.CreateBuffer((nuint)(FragmentUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
-            //     Mesh = _modelFactory.CreatePlane(),
-            //     InitialModelMatrix = Float4x4.CreateTranslation(-3.5f, 0, 0) * Float4x4.CreateRotation(Float.PI / 2, 0, 0, 1f)
-            // };
-            // car.Children.Add(distance);
             
             return scene;
         }

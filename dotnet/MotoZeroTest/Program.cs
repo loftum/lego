@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Devices.ThePiHut.MotoZero;
-using Unosquare.RaspberryIO;
+using Unosquare.PiGpio;
 
 namespace MotoZeroTest
 {
@@ -15,7 +15,7 @@ namespace MotoZeroTest
             
             try
             {
-                using (var motoZero = new MotoZeroBoard(Pi.Gpio))
+                using (var motoZero = new MotoZeroBoard(Board.Pins))
                 {
                     var motor = motoZero.Motors[oneBasedMotorNumber - 1];
                     motor.Enabled = true;

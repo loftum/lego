@@ -1,5 +1,4 @@
-﻿using System;
-using Devices.ThePiHut.ADCPiZero;
+﻿using Devices.ThePiHut.ADCPiZero;
 
 namespace Devices.Distance.Sharp.GP2Y0A41SK0F
 {
@@ -24,7 +23,7 @@ namespace Devices.Distance.Sharp.GP2Y0A41SK0F
 
         public CalculatedValue GetCm()
         {
-            var voltage = _input.ReadVoltage() * 1.465; // 0-3 V
+            var voltage = _input.ReadVoltage();
             var distance = Map(voltage);
             return distance;
         }
@@ -32,7 +31,6 @@ namespace Devices.Distance.Sharp.GP2Y0A41SK0F
         private CalculatedValue Map(double voltage)
         {
             var cm = _calculator.CalculateDistance(voltage);
-            //Console.WriteLine($"V:{voltage}, cm:{cm}");
             return cm;
         }
     }

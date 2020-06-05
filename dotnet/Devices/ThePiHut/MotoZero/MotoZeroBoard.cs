@@ -1,6 +1,5 @@
 ﻿using System;
-using Unosquare.RaspberryIO.Abstractions;
-using Unosquare.WiringPi;
+using Unosquare.PiGpio.ManagedModel;
 
 namespace Devices.ThePiHut.MotoZero
 {
@@ -8,14 +7,14 @@ namespace Devices.ThePiHut.MotoZero
     {
         public MotoZeroMotor[] Motors { get; }
 
-        public MotoZeroBoard(IGpioController gpio)
+        public MotoZeroBoard(GpioPinCollection gpio)
         {
             Motors = new[]
             {
-                new MotoZeroMotor(1, (GpioPin)gpio[5], (GpioPin)gpio[24], (GpioPin)gpio[27]),
-                new MotoZeroMotor(2, (GpioPin)gpio[17], (GpioPin)gpio[6], (GpioPin)gpio[22]),
-                new MotoZeroMotor(3, (GpioPin)gpio[12], (GpioPin)gpio[23], (GpioPin)gpio[16]),
-                new MotoZeroMotor(4, (GpioPin)gpio[25], (GpioPin)gpio[13], (GpioPin)gpio[18])
+                new MotoZeroMotor(1, gpio[5], gpio[24], gpio[27]),
+                new MotoZeroMotor(2, gpio[17], gpio[6], gpio[22]),
+                new MotoZeroMotor(3, gpio[12], gpio[23], gpio[16]),
+                new MotoZeroMotor(4, gpio[25], gpio[13], gpio[18])
             };
         }
 

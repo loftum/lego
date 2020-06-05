@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using Devices.Unosquare;
 using Maths;
-using Unosquare.RaspberryIO.Abstractions;
+using Unosquare.PiGpio.ManagedModel;
 
 namespace Devices.Adafruit.BNO055
 {
     public class BNO055Sensor
     {
-        public const int Id = 0xA0;
-        public const int DefaultI2CAddress = 0x28;
-        public const int AlternativeI2CAddress = 0x29;
+        public const byte Id = 0xA0;
+        public const byte DefaultI2CAddress = 0x28;
+        public const byte AlternativeI2CAddress = 0x29;
 
-        private readonly II2CDevice _device;
+        private readonly I2cDevice _device;
         public const string OffsetFileName = "bno055.offsets.txt";
 
         /// <summary>
@@ -179,9 +178,9 @@ namespace Devices.Adafruit.BNO055
             }
         }
 
-        public BNO055Sensor(II2CBus bus, OperationMode mode)
+        public BNO055Sensor(BoardPeripheralsService bus, OperationMode mode)
         {
-            _device = bus.AddDevice(DefaultI2CAddress);
+            _device = bus.OpenI2cDevice(DefaultI2CAddress);
             VerifyId();
             UnitSelection = new UnitSelection(_device);
             Begin(mode);
@@ -231,13 +230,13 @@ namespace Devices.Adafruit.BNO055
 
         private void VerifyId(int retries = 1)
         {
-            var id = _device.ReadAddressByte((int) Registers.BNO055_CHIP_ID_ADDR);
+            var id = _device.ReadByte((int) Registers.BNO055_CHIP_ID_ADDR);
             var count = 0;
             while (id != Id && count < retries)
             {
                 count++;
                 Thread.Sleep(100);
-                id = _device.ReadAddressByte((int)Registers.BNO055_CHIP_ID_ADDR);
+                id = _device.ReadByte((int)Registers.BNO055_CHIP_ID_ADDR);
             }
             if (id != Id)
             {
@@ -265,23 +264,23 @@ namespace Devices.Adafruit.BNO055
 
         private byte ReadByte(Registers register)
         {
-            return _device.ReadAddressByte((int) register);
+            return _device.ReadByte((byte) register);
         }
         
         private byte[] ReadBytes(Registers register, int length)
         {
-            var addressStart = (int)register;
+            var addressStart = (byte)register;
             return _device.ReadBlock(addressStart, length);
         }
 
         private void WriteByte(Registers register, byte value)
         {
-            _device.WriteAddressByte((int)register, value);
+            _device.Write((byte)register, value);
         }
         
-        private void WriteBytes(Registers register, IEnumerable<byte> values)
+        private void WriteBytes(Registers register, byte[] values)
         {
-            _device.WriteBlock((int) register, values);
+            _device.Write((byte) register, values);
         }
 
         public double ReadTemp()

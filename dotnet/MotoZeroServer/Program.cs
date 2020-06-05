@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Devices.ThePiHut.MotoZero;
 using LCTP.Core.Server;
-using Unosquare.RaspberryIO;
+using Unosquare.PiGpio;
 
 namespace MotoZeroServer
 {
@@ -44,7 +44,7 @@ namespace MotoZeroServer
 
         private static async Task Run(CancellationToken cancellationToken)
         {
-            using (var board = new MotoZeroBoard(Pi.Gpio))
+            using (var board = new MotoZeroBoard(Board.Pins))
             {
                 var controller = new MotoZeroController(board);
                 using (var server = new LctpTcpServer(5080, controller))

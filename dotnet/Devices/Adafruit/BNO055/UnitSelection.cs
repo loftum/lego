@@ -1,18 +1,18 @@
 ﻿using System.Text;
-using Unosquare.RaspberryIO.Abstractions;
+using Unosquare.PiGpio.ManagedModel;
 
 namespace Devices.Adafruit.BNO055
 {
     public class UnitSelection
     {
-        private readonly II2CDevice _device;
+        private readonly I2cDevice _device;
         private FusionDataFormat _fusionDataFormat;
         private TemperatureUnit _temperatureUnit;
         private EulerAngleUnit _eulerAngleUnit;
         private AngularRate _angularVelocityUnit;
         private AccelerometerUnit _accelerometerUnit;
 
-        public UnitSelection(II2CDevice device)
+        public UnitSelection(I2cDevice device)
         {
             _device = device;
             Load();
@@ -89,14 +89,14 @@ namespace Devices.Adafruit.BNO055
         
         private void Load()
         {
-            var raw = _device.ReadAddressByte((int) Registers.BNO055_UNIT_SEL_ADDR);
+            var raw = _device.ReadByte((int) Registers.BNO055_UNIT_SEL_ADDR);
             ParseRegisterValue(raw);
         }
 
         private void Save()
         {
             var raw = GetRegisterValue();
-            _device.WriteAddressByte((int)Registers.BNO055_UNIT_SEL_ADDR, raw);
+            _device.Write((int)Registers.BNO055_UNIT_SEL_ADDR, raw);
         }
 
         public override string ToString()

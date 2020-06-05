@@ -5,7 +5,8 @@ using Unosquare.RaspberryIO;
 using Devices.ThePiHut.ADCPiZero;
 using System.Threading;
 using System.Threading.Tasks;
-using Provisional.PiGpio;
+using Unosquare.PiGpio;
+using Unosquare.PiGpio.NativeEnums;
 using Unosquare.PiGpio.NativeMethods;
 
 namespace DistanceSensorTest
@@ -16,7 +17,8 @@ namespace DistanceSensorTest
         {
             try
             {
-                Pi.Init<ProvisionalPiGpio>();
+                Setup.GpioCfgSetInternals(ConfigFlags.NoSignalHandler);
+                Setup.GpioInitialise();
                 var inputs = args.Select(a => int.TryParse(a, out var v) ? v : -1)
                     .Where(v => v >= 0 && v <= 7)
                     .Distinct()
@@ -64,7 +66,7 @@ namespace DistanceSensorTest
                     values.Add(new Reading(input.Number, input.ReadVoltage()));
                     await Task.Delay(25, token);
                 }
-                if (values.Any(v => lastReadings.Any(r => r.InputNumber == v.InputNumber && Math.Abs(v.Voltage - r.Voltage) > .05)))
+                if (values.Any(v => lastReadings.Any(r => r.InputNumber == v.InputNumber && Math.Abs(v.Voltage - r.Voltage) > .005)))
                 {
                     Console.WriteLine(string.Join(", ", values.Select(v => $"{v.InputNumber}: {v.Voltage}")));
                 }
@@ -77,7 +79,7 @@ namespace DistanceSensorTest
 
         private static List<ADCPiZeroInput> GetInputs(IEnumerable<int> inputNumbers)
         {
-            var board = new ADCPiZeroBoard(Pi.I2C);
+            var board = new ADCPiZeroBoard(Board.Peripherals);
             var inputs = inputNumbers.Select(i => board.Inputs[i]).ToList();
             foreach (var input in inputs)
             {
