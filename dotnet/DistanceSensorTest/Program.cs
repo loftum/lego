@@ -6,6 +6,7 @@ using Devices.ThePiHut.ADCPiZero;
 using System.Threading;
 using System.Threading.Tasks;
 using Provisional.PiGpio;
+using Unosquare.PiGpio;
 using Unosquare.PiGpio.NativeMethods;
 
 namespace DistanceSensorTest
@@ -77,7 +78,7 @@ namespace DistanceSensorTest
 
         private static List<ADCPiZeroInput> GetInputs(IEnumerable<int> inputNumbers)
         {
-            var board = new ADCPiZeroBoard(Pi.I2C);
+            var board = new ADCPiZeroBoard(Board.Peripherals);
             var inputs = inputNumbers.Select(i => board.Inputs[i]).ToList();
             foreach (var input in inputs)
             {

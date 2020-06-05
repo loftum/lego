@@ -1,6 +1,6 @@
 ﻿using System;
-using Unosquare.RaspberryIO.Abstractions;
-using Unosquare.WiringPi;
+using Unosquare.PiGpio.ManagedModel;
+using Unosquare.PiGpio.NativeEnums;
 
 namespace Devices.ThePiHut.MotoZero
 {
@@ -28,7 +28,7 @@ namespace Devices.ThePiHut.MotoZero
             {
                 var state = value ? "enabled" : "disabled";
                 Console.WriteLine($"Motor {Number} {state}");
-                _enablePin.Write(value);
+                _enablePin.Write(value ? 1 : 0);
                 _enabled = value;
             }
         }
@@ -48,22 +48,22 @@ namespace Devices.ThePiHut.MotoZero
                 switch (newValue)
                 {
                     case 0:
-                        _plusPin.SoftPwmValue = 0;
-                        _minusPin.SoftPwmValue = 0;
+                        _plusPin.SoftPwm.DutyCycle = 0;
+                        _minusPin.SoftPwm.DutyCycle = 0;
                         break;
                     case int pos when pos > 0 && _speed >= 0:
-                        _plusPin.SoftPwmValue = abs;
+                        _plusPin.SoftPwm.DutyCycle = abs;
                         break;
                     case int pos when pos > 0 && _speed < 0:
-                        _minusPin.SoftPwmValue = 0;
-                        _plusPin.SoftPwmValue = abs;
+                        _minusPin.SoftPwm.DutyCycle = 0;
+                        _plusPin.SoftPwm.DutyCycle = abs;
                         break;
                     case int neg when neg < 0 && _speed <= 0:
-                        _minusPin.SoftPwmValue = abs;
+                        _minusPin.SoftPwm.DutyCycle = abs;
                         break;
                     case int neg when neg < 0 && _speed > 0:
-                        _plusPin.SoftPwmValue = 0;
-                        _minusPin.SoftPwmValue = abs;
+                        _plusPin.SoftPwm.DutyCycle = 0;
+                        _minusPin.SoftPwm.DutyCycle = abs;
                         break;
                 }
                 _speed = newValue;
@@ -87,11 +87,13 @@ namespace Devices.ThePiHut.MotoZero
         public MotoZeroMotor(int number, GpioPin enablePin, GpioPin plusPin, GpioPin minusPin)
         {
             Number = number;
-            enablePin.PinMode = GpioPinDriveMode.Output;
-            plusPin.PinMode = GpioPinDriveMode.Output;
-            plusPin.StartSoftPwm(0, Range);
-            minusPin.PinMode = GpioPinDriveMode.Output;
-            minusPin.StartSoftPwm(0, Range);
+            enablePin.Direction = PinDirection.Output;
+            plusPin.Direction = PinDirection.Output;
+
+            plusPin.SoftPwm.Range = Range;
+
+            minusPin.Direction = PinDirection.Output;
+            minusPin.SoftPwm.Range = Range;
             _enablePin = enablePin;
             _plusPin = plusPin;
             _minusPin = minusPin;

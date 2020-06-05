@@ -1,24 +1,25 @@
-﻿using Unosquare.RaspberryIO.Abstractions;
+﻿using Unosquare.PiGpio.ManagedModel;
+using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.ThePiHut.ADCPiZero
 {
     public class ADCPiZeroBoard
     {
-        private const int DefaultAddress = 0x68;
+        private const byte DefaultAddress = 0x68;
 
-        public II2CDevice Adc1 { get; }
-        public II2CDevice Adc2 { get; }
+        public I2cDevice Adc1 { get; }
+        public I2cDevice Adc2 { get; }
 
         public ADCPiZeroInput[] Inputs { get; }
 
-        public ADCPiZeroBoard(II2CBus bus) : this(bus, DefaultAddress)
+        public ADCPiZeroBoard(BoardPeripheralsService bus) : this(bus, DefaultAddress)
         {
         }
 
-        public ADCPiZeroBoard(II2CBus bus, int address)
+        public ADCPiZeroBoard(BoardPeripheralsService bus, byte address)
         {
-            Adc1 = bus.AddDevice(address);
-            Adc2 = bus.AddDevice(address + 1);
+            Adc1 = bus.OpenI2cDevice(address);
+            Adc2 = bus.OpenI2cDevice((byte)(address + 1));
             var inputs = new ADCPiZeroInput[8];
             
             for (var ii = 0; ii < 8; ii++)

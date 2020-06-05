@@ -1,13 +1,11 @@
 ﻿using System;
-using Devices.Unosquare;
-using Maths;
-using Unosquare.RaspberryIO.Abstractions;
+using Unosquare.PiGpio.ManagedModel;
 
 namespace Devices.ThePiHut.ADCPiZero
 {
     public class ADCPiZeroInput : IAnalogInput
     {
-        public II2CDevice Device { get; }
+        public I2cDevice Device { get; }
         public int Channel { get; }
         public int Number { get; }
         private readonly byte _baseConfig;
@@ -15,7 +13,7 @@ namespace Devices.ThePiHut.ADCPiZero
         public Pga Pga { get; set; } = Pga._8;
         public ConversionMode ConversionMode { get; set; } = ConversionMode.Continuous;
 
-        public ADCPiZeroInput(II2CDevice device, int input)
+        public ADCPiZeroInput(I2cDevice device, int input)
         {
             Device = device;
             Channel = input < 4 ? input : input - 4; // 0-based
@@ -149,7 +147,7 @@ namespace Devices.ThePiHut.ADCPiZero
                 if (Bitrate == Bitrate._18)
                 {
                     //var readbuffer = Device.ReadBlock(Device.DeviceId, 4);
-                    var readbuffer = Device.Read(4);
+                    var readbuffer = Device.ReadRaw(4);
                     hi = readbuffer[0];
                     med = readbuffer[1];
                     lo = readbuffer[2];
@@ -158,7 +156,7 @@ namespace Devices.ThePiHut.ADCPiZero
                 else
                 {
                     //var readbuffer = Device.ReadBlock(Device.DeviceId, 3);
-                    var readbuffer = Device.Read(3);
+                    var readbuffer = Device.ReadRaw(3);
                     hi = readbuffer[0];
                     med = readbuffer[1];
                     status = readbuffer[2];
