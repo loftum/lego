@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Timers;
 using AppKit;
@@ -145,7 +146,7 @@ namespace Visualizer.ViewControllers
             return _client?.GetState() ?? new LegoCarState();
         }
 
-        public LegoCarDescriptor GetCarDescriptor() => _client?.GetCarDescriptor() ?? new LegoCarDescriptor();
+        public LegoCarDescriptor GetCarDescriptor() => LegoCarDescriptor.RaceCar();
 
         public Double3 GetEulerAngles() => _client?.GetEulerAngles() ?? Double3.Zero;
 

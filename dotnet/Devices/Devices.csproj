@@ -13,21 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="gpio.2.44">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="libwiringPi.so.2.44">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="libwiringPi.so.2.46">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="libwiringPi.so.2.50">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="4tronix\Datasheets\" />
     <Folder Include="Adafruit\BNO055\Datasheet\" />
     <Folder Include="ThePiHut\MotoZero\Datasheets\" />
