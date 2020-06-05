@@ -5,7 +5,8 @@ using Unosquare.RaspberryIO;
 using Devices.ThePiHut.ADCPiZero;
 using System.Threading;
 using System.Threading.Tasks;
-using Unosquare.WiringPi;
+using Provisional.PiGpio;
+using Unosquare.PiGpio.NativeMethods;
 
 namespace DistanceSensorTest
 {
@@ -15,15 +16,16 @@ namespace DistanceSensorTest
         {
             try
             {
-                Pi.Init<BootstrapWiringPi>();
+                Pi.Init<ProvisionalPiGpio>();
                 var inputs = args.Select(a => int.TryParse(a, out var v) ? v : -1)
                     .Where(v => v >= 0 && v <= 7)
                     .Distinct()
                     .ToList();
                 if (!inputs.Any())
                 {
-                    inputs = new List<int>{0};
+                    inputs = new List<int> {0};
                 }
+
                 using (var source = new CancellationTokenSource())
                 {
                     Console.CancelKeyPress += (s, e) => source.Cancel();
@@ -40,6 +42,10 @@ namespace DistanceSensorTest
             {
                 Console.WriteLine(ex);
                 return -1;
+            }
+            finally
+            {
+                Setup.GpioTerminate();
             }
 
             return 0;

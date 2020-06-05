@@ -9,6 +9,7 @@ using Devices.ThePiHut.ServoPWMPiZero;
 using LCTP.Core.Server;
 using Lego.Server;
 using Lego.Server.Simulator;
+using Provisional.PiGpio;
 using Shared;
 using Unosquare.RaspberryIO;
 using Unosquare.WiringPi;
@@ -21,7 +22,7 @@ namespace LegoCarServer
         {
             if (args.Contains("-simulator"))
             {
-                return await ConsoleRunner.RunAsync(RunSimulatorAsync);    
+                return await ConsoleRunner.RunAsync(RunSimulatorAsync);
             }
             return await ConsoleRunner.RunAsync(RunAsync);
         }
@@ -41,7 +42,9 @@ namespace LegoCarServer
         {
             Console.WriteLine("LegoCar Server v1.0");
 
-            Pi.Init<BootstrapWiringPi>();
+            //Pi.Init<BootstrapWiringPi>();
+            Pi.Init<ProvisionalPiGpio>();
+            
             using (var pwm = new ServoPwmBoard(Pi.I2C, Pi.Gpio))
             {
                 using (var motoZero = new MotoZeroBoard(Pi.Gpio))

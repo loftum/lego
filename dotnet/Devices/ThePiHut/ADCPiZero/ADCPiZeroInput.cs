@@ -1,4 +1,6 @@
 ﻿using System;
+using Devices.Unosquare;
+using Maths;
 using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.ThePiHut.ADCPiZero
@@ -124,7 +126,9 @@ namespace Devices.ThePiHut.ADCPiZero
             var voltage = raw * lsbVoltage / gain;
             return voltage;
         }
-
+        
+        
+        
         public long ReadRaw()
         {
             var config = GetConfig();
@@ -133,12 +137,15 @@ namespace Devices.ThePiHut.ADCPiZero
             byte lo = 0;
             var attempts = 0;
 
+            //Console.WriteLine($"Number: {Number}, Config: {config.Format()}");
+            
             while (true)
             {
+                Device.Write(config);
                 byte status = 0;
                 //Console.WriteLine($"Config: {config}, Channel: {Channel}, Input: {Number}");
                 //Device.WriteAddressByte(Device.DeviceId, config);
-                Device.Write(config);
+                
                 if (Bitrate == Bitrate._18)
                 {
                     //var readbuffer = Device.ReadBlock(Device.DeviceId, 4);
@@ -156,8 +163,6 @@ namespace Devices.ThePiHut.ADCPiZero
                     med = readbuffer[1];
                     status = readbuffer[2];
                 }
-
-                var channel = (byte)(status & 0b0110_0000) >> 5;
 
                 // check bit 7 of s to see if the conversion result is ready
                 if ((status & 0b1000_0000) == 0)

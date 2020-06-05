@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Maths
@@ -148,6 +149,16 @@ namespace Maths
             }
 
             return res;
+        }
+
+        public static string Format(this byte b)
+        {
+            return Convert.ToString(b, 2).PadLeft(8, '0');
+        }
+        
+        public static string Format(this byte[] bytes)
+        {
+            return string.Join(" ", bytes.Select(Format));
         }
     }
 }
