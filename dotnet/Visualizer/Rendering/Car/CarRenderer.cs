@@ -95,6 +95,8 @@ namespace Visualizer.Rendering.Car
             
             var distances = car.Children.Where(c => c.Name.StartsWith("distance")).ToList();
             
+            Console.WriteLine($"Distances: {string.Join(", ", distances)}");
+            
             if (distances.Count == state.Distances.Count)
             {
                 for (var ii = 0; ii < distances.Count; ii++)

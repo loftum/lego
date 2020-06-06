@@ -49,7 +49,7 @@ namespace Visualizer.Rendering.Car
                 FragmentUniformsBuffer = _library.Device.CreateBuffer((nuint)(FragmentUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
                 Mesh = _modelFactory.CreateRaceCar(),
                 // Make car point upwards, looking down on the car roof
-                InitialModelMatrix = Float4x4.Scale(.1f) * Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
+                InitialModelMatrix = Float4x4.Scale(.2f) * Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
             };
             car.VertexUniformsBuffer.Label = "Car VertexUniformsBuffer";
             car.FragmentUniformsBuffer.Label = "Car FragmentUniformsBuffer";

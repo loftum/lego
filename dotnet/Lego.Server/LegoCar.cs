@@ -38,12 +38,14 @@ namespace Lego.Server
         private readonly DistanceSensor _frontLeftDistance;
         private readonly DistanceSensor _frontCenterDistance;
         private readonly DistanceSensor _frontRightDistance;
+        private readonly DistanceSensor _backCenterDistance;
         
         private readonly InterlockedTimer _updateTimer = new InterlockedTimer(25);
         
         public Sampled<double> FrontLeftDistance { get; } = new Sampled<double>();
         public Sampled<double> FrontCenterDistance { get; } = new Sampled<double>();
         public Sampled<double> FrontRightDistance { get; } = new Sampled<double>();
+        public Sampled<double> BackCenterDistance { get; } = new Sampled<double>();
         public Sampled<Double3> EulerAngles { get; } = new Sampled<Double3>();
         public Sampled<Quatd> Quaternion { get; } = new Sampled<Quatd>();
 
@@ -63,6 +65,7 @@ namespace Lego.Server
             _frontLeftDistance = CreateDistanceSensor(adcBoard.Inputs[0], DistanceCalculators.GP2Y0A41SK0F);
             _frontCenterDistance = CreateDistanceSensor(adcBoard.Inputs[1], DistanceCalculators.GP2Y0A02YK);
             _frontRightDistance = CreateDistanceSensor(adcBoard.Inputs[2], DistanceCalculators.GP2Y0A41SK0F);
+            _backCenterDistance = CreateDistanceSensor(adcBoard.Inputs[4], DistanceCalculators.GP2Y0A41SK0F);
             
             _motoZero.Motors[0].Enabled = true;
             _motoZero.Motors[1].Enabled = true;
@@ -112,7 +115,6 @@ namespace Lego.Server
             sw.Start();
             ReadSensors();
             sw.Stop();
-            //Console.WriteLine($"E:{sw.ElapsedMilliseconds}");
         }
 
         private void ReadSensors()
@@ -120,7 +122,7 @@ namespace Lego.Server
             FrontLeftDistance.Value = _frontLeftDistance.GetCm().Value;
             FrontCenterDistance.Value = _frontCenterDistance.GetCm().Value;
             FrontRightDistance.Value = _frontRightDistance.GetCm().Value;
-            Console.WriteLine($"Distances: {FrontLeftDistance.Value} cm, {FrontCenterDistance.Value} cm, {FrontRightDistance.Value} cm");
+            BackCenterDistance.Value = _backCenterDistance.GetCm().Value;
             
             if (_imu != null)
             {
@@ -139,7 +141,8 @@ namespace Lego.Server
                 {
                     FrontLeftDistance.Value,
                     FrontCenterDistance.Value,
-                    FrontRightDistance.Value
+                    FrontRightDistance.Value,
+                    BackCenterDistance.Value
                 }
             };
         }
