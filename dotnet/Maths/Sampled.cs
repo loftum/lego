@@ -1,3 +1,5 @@
+using System;
+
 namespace Lego.Client
 {
     public class Sampled<T> where T : struct
@@ -14,6 +16,8 @@ namespace Lego.Client
                 _value = value;
             }
         }
+
+        public bool LastValues(Func<T, bool> condition) => condition(Value) && condition(LastValue);
 
         public bool HasChanged => !LastValue.Equals(Value);
     }

@@ -17,7 +17,7 @@ namespace Devices.ThePiHut.MotoZero
         private bool _enabled;
         private int _speed;
 
-        private const int Range = 255;
+        public const int Range = 255;
 
         public int Number { get; }
 

@@ -15,16 +15,9 @@ using Timer = System.Timers.Timer;
 
 namespace Lego.Server
 {
-    public enum DistanceMeasurement
-    {
-        Long,
-        Short,
-        Fusion
-    }
-    
     public class LegoCar : ILegoCar
     {
-        private const double DistanceLimit = 1.1;
+        private const double DistanceLimit = 29;
         private readonly ADCPiZeroBoard _adcBoard; 
         private readonly ServoPwmBoard _pwmBoard;
         private readonly MotoZeroBoard _motoZero;
@@ -153,7 +146,26 @@ namespace Lego.Server
 
         public void SetThrottle(int speed)
         {
-            if (FrontCenterDistance.Value < DistanceLimit && FrontCenterDistance.LastValue > DistanceLimit && speed >= 0)
+            var val = FrontCenterDistance.Value;
+            Console.WriteLine($"Front: {val}");
+            if (speed > 0 &&
+                (val < DistanceLimit ||
+                speed > val / 65 * MotoZeroMotor.Range))
+            {
+                _motoZero.Motors[0].Speed = 0;
+                _motoZero.Motors[1].Speed = 0;
+            }
+            else if (speed < 0 && BackCenterDistance.Value < DistanceLimit)
+            {
+                _motoZero.Motors[0].Speed = 0;
+                _motoZero.Motors[1].Speed = 0;
+            }
+            else if (speed > 0 && FrontLeftDistance.Value < DistanceLimit && SteerFront.Value > 100)
+            {
+                _motoZero.Motors[0].Speed = 0;
+                _motoZero.Motors[1].Speed = 0;
+            }
+            else if (speed > 0 && FrontRightDistance.Value < DistanceLimit && SteerFront.Value < 80)
             {
                 _motoZero.Motors[0].Speed = 0;
                 _motoZero.Motors[1].Speed = 0;

@@ -23,7 +23,11 @@ namespace LegoCarServer
             try
             {
                 Setup.GpioCfgSetInternals(ConfigFlags.NoSignalHandler); // NO SIGINT or SIGRTMIN (runtime)
-                Setup.GpioInitialise();
+                var result = Setup.GpioInitialise();
+                if (result != ResultCode.Ok)
+                {
+                    throw new Exception($"Could not initialize: {result}");
+                }
                 if (args.Contains("-simulator"))
                 {
                     return await ConsoleRunner.RunAsync(RunSimulatorAsync);
