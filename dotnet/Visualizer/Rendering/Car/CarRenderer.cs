@@ -61,18 +61,6 @@ namespace Visualizer.Rendering.Car
         {
             Reshape();
         }
-
-        private float rotation = 0f;
-        private float GetRotation()
-        {
-            rotation += 0.1f;
-            if (rotation >= 2 * Float.PI)
-            {
-                rotation = 0;
-            }
-
-            return rotation;
-        }
         
         private void UpdateUniforms(MTKView view)
         {
@@ -95,14 +83,12 @@ namespace Visualizer.Rendering.Car
             
             var distances = car.Children.Where(c => c.Name.StartsWith("distance")).ToList();
             
-            Console.WriteLine($"Distances: {string.Join(", ", distances)}");
-            
             if (distances.Count == state.Distances.Count)
             {
                 for (var ii = 0; ii < distances.Count; ii++)
                 {
                     var distance = distances[ii];
-                    var d = state.Distances[ii] / 10;
+                    var d = state.Distances[ii];
                     distance.ModelMatrix = distance.InitialModelMatrix *
                                             Float4x4.CreateTranslation(0, (float)d, 0)
                         ;

@@ -41,7 +41,11 @@ namespace Visualizer.Rendering.Car
             //      ____
             //  ---/    \
             //  <--0---0--
-            //
+            // Length: 5.5f, width: 2.5f
+            const float raceCarLength = 5.5f;
+            var scale = raceCarLength / descriptor.Length;
+            const float raceCarWidth = 2.5f;
+            
             var car = new Node("car")
             {
                 Material = new Material { SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f) },
@@ -49,7 +53,7 @@ namespace Visualizer.Rendering.Car
                 FragmentUniformsBuffer = _library.Device.CreateBuffer((nuint)(FragmentUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
                 Mesh = _modelFactory.CreateRaceCar(),
                 // Make car point upwards, looking down on the car roof
-                InitialModelMatrix = Float4x4.Scale(.2f) * Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
+                InitialModelMatrix = Float4x4.Scale(.15f) * Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
             };
             car.VertexUniformsBuffer.Label = "Car VertexUniformsBuffer";
             car.FragmentUniformsBuffer.Label = "Car FragmentUniformsBuffer";
@@ -65,9 +69,9 @@ namespace Visualizer.Rendering.Car
                     Material = new Material { SpecularPower = 100f, SpecularColor = new Float3(.8f, .8f, .8f) },
                     VertexUniformsBuffer = _library.Device.CreateBuffer((nuint)(VertexUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
                     FragmentUniformsBuffer = _library.Device.CreateBuffer((nuint)(FragmentUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
-                    Mesh = _modelFactory.CreatePlane(),
+                    Mesh = _modelFactory.CreatePlane(1f / scale, 1f / scale),
                     // Flipping plane around Z-axis. Distances are translated along plane's Y axis
-                    InitialModelMatrix = distanceSensor.ModelMatrix * Float4x4.CreateRotation(Float.PI / 2, 0, 0, 1f)
+                    InitialModelMatrix = Float4x4.Scale(scale) * distanceSensor.ModelMatrix * Float4x4.CreateRotation(Float.PI / 2, 0, 0, 1f) 
                 };
                 car.Children.Add(distance);
                 ii++;

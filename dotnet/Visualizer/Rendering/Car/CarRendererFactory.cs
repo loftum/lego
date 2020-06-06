@@ -9,7 +9,7 @@ namespace Visualizer.Rendering.Car
 {
     public static class CarRendererFactory
     {
-        public const int MaxInflightBuffers = 1;
+        public const int MaxInflightBuffers = 3;
 
         public static IMTLRenderPipelineState CreateRenderPipeline(IMTLDevice device, IMTLLibrary library, MTKView view, MDLVertexDescriptor vertexDescriptor)
         {

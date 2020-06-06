@@ -41,9 +41,9 @@ namespace Visualizer.Rendering
             return mesh.First();
         }
 
-        public MTKMesh CreatePlane()
+        public MTKMesh CreatePlane(float x, float y)
         {
-            var mdl = MDLMesh.CreatePlane(new Vector2(1f, 1f), new Vector2i(1, 1), MDLGeometryType.Triangles, _bufferAllocator);
+            var mdl = MDLMesh.CreatePlane(new Vector2(x, y), new Vector2i(1, 1), MDLGeometryType.Triangles, _bufferAllocator);
             mdl.VertexDescriptor = _vertexDescriptor;
             var mesh = new MTKMesh(mdl, _library.Device, out var error);
             if (error != null)
