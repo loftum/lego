@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Devices\Devices.csproj" />
-    <ProjectReference Include="..\Provisional.PiGpio\Provisional.PiGpio.csproj" />
   </ItemGroup>
 
   <ItemGroup>

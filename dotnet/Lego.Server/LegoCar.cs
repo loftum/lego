@@ -42,9 +42,6 @@ namespace Lego.Server
         public Sampled<Double3> EulerAngles { get; } = new Sampled<Double3>();
         public Sampled<Quatd> Quaternion { get; } = new Sampled<Quatd>();
 
-        private int _throttle;
-        private int _steer;
-
         public LegoCar(ServoPwmBoard pwmBoard,
             MotoZeroBoard motoZero,
             ADCPiZeroBoard adcBoard,
