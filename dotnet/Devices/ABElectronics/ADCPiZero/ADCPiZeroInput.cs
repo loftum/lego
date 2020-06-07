@@ -1,8 +1,7 @@
 ﻿using System;
-using Maths;
 using Unosquare.PiGpio.ManagedModel;
 
-namespace Devices.ThePiHut.ADCPiZero
+namespace Devices.ABElectronics.ADCPiZero
 {
     public class ADCPiZeroInput : IAnalogInput
     {

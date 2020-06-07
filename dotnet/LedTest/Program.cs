@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Devices.ThePiHut.ServoPWMPiZero;
+using Devices.ABElectronics.ServoPWMPiZero;
 using Lego.Server;
 using Shared;
 using Unosquare.PiGpio;

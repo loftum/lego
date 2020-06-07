@@ -16,8 +16,6 @@
     <Folder Include="4tronix\Datasheets\" />
     <Folder Include="Adafruit\BNO055\Datasheet\" />
     <Folder Include="ThePiHut\MotoZero\Datasheets\" />
-    <Folder Include="ThePiHut\ServoPWMPiZero\Datasheets\" />
-    <Folder Include="ThePiHut\ADCPiZero\" />
     <Folder Include="Distance\" />
     <Folder Include="Distance\Sharp\" />
     <Folder Include="Distance\Sharp\GP2Y0A41SK0F\" />

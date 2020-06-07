@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Unosquare.RaspberryIO;
-using Devices.ThePiHut.ADCPiZero;
 using System.Threading;
 using System.Threading.Tasks;
+using Devices.ABElectronics.ADCPiZero;
 using Unosquare.PiGpio;
 using Unosquare.PiGpio.NativeEnums;
 using Unosquare.PiGpio.NativeMethods;

@@ -1,5 +1,5 @@
 ﻿using System;
-using Devices.ThePiHut.ServoPWMPiZero;
+using Devices.ABElectronics.ServoPWMPiZero;
 using Lego.Core;
 
 namespace Lego.Server

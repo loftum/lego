@@ -1,4 +1,4 @@
-﻿namespace Devices.ThePiHut.ServoPWMPiZero
+﻿namespace Devices.ABElectronics.ServoPWMPiZero
 {
     public enum Registers
     {

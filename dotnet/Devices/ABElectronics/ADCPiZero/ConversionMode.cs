@@ -1,4 +1,4 @@
-﻿namespace Devices.ThePiHut.ADCPiZero
+﻿namespace Devices.ABElectronics.ADCPiZero
 {
     public enum ConversionMode
     {

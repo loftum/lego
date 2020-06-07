@@ -5,7 +5,7 @@ using System.Threading;
 using Unosquare.PiGpio.ManagedModel;
 using Unosquare.PiGpio.NativeEnums;
 
-namespace Devices.ThePiHut.ServoPWMPiZero
+namespace Devices.ABElectronics.ServoPWMPiZero
 {
     public class ServoPwmBoard : IDisposable
     {

@@ -1,7 +1,6 @@
 ﻿using Unosquare.PiGpio.ManagedModel;
-using Unosquare.RaspberryIO.Abstractions;
 
-namespace Devices.ThePiHut.ADCPiZero
+namespace Devices.ABElectronics.ADCPiZero
 {
     public class ADCPiZeroBoard
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using Unosquare.PiGpio.ManagedModel;
 
-namespace Devices.ThePiHut.ServoPWMPiZero
+namespace Devices.ABElectronics.ServoPWMPiZero
 {
     public class Pwm
     {

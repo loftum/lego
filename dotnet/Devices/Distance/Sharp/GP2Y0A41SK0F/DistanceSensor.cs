@@ -1,4 +1,4 @@
-﻿using Devices.ThePiHut.ADCPiZero;
+﻿using Devices.ABElectronics.ADCPiZero;
 
 namespace Devices.Distance.Sharp.GP2Y0A41SK0F
 {
