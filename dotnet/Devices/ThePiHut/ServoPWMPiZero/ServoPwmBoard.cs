@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Unosquare.PiGpio.ManagedModel;
@@ -31,6 +32,25 @@ namespace Devices.ThePiHut.ServoPWMPiZero
             }
         }
 
+        public ServoPwmBoard(BoardPeripheralsService bus, GpioPinCollection gpio) : this(bus, gpio, DefaultAddress)
+        {
+        }
+
+        public ServoPwmBoard(BoardPeripheralsService bus, GpioPinCollection gpio, byte address)
+        {
+            _gpio = gpio;
+            
+            gpio[7].Direction = PinDirection.Output;
+            Device = bus.OpenI2cDevice(address);
+            ConfigureMode1(0x00);
+            Device.Write((int)Registers.MODE2, 0x0c);
+            SetFrequency(50);
+            Outputs = Enumerable.Range(0, 16).Select(i => new Pwm(Device, this, i)).ToArray();
+            OutputAll = new Pwm(Device, this, (int) Registers.ALL_LED_ON_L);
+        }
+
+        public IEnumerable<Pwm> GetOutputs(params int[] numbers) => numbers.Select(n => Outputs[n]);
+        
         public void SetFrequency(int hertz, int calibration = 0)
         {
             if (hertz < 40 || hertz > 1000)
@@ -55,23 +75,6 @@ namespace Devices.ThePiHut.ServoPWMPiZero
         {
             var oldMode = Device.ReadByte((int)Registers.MODE1);
             Device.Write((int)Registers.MODE1, (byte)(oldMode | 0x80));
-        }
-
-        public ServoPwmBoard(BoardPeripheralsService bus, GpioPinCollection gpio) : this(bus, gpio, DefaultAddress)
-        {
-        }
-
-        public ServoPwmBoard(BoardPeripheralsService bus, GpioPinCollection gpio, byte address)
-        {
-            _gpio = gpio;
-            
-            gpio[7].Direction = PinDirection.Output;
-            Device = bus.OpenI2cDevice(address);
-            ConfigureMode1(0x00);
-            Device.Write((int)Registers.MODE2, 0x0c);
-            SetFrequency(50);
-            Outputs = Enumerable.Range(0, 16).Select(i => new Pwm(Device, this, i)).ToArray();
-            OutputAll = new Pwm(Device, this, (int) Registers.ALL_LED_ON_L);
         }
 
         private void ConfigureMode1(byte config)

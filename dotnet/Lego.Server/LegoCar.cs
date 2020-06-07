@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 using Devices.Adafruit.BNO055;
@@ -27,6 +26,7 @@ namespace Lego.Server
         public ILight LeftBlinker { get; }
         public ILight RightBlinker { get; }
         public ILight Headlights { get; }
+        public ILight RearLights { get; }
         private readonly Timer _blinker = new Timer(2 * Math.PI * 100);
         private readonly DistanceSensor _frontLeftDistance;
         private readonly DistanceSensor _frontCenterDistance;
@@ -64,16 +64,11 @@ namespace Lego.Server
             _motoZero.Motors[1].Enabled = true;
             SteerFront = pwmBoard.Outputs[15].AsServo();
             SteerBack = pwmBoard.Outputs[0].AsServo();
-            LeftBlinker = new Blinker(pwmBoard.Outputs[1].AsLed());
-            RightBlinker = new Blinker(pwmBoard.Outputs[4].AsLed());
-            Headlights = new Headlights(new[]
-                {
-                    pwmBoard.Outputs[2],
-                    pwmBoard.Outputs[3],
-                    pwmBoard.Outputs[5],
-                    pwmBoard.Outputs[6],
-                }.Select(o => o.AsLed())
-            );
+            LeftBlinker = new Blinker(pwmBoard.GetOutputs(1, 9).Select(o => o.AsLed()));
+            RightBlinker = new Blinker(pwmBoard.GetOutputs(4, 12).Select(o => o.AsLed()));
+            RearLights = new Headlights(pwmBoard.GetOutputs(2, 3, 5, 6).Select(o => o.AsLed()));
+            Headlights = new Headlights(pwmBoard.GetOutputs(10, 11, 13, 14).Select(o => o.AsLed()));
+            
             
             _blinker.Elapsed += Blink;
             _blinker.Start();
@@ -92,6 +87,7 @@ namespace Lego.Server
         {
             Reset();
             Headlights.On = false;
+            RearLights.On = false;
             _updateTimer.Stop();
         }
 
@@ -99,6 +95,7 @@ namespace Lego.Server
         {
             Reset();
             Headlights.On = true;
+            RearLights.On = true;
             _updateTimer.Start();
         }
 

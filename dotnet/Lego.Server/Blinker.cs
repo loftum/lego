@@ -1,4 +1,5 @@
-﻿using Devices.ThePiHut.ServoPWMPiZero;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Lego.Core;
 
 namespace Lego.Server
@@ -13,20 +14,20 @@ namespace Lego.Server
                 _on = value;
                 if (!_on)
                 {
-                    _led.Brightness = 0;
+                    _leds.ForEach(l => l.Brightness = 0);
                 }
             }
         }
 
         private bool _isLit;
-        private readonly Led _led;
+        private readonly List<Led> _leds;
         private bool _on;
 
-        public Blinker(Led led)
+        public Blinker(IEnumerable<Led> leds)
         {
-            _led = led;
+            _leds = leds.ToList();
         }
-
+        
         public void Toggle()
         {
             if (!On)
@@ -36,11 +37,11 @@ namespace Lego.Server
             switch (_isLit)
             {
                 case true:
-                    _led.Brightness = 0;
+                    _leds.ForEach(l => l.Brightness = 0);
                     _isLit = false;
                     break;
                 case false:
-                    _led.Brightness = 1.0;
+                    _leds.ForEach(l => l.Brightness = 1.0);
                     _isLit = true;
                     break;
             }

@@ -1,37 +1,38 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Devices.ThePiHut.ServoPWMPiZero;
 using Lego.Core;
 
 namespace Lego.Server
 {
     public class Headlights : ILight
     {
-        private readonly Led[] _leds;
+        private readonly List<Led> _leds;
         private bool _on;
-
-        public Headlights(IEnumerable<Led> leds)
-        {
-            _leds = leds.ToArray();
-        }
-
-        public void Toggle()
-        {
-            On = !On;
-        }
 
         public bool On
         {
             get => _on;
             set
             {
-                var brightness = value ? 1.0 : 0.0;
-                foreach (var led in _leds)
-                {
-                    led.Brightness = brightness;
-                }
+                var brightness = value ? Brightness : 0.0;
+                _leds.ForEach(l => l.Brightness = brightness);
                 _on = value;
             }
+        }
+
+        /// <summary>
+        /// 0.0 - 1.0
+        /// </summary>
+        public double Brightness { get; set; } = 0.5;
+        
+        public Headlights(IEnumerable<Led> leds)
+        {
+            _leds = leds.ToList();
+        }
+
+        public void Toggle()
+        {
+            On = !On;
         }
     }
 }
