@@ -1,11 +1,11 @@
-﻿using Unosquare.RaspberryIO.Abstractions;
+﻿using Unosquare.PiGpio.ManagedModel;
 
 namespace Devices._4tronix
 {
     public class InputPort
     {
         public int Number { get; }
-        private readonly II2CDevice _device;
+        private readonly I2cDevice _device;
         private InputType _type;
 
         public InputType Type
@@ -13,14 +13,14 @@ namespace Devices._4tronix
             get => _type;
             set
             {
-                _device.WriteAddressByte(PiconZeroBoard.INCFG0 + Number, (byte)value);
+                _device.Write((byte)(PiconZeroBoard.INCFG0 + Number), (byte)value);
                 _type = value;
             }
         }
 
-        public byte Read() => _device.ReadAddressByte(Number);
+        public byte Read() => _device.ReadByte((byte)Number);
 
-        public InputPort(II2CDevice device, int number)
+        public InputPort(I2cDevice device, int number)
         {
             _device = device;
             Number = number;

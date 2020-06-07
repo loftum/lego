@@ -3,7 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Devices._4tronix;
 using Shared;
-using Unosquare.RaspberryIO;
+using Unosquare.PiGpio;
+using Unosquare.PiGpio.NativeEnums;
+using Unosquare.PiGpio.NativeMethods;
 
 namespace MotorTest
 {
@@ -16,29 +18,39 @@ namespace MotorTest
 
         private static Task Run(string[] args)
         {
-            Console.WriteLine("Motor test");
-            var number = GetMotorNumber(args);
-            var picon = new PiconZeroBoard(Pi.I2C);
-            var motor = picon.Motors[number];
-            Console.WriteLine($"Motor: {number}");
-            motor.Speed = 0;
-
-            Console.WriteLine("Enter motor speed");
-            while (true)
+            try
             {
-                Console.Write("> ");
-                var text = Console.ReadLine();
-                if (text == "quit")
-                {
-                    break;
-                }
+                Setup.GpioCfgSetInternals(ConfigFlags.NoSignalHandler);
+                Setup.GpioInitialise();
+                Console.WriteLine("Motor test");
+                var number = GetMotorNumber(args);
+                var picon = new PiconZeroBoard(Board.Peripherals);
+                var motor = picon.Motors[number];
+                Console.WriteLine($"Motor: {number}");
+                motor.Speed = 0;
 
-                if (int.TryParse(text, out var speed))
+                Console.WriteLine("Enter motor speed");
+                while (true)
                 {
-                    motor.Speed = speed;
+                    Console.Write("> ");
+                    var text = Console.ReadLine();
+                    if (text == "quit")
+                    {
+                        break;
+                    }
+
+                    if (int.TryParse(text, out var speed))
+                    {
+                        motor.Speed = speed;
+                    }
                 }
+                return Task.CompletedTask;
             }
-            return Task.CompletedTask;
+            finally
+            {
+                Setup.GpioTerminate();
+            }
+            
         }
 
         private static int GetMotorNumber(string[] args)

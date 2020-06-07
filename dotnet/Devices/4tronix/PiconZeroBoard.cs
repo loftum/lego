@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using Unosquare.RaspberryIO.Abstractions;
+using Unosquare.PiGpio.ManagedModel;
 
 namespace Devices._4tronix
 {
     public class PiconZeroBoard: IDisposable
     {
         public const int I2CAddress = 0x22;
-        public II2CDevice Device { get; }
+        public I2cDevice Device { get; }
 
         private const byte MOTORA = 0;
         public const byte OUTCFG0 = 2;
@@ -23,9 +23,9 @@ namespace Devices._4tronix
         public OutputPort[] Outputs { get; }
         public MotorPort[] Motors { get; }
 
-        public PiconZeroBoard(II2CBus bus)
+        public PiconZeroBoard(BoardPeripheralsService bus)
         {
-            Device = bus.AddDevice(I2CAddress);
+            Device = bus.OpenI2cDevice(I2CAddress);
             Inputs = Enumerable.Range(0, 4).Select(i => new InputPort(Device, i)).ToArray();
             Outputs = Enumerable.Range(0, 6).Select(i => new OutputPort(Device, i)).ToArray();
             Motors = Enumerable.Range(0, 2).Select(i => new MotorPort(Device, i)).ToArray();
@@ -33,7 +33,7 @@ namespace Devices._4tronix
 
         public string GetRevision()
         {
-            var value = Device.ReadAddressWord(0);
+            var value = Device.ReadWord(0);
             return $"{value / 256} {value % 256}";
         }
 
@@ -58,7 +58,7 @@ namespace Devices._4tronix
             {
                 throw new ArgumentException("Output pin must be 0-5", nameof(pin));
             }
-            Try(() => Device.WriteAddressByte(OUTCFG0 + pin, (byte) type));
+            Try(() => Device.Write((byte)(OUTCFG0 + pin), (byte) type));
         }
 
         public void Dispose()

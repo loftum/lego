@@ -104,10 +104,41 @@ namespace Lego.Server
 
         private void Update(object sender, ElapsedEventArgs e)
         {
-            var sw = new Stopwatch();
-            sw.Start();
             ReadSensors();
-            sw.Stop();
+            EmergencyBrakeForDistanceLimit(_motoZero.Motors[0].Speed);
+        }
+
+        private bool EmergencyBrakeForDistanceLimit(int speed)
+        {
+            var val = FrontCenterDistance.Value;
+            if (speed > 0 &&
+                (val < DistanceLimit ||
+                 speed > val / 70 * MotoZeroMotor.Range))
+            {
+                _motoZero.Motors[0].Speed = 0;
+                _motoZero.Motors[1].Speed = 0;
+                return true;
+            }
+            else if (speed < 0 && BackCenterDistance.Value < DistanceLimit)
+            {
+                _motoZero.Motors[0].Speed = 0;
+                _motoZero.Motors[1].Speed = 0;
+                return true;
+            }
+            else if (speed > 0 && FrontLeftDistance.Value < DistanceLimit && SteerFront.Value > 100)
+            {
+                _motoZero.Motors[0].Speed = 0;
+                _motoZero.Motors[1].Speed = 0;
+                return true;
+            }
+            else if (speed > 0 && FrontRightDistance.Value < DistanceLimit && SteerFront.Value < 80)
+            {
+                _motoZero.Motors[0].Speed = 0;
+                _motoZero.Motors[1].Speed = 0;
+                return true;
+            }
+
+            return false;
         }
 
         private void ReadSensors()
@@ -146,35 +177,12 @@ namespace Lego.Server
 
         public void SetThrottle(int speed)
         {
-            var val = FrontCenterDistance.Value;
-            Console.WriteLine($"Front: {val}");
-            if (speed > 0 &&
-                (val < DistanceLimit ||
-                speed > val / 65 * MotoZeroMotor.Range))
+            if (EmergencyBrakeForDistanceLimit(speed))
             {
-                _motoZero.Motors[0].Speed = 0;
-                _motoZero.Motors[1].Speed = 0;
+                return;
             }
-            else if (speed < 0 && BackCenterDistance.Value < DistanceLimit)
-            {
-                _motoZero.Motors[0].Speed = 0;
-                _motoZero.Motors[1].Speed = 0;
-            }
-            else if (speed > 0 && FrontLeftDistance.Value < DistanceLimit && SteerFront.Value > 100)
-            {
-                _motoZero.Motors[0].Speed = 0;
-                _motoZero.Motors[1].Speed = 0;
-            }
-            else if (speed > 0 && FrontRightDistance.Value < DistanceLimit && SteerFront.Value < 80)
-            {
-                _motoZero.Motors[0].Speed = 0;
-                _motoZero.Motors[1].Speed = 0;
-            }
-            else
-            {
-                _motoZero.Motors[0].Speed = speed;
-                _motoZero.Motors[1].Speed = speed;
-            }
+            _motoZero.Motors[0].Speed = speed;
+            _motoZero.Motors[1].Speed = speed;
         }
 
         public void SetSteerAngle(int angle)

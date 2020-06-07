@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using Unosquare.PiGpio.ManagedModel;
 using Unosquare.PiGpio.NativeEnums;
-using Unosquare.RaspberryIO.Abstractions;
 
 namespace Devices.ThePiHut.ServoPWMPiZero
 {
@@ -65,6 +64,7 @@ namespace Devices.ThePiHut.ServoPWMPiZero
         public ServoPwmBoard(BoardPeripheralsService bus, GpioPinCollection gpio, byte address)
         {
             _gpio = gpio;
+            
             gpio[7].Direction = PinDirection.Output;
             Device = bus.OpenI2cDevice(address);
             ConfigureMode1(0x00);
@@ -86,7 +86,6 @@ namespace Devices.ThePiHut.ServoPWMPiZero
             {
                 return;
             }
-
             _isDisposed = true;
         }
     }

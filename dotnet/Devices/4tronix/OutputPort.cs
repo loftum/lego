@@ -1,12 +1,12 @@
 ﻿using Swan;
-using Unosquare.RaspberryIO.Abstractions;
+using Unosquare.PiGpio.ManagedModel;
 
 namespace Devices._4tronix
 {
     public class OutputPort
     {
         public int Number { get; }
-        private readonly II2CDevice _device;
+        private readonly I2cDevice _device;
         private OutputType _type;
         private int _value;
         public int MinValue { get; set; } = 20;
@@ -21,7 +21,7 @@ namespace Devices._4tronix
                 {
                     return;
                 }
-                _device.WriteAddressByte(PiconZeroBoard.OUTPUT0 + Number, (byte) value);
+                _device.Write((byte)(PiconZeroBoard.OUTPUT0 + Number), (byte) value);
                 _value = value;
             }
         }
@@ -31,12 +31,12 @@ namespace Devices._4tronix
             get => _type;
             set
             {
-                _device.WriteAddressByte(PiconZeroBoard.OUTCFG0 + Number, (byte)value);
+                _device.Write((byte)(PiconZeroBoard.OUTCFG0 + Number), (byte)value);
                 _type = value;
             }
         }
 
-        public OutputPort(II2CDevice device, int number)
+        public OutputPort(I2cDevice device, int number)
         {
             _device = device;
             Number = number;

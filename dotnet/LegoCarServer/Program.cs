@@ -24,7 +24,7 @@ namespace LegoCarServer
             {
                 Setup.GpioCfgSetInternals(ConfigFlags.NoSignalHandler); // NO SIGINT or SIGRTMIN (runtime)
                 var result = Setup.GpioInitialise();
-                if (result != ResultCode.Ok)
+                if (result == ResultCode.InitFailed)
                 {
                     throw new Exception($"Could not initialize: {result}");
                 }
