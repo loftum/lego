@@ -54,24 +54,18 @@ namespace LegoCarServer
         private static async Task RunAsync(CancellationToken cancellationToken)
         {
             Console.WriteLine("LegoCar Server v1.0");
+
+            using var pwm = new ServoPwmBoard(Board.Peripherals, Board.Pins);
+            using var motoZero = new MotoZeroBoard(Board.Pins);
+            using var speedSensor = new SpeedSensor();
+            var adcBoard = new ADCPiZeroBoard(Board.Peripherals);
+            var imu = new BNO055Sensor(Board.Peripherals, OperationMode.NDOF);
+            imu.UnitSelection.EulerAngleUnit = EulerAngleUnit.Radians;
+            var car = new LegoCar(pwm, motoZero, adcBoard, imu, speedSensor);
             
-            using (var pwm = new ServoPwmBoard(Board.Peripherals, Board.Pins))
-            {
-                using (var motoZero = new MotoZeroBoard(Board.Pins))
-                {
-                    var adcBoard = new ADCPiZeroBoard(Board.Peripherals);
-                    var imu = new BNO055Sensor(Board.Peripherals, OperationMode.NDOF);
-                    imu.UnitSelection.EulerAngleUnit = EulerAngleUnit.Radians;
-                    var car = new LegoCar(pwm, motoZero, adcBoard, imu);
-                    
-                    //var car = new LegoCar(pwm, motoZero, adcBoard, null);
-                    var controller = new LegoCarController(car);
-                    using (var server = new LctpUdpServer(5081, controller))
-                    {
-                        await server.RunAsync(cancellationToken);
-                    }
-                }
-            }
+            var controller = new LegoCarController(car);
+            using var server = new LctpUdpServer(5081, controller);
+            await server.RunAsync(cancellationToken);
         }
     }
 }

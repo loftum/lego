@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Timers;
 using Devices.ABElectronics.ADCPiZero;
 using Devices.ABElectronics.ServoPWMPiZero;
@@ -32,8 +33,9 @@ namespace Lego.Server
         private readonly DistanceSensor _frontCenterDistance;
         private readonly DistanceSensor _frontRightDistance;
         private readonly DistanceSensor _backCenterDistance;
+        private readonly SpeedSensor _speedSensor;
         
-        private readonly InterlockedTimer _updateTimer = new InterlockedTimer(25);
+        private readonly InterlockedAsyncTimer _updateTimer = new InterlockedAsyncTimer(25);
         
         public Sampled<double> FrontLeftDistance { get; } = new Sampled<double>();
         public Sampled<double> FrontCenterDistance { get; } = new Sampled<double>();
@@ -41,16 +43,19 @@ namespace Lego.Server
         public Sampled<double> BackCenterDistance { get; } = new Sampled<double>();
         public Sampled<Double3> EulerAngles { get; } = new Sampled<Double3>();
         public Sampled<Quatd> Quaternion { get; } = new Sampled<Quatd>();
+        public Sampled<Int2> Speed { get; } = new Sampled<Int2>();
 
         public LegoCar(ServoPwmBoard pwmBoard,
             MotoZeroBoard motoZero,
             ADCPiZeroBoard adcBoard,
-            BNO055Sensor imu)
+            BNO055Sensor imu,
+            SpeedSensor speedSensor)
         {
             _pwmBoard = pwmBoard;
             _motoZero = motoZero;
             _adcBoard = adcBoard;
             _imu = imu;
+            _speedSensor = speedSensor;
 
             _frontLeftDistance = CreateDistanceSensor(adcBoard.Inputs[0], DistanceCalculators.GP2Y0A41SK0F);
             _frontCenterDistance = CreateDistanceSensor(adcBoard.Inputs[1], DistanceCalculators.GP2Y0A02YK);
@@ -69,7 +74,7 @@ namespace Lego.Server
             
             _blinker.Elapsed += Blink;
             _blinker.Start();
-            _updateTimer.Elapsed += Update;
+            _updateTimer.Elapsed = Update;
         }
 
         private static DistanceSensor CreateDistanceSensor(ADCPiZeroInput input, DistanceCalculator calculator)
@@ -96,9 +101,9 @@ namespace Lego.Server
             _updateTimer.Start();
         }
 
-        private void Update(object sender, ElapsedEventArgs e)
+        private async Task Update()
         {
-            ReadSensors();
+            await ReadSensorsAsync();
             EmergencyBrakeForDistanceLimit(_motoZero.Motors[0].Speed);
         }
 
@@ -135,7 +140,7 @@ namespace Lego.Server
             return false;
         }
 
-        private void ReadSensors()
+        private async Task ReadSensorsAsync()
         {
             FrontLeftDistance.Value = _frontLeftDistance.GetCm().Value;
             FrontCenterDistance.Value = _frontCenterDistance.GetCm().Value;
@@ -147,6 +152,8 @@ namespace Lego.Server
                 EulerAngles.Value = _imu.ReadEulerData();
                 Quaternion.Value = _imu.ReadQuaternion();    
             }
+
+            Speed.Value = await _speedSensor.GetSpeedAsync();
         }
 
         public LegoCarState GetState()
@@ -155,6 +162,7 @@ namespace Lego.Server
             {
                 EulerAngles = EulerAngles.Value,
                 Quaternion = Quaternion.Value,
+                Speed = Speed.Value,
                 Distances = new List<double>
                 {
                     FrontLeftDistance.Value,
