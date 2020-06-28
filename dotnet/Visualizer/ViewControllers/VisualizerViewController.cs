@@ -5,6 +5,7 @@ using System.Timers;
 using AppKit;
 using CoreFoundation;
 using CoreGraphics;
+using Foundation;
 using LCTP.Core.Client;
 using Lego.Client;
 using Lego.Core;
@@ -114,7 +115,7 @@ namespace Visualizer.ViewControllers
 
         public Task ConnectAsync(string host, int port)
         {
-            var client = new LctpUdpClient(host, port);
+            var client = new LctpClient(NSHost.Current.Name, host, port);
             _client = new LegoCarClient(client);
             
             return _client.ConnectAsync();

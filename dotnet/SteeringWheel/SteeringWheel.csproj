@@ -88,6 +88,10 @@
     </MtouchVerbosity>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Convenient.Gooday, Version=0.0.2.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Convenient.Gooday.0.0.2\lib\netstandard2.0\Convenient.Gooday.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -108,8 +112,10 @@
   <ItemGroup>
     <None Include="Info.plist" />
     <None Include="Entitlements.plist" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\SpeedometerView.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="MotionManager.cs" />

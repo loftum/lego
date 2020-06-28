@@ -23,7 +23,9 @@ namespace SteeringWheel.Controllers
         private readonly UIButton _leftBlinkerButton;
         private readonly UIButton _rightBlinkerButton;
         private readonly UIButton _disconnectButton;
+        private readonly UILabel _speedometer;
         private readonly InterlockedAsyncTimer _timer = new InterlockedAsyncTimer(15);
+        private readonly UIImpactFeedbackGenerator _impactFeedback = new UIImpactFeedbackGenerator(UIImpactFeedbackStyle.Heavy);
 
         public SteeringWheelViewController(string host, int port) : base(null, null)
         {
@@ -68,16 +70,32 @@ namespace SteeringWheel.Controllers
                 v.LeadingAnchor.ConstraintEqualTo(_headlightsButton.TrailingAnchor, 50),
             })
             .WithTouchUpInside(RightBlinkerButton_TouchUpInside);
-
+            
             _disconnectButton = new UIButton()
             .WithTitle("Disconnect")
             .WithTitleColor(UIColor.Blue)
             .WithParent(View)
             .WithConstraints(v => new[] {
                 v.CenterXAnchor.ConstraintEqualTo(View.CenterXAnchor),
-                v.CenterYAnchor.ConstraintEqualTo(View.CenterYAnchor)
+                v.CenterYAnchor.ConstraintEqualTo(View.CenterYAnchor),
             })
             .WithTouchUpInside(DisconnectButton_TouchUpInside);
+            
+            _speedometer = new UILabel()
+                .With(l =>
+                {
+                    l.BackgroundColor = UIColor.SystemPinkColor;
+                    l.Text = "0";
+                    l.TextAlignment = UITextAlignment.Center;
+                    l.Font = UIFont.PreferredTitle1.WithSize(50f);
+                    l.TextColor = UIColor.Orange;
+                })
+                .WithParent(View)
+                .WithConstraints(v => new[]
+                {
+                    v.CenterXAnchor.ConstraintEqualTo(View.CenterXAnchor),
+                    v.BottomAnchor.ConstraintEqualTo(View.BottomAnchor, 100)
+                });
 
             // Set throttle positions
             var frame = View.GetFrame();
@@ -85,7 +103,7 @@ namespace SteeringWheel.Controllers
             const int height = 200;
             _throttleSlider.Frame = new CGRect(frame.Width - 100, frame.Height / 2 - height / 2, width, height);
             
-            var client = new LctpUdpClient(host, port);
+            var client = new LctpClient(UIDevice.CurrentDevice.Name, host, port);
             _client = new LegoCarClient(client);
         }
 
@@ -111,6 +129,15 @@ namespace SteeringWheel.Controllers
             try
             {
                 await _client.UpdateAsync();
+                var state = _client.GetState();
+                DispatchQueue.MainQueue.DispatchAsync(() =>
+                {
+                    _speedometer.Text = $"{state.Speed.X}";
+                    if (state.Speed.Y < -100 || state.Speed.Y > 100)
+                    {
+                        _impactFeedback.ImpactOccurred();
+                    }
+                });
             }
             catch (Exception exception)
             {

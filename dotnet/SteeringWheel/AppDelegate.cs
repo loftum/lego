@@ -1,4 +1,5 @@
-﻿using Foundation;
+﻿using System;
+using Foundation;
 using SteeringWheel.Controllers;
 using UIKit;
 
@@ -11,6 +12,7 @@ namespace SteeringWheel
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
+            Console.WriteLine("Hello");
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
             Window.BackgroundColor = UIColor.White;
             var controller = new ViewController();

@@ -19,7 +19,10 @@ namespace SteeringWheel.Controllers
             {
                 BorderStyle = UITextBorderStyle.RoundedRect,
                 Text = _userDefaults.StringForKey("host") ?? "host",
-                TextColor = UIColor.DarkGray
+                TextColor = UIColor.DarkGray,
+                SpellCheckingType = UITextSpellCheckingType.No,
+                AutocapitalizationType = UITextAutocapitalizationType.None,
+                AutocorrectionType = UITextAutocorrectionType.No,
             }
             .WithParent(View)
             .WithConstraints(v => new[]
@@ -29,7 +32,7 @@ namespace SteeringWheel.Controllers
                 v.TrailingAnchor.ConstraintEqualTo(View.CenterXAnchor, 20),
             })
             .With(v => v.SpellCheckingType = UITextSpellCheckingType.No);
-
+            
             ConnectButton = new UIButton()
             .WithParent(View)
             .WithTitle("Connect")
@@ -60,7 +63,7 @@ namespace SteeringWheel.Controllers
             }
             var parts = HostField.Text.Split(':');
             var host = parts[0];
-            var port = parts.Length > 1 && int.TryParse(parts[1], out var v) ? v : LctpUdpServer.DefaultPort;
+            var port = parts.Length > 1 && int.TryParse(parts[1], out var v) ? v : LctpServer.DefaultPort;
             try
             {
                 var vc = new SteeringWheelViewController(host, port);

@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using LCTP;
 using LCTP.Core;
 using LCTP.Core.Client;
 using LCTP.Core.Server;
@@ -23,7 +22,7 @@ namespace MotoZeroClient
             var host = hostAndPort[0];
             var port = args.Length > 1 && int.TryParse(hostAndPort[1], out var p)
                 ? p
-                : LctpTcpServer.DefaultPort;
+                : LctpServer.DefaultPort;
 
             using (var source = new CancellationTokenSource())
             {
@@ -48,7 +47,7 @@ namespace MotoZeroClient
         private static async Task Run(string host, int port, CancellationToken cancellationToken)
         {
             Console.WriteLine($"Connecting to {host}:{port}");
-            using (var client = new LctpTcpClient(host, port))
+            using (var client = new LctpClient(Environment.MachineName, host, port))
             {
                 while (true)
                 {

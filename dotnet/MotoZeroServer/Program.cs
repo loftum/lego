@@ -47,7 +47,7 @@ namespace MotoZeroServer
             using (var board = new MotoZeroBoard(Board.Pins))
             {
                 var controller = new MotoZeroController(board);
-                using (var server = new LctpTcpServer(5080, controller))
+                using (var server = new LctpServer(5080, controller))
                 {
                     await server.RunAsync(cancellationToken);
                 }

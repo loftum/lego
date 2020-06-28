@@ -1,34 +1,30 @@
 using System;
-using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using LCTP.Core.Extensions;
+using LCTP.Core.Client;
 
 namespace LCTP.Core.Server
 {
-    public class LctpUdpClientHandler : ILctpClientHandler
+    public class LctpClientHandler : ILctpClientHandler
     {
-        private readonly Encoding _encoding = new UTF8Encoding();
+        private readonly UTF8Encoding _encoding = Encodings.Utf8NoBom;
+        private readonly ICommunicator _communicator;
         private readonly IController _controller;
-        private readonly UdpClient _client;
-        private readonly IPEndPoint _remoteEndpoint;
 
-        public LctpUdpClientHandler(UdpClient client, IPEndPoint remoteEndpoint, IController controller)
+        public LctpClientHandler(ICommunicator communicator, IController controller)
         {
-            _client = client;
-            _remoteEndpoint = remoteEndpoint;
+            _communicator = communicator;
             _controller = controller;
         }
-        
+
         public async Task Handle(CancellationToken cancellationToken)
         {
             try
             {
                 _controller.ConnectionOpened();
-                await Task.Delay(750, cancellationToken);
                 await DoHandle(cancellationToken);
+
             }
             catch (Exception e)
             {
@@ -47,7 +43,7 @@ namespace LCTP.Core.Server
                 if (await Task.WhenAny(receive, Task.Delay(timeout, cancellationToken)) != receive)
                 {
                     Console.WriteLine($"Client has not sent any data for {timeout} ms. Closing connection");
-                    await _client.SendAsync(ResponseMessage.Disconnected(), _remoteEndpoint);
+                    await _communicator.SendAsync(ResponseMessage.Disconnected());
                     return;
                 }
 
@@ -55,7 +51,7 @@ namespace LCTP.Core.Server
                 if (request == null)
                 {
                     Console.WriteLine("Request is null. Closing connection");
-                    await _client.SendAsync(ResponseMessage.Disconnected(), _remoteEndpoint);
+                    await _communicator.DisconnectAsync();
                     return;
                 }
 
@@ -64,16 +60,20 @@ namespace LCTP.Core.Server
                     switch (request.Method)
                     {
                         case "PING":
-                            await _client.SendAsync(ResponseMessage.Pong, _remoteEndpoint);
+                            await _communicator.SendAsync(ResponseMessage.Pong);
                             break;
                         case "DISCONNECT":
                             Console.WriteLine("Client disconnected. Closing connection");
                             return;
                         default:
                             var response = await _controller.Execute(request);
-                            await _client.SendAsync(response, _remoteEndpoint);
+                            await _communicator.SendAsync(response);
                             break;
                     }
+                }
+                catch (ObjectDisposedException)
+                {
+                    return;
                 }
                 catch (Exception e)
                 {
@@ -82,20 +82,27 @@ namespace LCTP.Core.Server
                 }
             }
         }
-
+        
         private async Task<RequestMessage> Receive(CancellationToken cancellationToken)
         {
-            var data = await _client.ReceiveAsync();
-            while (!_remoteEndpoint.Equals(data.RemoteEndPoint))
-            {
-                data = await _client.ReceiveAsync();
-            }
-            var line = _encoding.GetString(data.Buffer);
+            var data = await _communicator.ReceiveAsync();
+            var line = _encoding.GetString(data);
             return RequestMessage.Parse(line);
         }
 
         public void Dispose()
         {
+            _controller.ConnectionClosed();
+            _communicator.Dispose();
+        }
+    }
+
+    public static class CommunicatorExtensions
+    {
+        public static Task SendAsync(this ICommunicator client, IMessage request)
+        {
+            var datagram = Encodings.Utf8NoBom.GetBytes(request.Format());
+            return client.SendAsync(datagram);
         }
     }
 }

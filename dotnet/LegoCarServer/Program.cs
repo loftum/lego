@@ -7,6 +7,7 @@ using Devices.ABElectronics.ServoPWMPiZero;
 using Devices.Adafruit.BNO055;
 using Devices.ThePiHut.MotoZero;
 using LCTP.Core.Server;
+using LCTP.Logging;
 using Lego.Server;
 using Lego.Server.Simulator;
 using Shared;
@@ -20,24 +21,44 @@ namespace LegoCarServer
     {
         public static async Task<int> Main(string[] args)
         {
+            Handle(args);
+            if (args.Contains("-simulator"))
+            {
+                return await ConsoleRunner.RunAsync(RunSimulatorAsync);
+            }
+            return await ConsoleRunner.RunAsync(RunAsync);
+        }
+        
+        private static async Task RunAsync(CancellationToken cancellationToken)
+        {
             try
             {
+                Console.WriteLine("LegoCar Server v1.0");
+                
                 Setup.GpioCfgSetInternals(ConfigFlags.NoSignalHandler); // NO SIGINT or SIGRTMIN (runtime)
+
                 var result = Setup.GpioInitialise();
                 if (result == ResultCode.InitFailed)
                 {
                     throw new Exception($"Could not initialize: {result}");
                 }
-                if (args.Contains("-simulator"))
-                {
-                    return await ConsoleRunner.RunAsync(RunSimulatorAsync);
-                }
-                return await ConsoleRunner.RunAsync(RunAsync);
+                using var pwm = new ServoPwmBoard(Board.Peripherals, Board.Pins);
+                using var motoZero = new MotoZeroBoard(Board.Pins);
+                using var speedSensor = new SpeedSensor();
+                var adcBoard = new ADCPiZeroBoard(Board.Peripherals);
+                var imu = new BNO055Sensor(Board.Peripherals, OperationMode.NDOF);
+                imu.UnitSelection.EulerAngleUnit = EulerAngleUnit.Radians;
+                var car = new LegoCar(pwm, motoZero, adcBoard, imu, speedSensor);
+            
+                var controller = new LegoCarController(car);
+                using var server = new LctpServer(5080, controller);
+                await server.RunAsync(cancellationToken);
             }
             finally
             {
                 Setup.GpioTerminate();
             }
+            
         }
 
         private static async Task RunSimulatorAsync(CancellationToken cancellationToken)
@@ -45,27 +66,26 @@ namespace LegoCarServer
             Console.WriteLine("LegoCar Server Simulator v1.0");
             var car = new LegoCarSimulator(2);
             var controller = new LegoCarController(car);
-            using (var server = new LctpTcpServer(5080, controller))
+            using (var server = new LctpServer(5080, controller))
             {
                 await server.RunAsync(cancellationToken); 
             }
         }
 
-        private static async Task RunAsync(CancellationToken cancellationToken)
+        private static void Handle(string[] args)
         {
-            Console.WriteLine("LegoCar Server v1.0");
+            var arg = args.FirstOrDefault(a => a.StartsWith("loglevel=", StringComparison.OrdinalIgnoreCase));
+            if (arg == null)
+            {
+                return;
+            }
 
-            using var pwm = new ServoPwmBoard(Board.Peripherals, Board.Pins);
-            using var motoZero = new MotoZeroBoard(Board.Pins);
-            using var speedSensor = new SpeedSensor();
-            var adcBoard = new ADCPiZeroBoard(Board.Peripherals);
-            var imu = new BNO055Sensor(Board.Peripherals, OperationMode.NDOF);
-            imu.UnitSelection.EulerAngleUnit = EulerAngleUnit.Radians;
-            var car = new LegoCar(pwm, motoZero, adcBoard, imu, speedSensor);
-            
-            var controller = new LegoCarController(car);
-            using var server = new LctpUdpServer(5081, controller);
-            await server.RunAsync(cancellationToken);
+            if (!Enum.TryParse<Importance>(arg.Substring("loglevel=".Length), out var value))
+            {
+                return;
+            }
+
+            Log.Level = value;
         }
     }
 }
