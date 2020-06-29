@@ -22,7 +22,6 @@ namespace LCTP.Core.Client
         public bool IsConnected => _socket.Connected;
         public IPEndPoint LocalEndpoint { get; }
         public IPEndPoint RemoteEndoint { get; }
-        private readonly IPEndPoint[] _remoteEndpoints;
         private readonly UdpClient _udpClient;
         private readonly Socket _socket;
         private readonly StreamReader _reader;

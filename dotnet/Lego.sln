@@ -54,6 +54,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LedTest", "LedTest\LedTest.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MouseTest", "MouseTest\MouseTest.csproj", "{48D0E330-7DA6-472D-9313-090EA5CE936A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "60. External", "60. External", "{D65807CE-2DCA-474A-99C5-31DC9EE33BD2}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Shared\Shared.projitems*{b9b5f667-5b75-4aa5-97d4-101443adebd8}*SharedItemsImports = 13

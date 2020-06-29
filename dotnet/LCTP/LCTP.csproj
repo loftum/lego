@@ -11,6 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Convenient.Gooday" Version="0.0.2" />
+    <PackageReference Include="Convenient.Gooday" Version="0.0.3" />
   </ItemGroup>
 </Project>

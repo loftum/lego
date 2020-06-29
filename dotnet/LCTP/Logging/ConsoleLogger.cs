@@ -8,9 +8,9 @@ namespace LCTP.Logging
         private static readonly object Lock = new object();
         private static readonly Dictionary<MessageType, ConsoleColor> Colors = new Dictionary<MessageType, ConsoleColor>
         {
-            [MessageType.Debug] = ConsoleColor.Yellow,
+            [MessageType.Debug] = ConsoleColor.DarkGray,
             [MessageType.Info] = ConsoleColor.White,
-            [MessageType.Warning] = ConsoleColor.Red,
+            [MessageType.Warning] = ConsoleColor.Yellow,
             [MessageType.Error] = ConsoleColor.Red
         };
 

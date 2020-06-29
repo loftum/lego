@@ -20,7 +20,7 @@ namespace LCTP.Logging
     {
         private static readonly ConcurrentDictionary<string, IdGenerator> Ids = new ConcurrentDictionary<string, IdGenerator>();
         
-        public static Importance Level { get; set; } = Importance.Trace;
+        public static Importance Level { get; set; } = Importance.Normal;
 
         public static ILogger For(object owner) => For(owner.GetType());
         public static ILogger For<T>() => For(typeof(T));

@@ -76,7 +76,7 @@ namespace LCTP.Core.Handshake
             var networkInterfaces = Network.GetUsableInterfaces().ToList();
             foreach (var i in networkInterfaces)
             {
-                _logger.Debug($"Interface: {i.Index}: {i.Interface.NetworkInterfaceType} desc:{i.Interface.Description} speed:{i.Interface.Speed}");
+                _logger.Debug($"Interface: {i.Index}: {i.Interface.NetworkInterfaceType} desc:{i.Interface.Description}");
             }
             var clientConnect = new ConnectMessage
             {

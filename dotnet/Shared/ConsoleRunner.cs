@@ -11,7 +11,11 @@ namespace Shared
         {
             using (var source = new CancellationTokenSource())
             {
-                Console.CancelKeyPress += (s, a) => source.Cancel();
+                Console.CancelKeyPress += (s, a) =>
+                {
+                    source.Cancel();
+                    a.Cancel = true;
+                };
                 try
                 {
                     await task(source.Token);

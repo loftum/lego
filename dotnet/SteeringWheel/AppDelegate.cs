@@ -1,5 +1,6 @@
 ﻿using System;
 using Foundation;
+using LCTP.Logging;
 using SteeringWheel.Controllers;
 using UIKit;
 
@@ -12,10 +13,13 @@ namespace SteeringWheel
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
+            Log.Level = Importance.Debug;
             Console.WriteLine("Hello");
-            Window = new UIWindow(UIScreen.MainScreen.Bounds);
-            Window.BackgroundColor = UIColor.White;
-            var controller = new ViewController();
+            Window = new UIWindow(UIScreen.MainScreen.Bounds)
+            {
+                BackgroundColor = UIColor.White
+            };
+            var controller = new ConnectViewController();
             Window.RootViewController = controller;
             Window.MakeKeyAndVisible();
             return true;

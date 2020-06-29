@@ -4,9 +4,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Convenient.Gooday;
 using LCTP.Core.Handshake;
 using LCTP.Core.Net;
 using LCTP.Logging;
+using ILogger = LCTP.Logging.ILogger;
 
 namespace LCTP.Core.Server
 {
@@ -20,12 +22,14 @@ namespace LCTP.Core.Server
         private readonly Socket _listener;
         private readonly int _port;
         private readonly LctpServerHandshake _handshake;
+        private readonly NetworkServicePublisher _publisher;
 
         public LctpServer(int port, IController controller)
         {
             _controller = controller;
             _port = port;
             _listener = CreateListener(port);
+            _publisher = new NetworkServicePublisher(_name, "_legocar._tcp", (ushort) port, logger: LogAdapter.For(nameof(NetworkServicePublisher)));
             _handshake = new LctpServerHandshake(_name, controller);
         }
         
@@ -55,9 +59,15 @@ namespace LCTP.Core.Server
         {
             try
             {
+                _publisher.Start();
                 listener.Listen(1);
+                cancellationToken.Register(() =>
+                {
+                    _listener.Close();
+                    _publisher.StopAsync().Wait(2000);
+                });
 
-                while (true)
+                while (!cancellationToken.IsCancellationRequested)
                 {
                     _logger.Info($"Listening for connections on port {_port}");
                     using (var socket = await _listener.AcceptAsync())
@@ -67,7 +77,7 @@ namespace LCTP.Core.Server
                         {
                             using (var handler = await _handshake.ExecuteAsync(socket))
                             {
-                                await handler.Handle(cancellationToken);    
+                                await handler.Handle(cancellationToken);
                             }
                         }
                         catch (Exception e)
@@ -77,15 +87,26 @@ namespace LCTP.Core.Server
                     }
                 }
             }
+            catch (SocketException)
+            {
+                return;
+            }
             catch (Exception e)
             {
                 _logger.Error(e);
                 return;
             }
+            finally
+            {
+                _logger.Trace("Waiting for publisher to stop");
+                await _publisher.StopAsync();
+                _logger.Trace("Done");
+            }
         }
 
         public void Dispose()
         {
+            _publisher?.Dispose();
             _listener?.Dispose();
         }
     }
