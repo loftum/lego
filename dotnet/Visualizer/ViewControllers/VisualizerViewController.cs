@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Timers;
 using AppKit;
+using AVFoundation;
 using CoreFoundation;
 using CoreGraphics;
 using Foundation;

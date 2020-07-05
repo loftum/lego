@@ -1,0 +1,12 @@
+
+pi
+raspivid -n -w 1280 -h 720 -b 4500000 -fps 30 -t 0 -o - | gst-launch-1.0 -v fdsrc !  h264parse ! tee name=splitter ! queue ! rtph264pay config-interval=10 pt=96 ! udpsink host=remotehost.local port=9000 splitter. ! queue ! filesink location="videofile.h264"
+raspivid -n -w 1280 -h 720 -b 4500000 -fps 30 -t 0 -o - | gst-launch-1.0 -v fdsrc !  h264parse ! tee name=splitter ! queue ! rtph264pay config-interval=10 pt=96 ! udpsink host=remotehost.local port=9000
+raspivid -n -w 1280 -h 720 -b 2000000 -fps 30 -t 0 -o - | gst-launch-1.0 -v fdsrc !  h264parse ! tee name=splitter ! queue ! rtph264pay config-interval=10 pt=96 ! udpsink host=remotehost.local port=9000
+raspivid -n -w 1280 -h 720 -b 2000000 -fps 30 -t 0 -o - | gst-launch-1.0 -v fdsrc !  h264parse ! tee name=splitter ! queue ! rtph264pay config-interval=10 pt=96 ! udpsink host=remotehost.local port=9000
+raspivid -n -w 640 -h 480 -b 2000000 -fps 30 -t 0 -o - | gst-launch-1.0 -v fdsrc !  h264parse ! tee name=splitter ! queue ! rtph264pay config-interval=10 pt=96 ! udpsink host=remotehost.local port=9000
+raspivid -n -w 320 -h 200 -b 2000000 -fps 30 -t 0 -o - | gst-launch-1.0 -v fdsrc !  h264parse ! tee name=splitter ! queue ! rtph264pay config-interval=10 pt=96 ! udpsink host=remotehost.local port=9000
+
+mac
+gst-launch-1.0 -v udpsrc port=9000 caps='application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264' ! rtph264depay ! avdec_h264 ! videoconvert ! autovideosink sync=false
+gst-launch-1.0 -v udpsrc port=9000 caps='application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264' ! rtph264depay ! avdec_h264 ! videoconvert
