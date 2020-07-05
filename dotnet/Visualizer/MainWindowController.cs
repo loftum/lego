@@ -39,9 +39,9 @@ namespace Visualizer
             Window.ContentView = _connectViewController.View;
         }
 
-        private void OnConnect(object sender, ConnectEventArgs e)
+        private async void OnConnect(object sender, ConnectEventArgs e)
         {
-            _visualizerViewcontroller.ConnectAsync(e.Host, e.Port).Wait(1000);
+            await _visualizerViewcontroller.ConnectAsync(e.Host, e.Port);
             Window.ContentView = _visualizerViewcontroller.View;
         }
 

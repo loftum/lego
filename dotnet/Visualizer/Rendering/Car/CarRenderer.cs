@@ -111,10 +111,11 @@ namespace Visualizer.Rendering.Car
 
             // Call the view's completion handler which is required by the view since it will signal its semaphore and set up the next buffer
             var drawable = view.CurrentDrawable;
+            
             commandBuffer.AddCompletedHandler(buffer =>
             {
                 var index = _uniformsIndex;
-                drawable.Dispose();
+                drawable?.Dispose();
                 var count = _inflightSemaphore.Release();
             });
 

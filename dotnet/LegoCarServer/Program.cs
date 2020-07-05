@@ -44,11 +44,10 @@ namespace LegoCarServer
                 }
                 using var pwm = new ServoPwmBoard(Board.Peripherals, Board.Pins);
                 using var motoZero = new MotoZeroBoard(Board.Pins);
-                using var speedSensor = new SpeedSensor();
                 var adcBoard = new ADCPiZeroBoard(Board.Peripherals);
                 var imu = new BNO055Sensor(Board.Peripherals, OperationMode.NDOF);
                 imu.UnitSelection.EulerAngleUnit = EulerAngleUnit.Radians;
-                var car = new LegoCar(pwm, motoZero, adcBoard, imu, speedSensor);
+                var car = new LegoCar(pwm, motoZero, adcBoard, imu);
             
                 var controller = new LegoCarController(car);
                 using var server = new LctpServer(5080, controller);
@@ -74,16 +73,17 @@ namespace LegoCarServer
 
         private static void Handle(string[] args)
         {
-            var arg = args.FirstOrDefault(a => a.StartsWith("loglevel=", StringComparison.OrdinalIgnoreCase));
+            var arg = args.FirstOrDefault(a => a.StartsWith("-loglevel=", StringComparison.OrdinalIgnoreCase));
             if (arg == null)
             {
                 return;
             }
 
-            if (!Enum.TryParse<Importance>(arg.Substring("loglevel=".Length), out var value))
+            if (!Enum.TryParse<Importance>(arg.Substring("-loglevel=".Length), true, out var value))
             {
                 return;
             }
+            Console.WriteLine($"Log.Level={value}");
 
             Log.Level = value;
         }

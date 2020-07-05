@@ -45,7 +45,7 @@ namespace Lego.Core
                 return false;
             }
 
-            if (!Doubles.TryParse(parts[2], out var distances))
+            if (!Doubles.TryParse(parts[3], out var distances))
             {
                 Console.WriteLine("Bad doubles");
                 return false;

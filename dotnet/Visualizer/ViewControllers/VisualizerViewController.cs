@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Timers;
 using AppKit;
-using AVFoundation;
 using CoreFoundation;
 using CoreGraphics;
 using Foundation;
@@ -97,12 +95,11 @@ namespace Visualizer.ViewControllers
                     c.CenterXAnchor.ConstraintEqualToAnchor(p.CenterXAnchor)
                 });
             _timer.Elapsed += Update;
-            _timer.Start();
         }
 
         private async void Update(object sender, ElapsedEventArgs e)
         {
-            if (_client == null)
+            if (_client == null || !_client.Connected)
             {
                 return;
             }
@@ -114,12 +111,13 @@ namespace Visualizer.ViewControllers
             await _client.UpdateAsync();
         }
 
-        public Task ConnectAsync(string host, int port)
+        public async Task ConnectAsync(string host, int port)
         {
             var client = new LctpClient(NSHost.Current.Name, host, port);
             _client = new LegoCarClient(client);
             
-            return _client.ConnectAsync();
+            await _client.ConnectAsync();
+            _timer.Start();
         }
 
         protected override void Dispose(bool disposing)
@@ -139,6 +137,7 @@ namespace Visualizer.ViewControllers
 
         private async void DisconnectAsync(object sender, EventArgs e)
         {
+            _timer.Stop();
             await _client.DisconnectAsync();
             OnDisconnect?.Invoke(this, EventArgs.Empty);
         }

@@ -8,6 +8,7 @@ using Devices.ABElectronics.ServoPWMPiZero;
 using Devices.Adafruit.BNO055;
 using Devices.Distance.Sharp.GP2Y0A41SK0F;
 using Devices.ThePiHut.MotoZero;
+using LCTP.Logging;
 using Lego.Client;
 using Lego.Core;
 using Maths;
@@ -17,6 +18,7 @@ namespace Lego.Server
 {
     public class LegoCar : ILegoCar
     {
+        private readonly ILogger _logger = Log.For<LegoCar>();
         private const double DistanceLimit = 29;
         private readonly ADCPiZeroBoard _adcBoard; 
         private readonly ServoPwmBoard _pwmBoard;
@@ -33,7 +35,6 @@ namespace Lego.Server
         private readonly DistanceSensor _frontCenterDistance;
         private readonly DistanceSensor _frontRightDistance;
         private readonly DistanceSensor _backCenterDistance;
-        private readonly SpeedSensor _speedSensor;
         
         private readonly InterlockedAsyncTimer _updateTimer = new InterlockedAsyncTimer(25);
         
@@ -48,14 +49,12 @@ namespace Lego.Server
         public LegoCar(ServoPwmBoard pwmBoard,
             MotoZeroBoard motoZero,
             ADCPiZeroBoard adcBoard,
-            BNO055Sensor imu,
-            SpeedSensor speedSensor)
+            BNO055Sensor imu)
         {
             _pwmBoard = pwmBoard;
             _motoZero = motoZero;
             _adcBoard = adcBoard;
             _imu = imu;
-            _speedSensor = speedSensor;
 
             _frontLeftDistance = CreateDistanceSensor(adcBoard.Inputs[0], DistanceCalculators.GP2Y0A41SK0F);
             _frontCenterDistance = CreateDistanceSensor(adcBoard.Inputs[1], DistanceCalculators.GP2Y0A02YK);
@@ -140,20 +139,22 @@ namespace Lego.Server
             return false;
         }
 
-        private async Task ReadSensorsAsync()
+        private Task ReadSensorsAsync()
         {
             FrontLeftDistance.Value = _frontLeftDistance.GetCm().Value;
             FrontCenterDistance.Value = _frontCenterDistance.GetCm().Value;
             FrontRightDistance.Value = _frontRightDistance.GetCm().Value;
             BackCenterDistance.Value = _backCenterDistance.GetCm().Value;
-            
+
+
+            var values = new[] { FrontLeftDistance.Value, FrontCenterDistance.Value, FrontRightDistance.Value, BackCenterDistance.Value };
+            _logger.Trace($"Distances: [{string.Join(", ", values)}]");
             if (_imu != null)
             {
                 EulerAngles.Value = _imu.ReadEulerData();
-                Quaternion.Value = _imu.ReadQuaternion();    
+                Quaternion.Value = _imu.ReadQuaternion();
             }
-
-            Speed.Value = await _speedSensor.GetSpeedAsync();
+            return Task.CompletedTask;
         }
 
         public LegoCarState GetState()
