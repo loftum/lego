@@ -1,4 +1,4 @@
-namespace LCTP.Logging
+namespace Maths.Logging
 {
     public interface ILogger
     {

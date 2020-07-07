@@ -1,11 +1,13 @@
 ﻿using System;
 using Devices.ABElectronics.ServoPWMPiZero;
 using Lego.Core;
+using Maths.Logging;
 
 namespace Lego.Server
 {
     public class Servo : IServo
     {
+        private readonly ILogger _logger;
         private readonly Pwm _pwm;
         private int _value;
         public int MinPos {get; private set; }
@@ -27,6 +29,7 @@ namespace Lego.Server
                 _pwm.OnTime = 0;
                 _pwm.OffTime = time;
                 _value = value;
+                _logger.Trace($"Value={value}");
             }
         }
 
@@ -35,6 +38,7 @@ namespace Lego.Server
             _pwm = pwm;
             SetPositionLimitsMs(0.7, 2.3); // pretty default for servos
             Value = 90;
+            _logger = Log.For<Servo>();
         }
 
         public void SetPositionLimitsMs(double minMs, double maxMs)

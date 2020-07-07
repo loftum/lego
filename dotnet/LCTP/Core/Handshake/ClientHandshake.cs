@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Convenient.Gooday.Net;
 using LCTP.Core.Client;
 using LCTP.Core.Extensions;
-using LCTP.Logging;
+using Maths.Logging;
 
 namespace LCTP.Core.Handshake
 {

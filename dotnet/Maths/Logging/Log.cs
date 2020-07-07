@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 
-namespace LCTP.Logging
+namespace Maths.Logging
 {
     internal class IdGenerator
     {
@@ -29,7 +29,7 @@ namespace LCTP.Logging
 
         private static string GetName(string prefix)
         {
-            var id = Ids.GetOrAdd(prefix, (_) => new IdGenerator());
+            var id = Ids.GetOrAdd(prefix, _ => new IdGenerator());
             return $"{prefix} {id.Next()}";
         }
     }

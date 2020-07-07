@@ -5,4 +5,4 @@ if [ -z "$1" -o -z "$2" ]
     echo
     exit
 fi
-scp ./"$1"/bin/Debug/net461/*.* "$2":~/"$1"
+scp ./"$1"/bin/Debug/net472/*.* "$2":~/"$1"

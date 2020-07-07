@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 using Convenient.Gooday;
 using LCTP.Core.Handshake;
 using LCTP.Core.Net;
-using LCTP.Logging;
-using ILogger = LCTP.Logging.ILogger;
+using Maths.Logging;
 
 namespace LCTP.Core.Server
 {

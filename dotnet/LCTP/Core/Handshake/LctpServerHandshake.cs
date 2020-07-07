@@ -8,7 +8,7 @@ using Convenient.Gooday.Net;
 using LCTP.Core.Client;
 using LCTP.Core.Extensions;
 using LCTP.Core.Server;
-using LCTP.Logging;
+using Maths.Logging;
 
 namespace LCTP.Core.Handshake
 {

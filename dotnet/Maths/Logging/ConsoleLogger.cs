@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace LCTP.Logging
+namespace Maths.Logging
 {
     public class ConsoleLogger : ILogger
     {

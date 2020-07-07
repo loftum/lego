@@ -1,42 +1,22 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using LCTP.Core;
-using LCTP.Core.Routing;
 using Lego.Core;
+using Lego.Server;
 
 namespace LegoCarServer
 {
-    public class LegoCarController : BaseController
+    public class RedCarController : LegoCarController
     {
-        private readonly ILegoCar _car;
+        private readonly IRedCar _car;
 
-        public LegoCarController(ILegoCar car)
+        public RedCarController(IRedCar car) : base(car)
         {
             _car = car;
-            //_car.Reset();
-            Set("input", SetInput);
             Set("blinker/(.+)", SetBlinker);
             Set("headlights", SetHeadlights);
             Get("orientation/euler", GetEulerAngles);
             Get("orientation/quaternion", GetEulerAngles);
-            Get("state", GetState);
-        }
-
-        private Task<ResponseMessage> SetInput(RequestMessage request, Match match)
-        {
-            if (!LegoCarInput.TryParse(request.Content, out var input))
-            {
-                return Task.FromResult(ResponseMessage.BadRequest("Bad input"));
-            }
-            _car.SetThrottle(input.Throttle);
-            _car.SetSteerAngle(input.SteerAngle);
-            return Task.FromResult(ResponseMessage.Ok(_car.GetState().Serialize()));
-        }
-
-        private Task<ResponseMessage> GetState(RequestMessage arg1, Match arg2)
-        {
-            return Task.FromResult(ResponseMessage.Ok(_car.GetState()));
         }
 
         private Task<ResponseMessage> GetEulerAngles(RequestMessage request, Match match)
@@ -78,37 +58,6 @@ namespace LegoCarServer
                 default:
                     return Task.FromResult(ResponseMessage.BadRequest($"Unknown state {request.Content}"));
             }
-        }
-
-        private Task<ResponseMessage> SetSteer(RequestMessage request, Match match)
-        {
-            if (!int.TryParse(request.Content, out var angle))
-            {
-                return Task.FromResult(ResponseMessage.BadRequest($"Bad angle: {request.Content}"));
-            }
-            _car.SetSteerAngle(angle);
-            return Task.FromResult(ResponseMessage.Ok());
-        }
-
-        private Task<ResponseMessage> SetMotorSpeed(RequestMessage request, Match match)
-        {
-            if (!int.TryParse(request.Content, out var speed))
-            {
-                Console.WriteLine($"Bad motor speed {speed}");
-                return Task.FromResult(ResponseMessage.BadRequest("Bad motor speed"));
-            }
-            _car.SetThrottle(speed);
-            return Task.FromResult(ResponseMessage.Ok());
-        }
-
-        public override void ConnectionClosed()
-        {
-            _car.StopEngine();
-        }
-
-        public override void ConnectionOpened()
-        {
-            _car.StartEngine();
         }
     }
 }

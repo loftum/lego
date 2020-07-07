@@ -2,13 +2,9 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Devices.ABElectronics.ADCPiZero;
-using Devices.ABElectronics.ServoPWMPiZero;
-using Devices.Adafruit.BNO055;
-using Devices.ThePiHut.MotoZero;
+using Devices._4tronix;
 using LCTP.Core.Server;
 using Lego.Server;
-using Lego.Server.Simulator;
 using Maths.Logging;
 using Shared;
 using Unosquare.PiGpio;
@@ -16,17 +12,21 @@ using Unosquare.PiGpio.NativeEnums;
 using Unosquare.PiGpio.NativeMethods;
 using Unosquare.RaspberryIO;
 
-namespace LegoCarServer
+namespace PiconCar
 {
     class Program
     {
-        public static async Task<int> Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
+            
             Handle(args);
-            if (args.Contains("-simulator"))
+            if (args.Contains("-bootstrap"))
             {
-                return await ConsoleRunner.RunAsync(RunSimulatorAsync);
+                Console.WriteLine("Bootstrapping");
+                Pi.Init<BootstrapPiGpio>();
+                return 0;
             }
+            
             return await ConsoleRunner.RunAsync(RunAsync);
         }
         
@@ -43,14 +43,11 @@ namespace LegoCarServer
                 {
                     throw new Exception($"Could not initialize: {result}");
                 }
-                using var pwm = new ServoPwmBoard(Board.Peripherals, Board.Pins);
-                using var motoZero = new MotoZeroBoard(Board.Pins);
-                var adcBoard = new ADCPiZeroBoard(Board.Peripherals);
-                var imu = new BNO055Sensor(Board.Peripherals, OperationMode.NDOF);
-                imu.UnitSelection.EulerAngleUnit = EulerAngleUnit.Radians;
-                var car = new RedCar(pwm, motoZero, adcBoard, imu);
+                using var piconZero = new PiconZeroBoard(Board.Peripherals);
+                
+                var car = new OrangeCar(piconZero);
             
-                var controller = new RedCarController(car);
+                var controller = new LegoCarController(car);
                 using var server = new LctpServer(5080, controller);
                 await server.RunAsync(cancellationToken);
             }
@@ -60,18 +57,7 @@ namespace LegoCarServer
             }
             
         }
-
-        private static async Task RunSimulatorAsync(CancellationToken cancellationToken)
-        {
-            Console.WriteLine("LegoCar Server Simulator v1.0");
-            var car = new LegoCarSimulator(2);
-            var controller = new LegoCarController(car);
-            using (var server = new LctpServer(5080, controller))
-            {
-                await server.RunAsync(cancellationToken); 
-            }
-        }
-
+        
         private static void Handle(string[] args)
         {
             var arg = args.FirstOrDefault(a => a.StartsWith("-loglevel=", StringComparison.OrdinalIgnoreCase));

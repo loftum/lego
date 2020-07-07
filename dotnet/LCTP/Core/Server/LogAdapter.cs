@@ -1,6 +1,8 @@
 using Convenient.Gooday.Logging;
+using Maths.Logging;
+using ILogger = Maths.Logging.ILogger;
 
-namespace LCTP.Logging
+namespace LCTP.Core.Server
 {
     public class LogAdapter : Convenient.Gooday.Logging.ILogger
     {

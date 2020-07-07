@@ -1,10 +1,12 @@
-﻿using Swan;
+﻿using Maths.Logging;
+using Swan;
 using Unosquare.PiGpio.ManagedModel;
 
 namespace Devices._4tronix
 {
     public class OutputPort
     {
+        private readonly ILogger _logger;
         public int Number { get; }
         private readonly I2cDevice _device;
         private OutputType _type;
@@ -23,6 +25,7 @@ namespace Devices._4tronix
                 }
                 _device.Write((byte)(PiconZeroBoard.OUTPUT0 + Number), (byte) value);
                 _value = value;
+                _logger.Trace($"Value={value}");
             }
         }
 
@@ -40,6 +43,7 @@ namespace Devices._4tronix
         {
             _device = device;
             Number = number;
+            _logger = Log.For($"OutputPort[{number}]");
         }
     }
 }

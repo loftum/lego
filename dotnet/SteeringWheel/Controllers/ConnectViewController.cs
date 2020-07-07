@@ -6,7 +6,7 @@ using Convenient.Gooday;
 using CoreFoundation;
 using Foundation;
 using LCTP.Core.Server;
-using LCTP.Logging;
+using Maths.Logging;
 using UIKit;
 
 namespace SteeringWheel.Controllers

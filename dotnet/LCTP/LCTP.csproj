@@ -13,4 +13,8 @@
   <ItemGroup>
     <PackageReference Include="Convenient.Gooday" Version="0.0.3" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Maths\Maths.csproj" />
+  </ItemGroup>
 </Project>

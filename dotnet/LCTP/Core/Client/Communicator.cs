@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using LCTP.Core.Extensions;
-using LCTP.Logging;
+using Maths.Logging;
 
 namespace LCTP.Core.Client
 {

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Maths.Logging;
 using Swan;
 using Unosquare.PiGpio.ManagedModel;
 
@@ -6,6 +6,7 @@ namespace Devices._4tronix
 {
     public class MotorPort: IMotorPort
     {
+        private readonly ILogger _logger;
         private int _speed;
         private readonly I2cDevice _device;
         public int Number { get; }
@@ -21,7 +22,7 @@ namespace Devices._4tronix
                 {
                     return;
                 }
-                Console.WriteLine($"Motor {Number} Speed = {value}");
+                _logger.Trace($"Speed = {value}");
                 _device.Write((byte)Number, (byte)value);
                 _speed = value;
             }
@@ -31,6 +32,7 @@ namespace Devices._4tronix
         {
             _device = device;
             Number = number;
+            _logger = Log.For($"Motor[{Number}]");
         }
     }
 }

@@ -8,17 +8,17 @@ using Devices.ABElectronics.ServoPWMPiZero;
 using Devices.Adafruit.BNO055;
 using Devices.Distance.Sharp.GP2Y0A41SK0F;
 using Devices.ThePiHut.MotoZero;
-using LCTP.Logging;
 using Lego.Client;
 using Lego.Core;
 using Maths;
+using Maths.Logging;
 using Timer = System.Timers.Timer;
 
 namespace Lego.Server
 {
-    public class LegoCar : ILegoCar
+    public class RedCar : IRedCar
     {
-        private readonly ILogger _logger = Log.For<LegoCar>();
+        private readonly ILogger _logger = Log.For<RedCar>();
         private const double DistanceLimit = 29;
         private readonly ADCPiZeroBoard _adcBoard; 
         private readonly ServoPwmBoard _pwmBoard;
@@ -46,7 +46,7 @@ namespace Lego.Server
         public Sampled<Quatd> Quaternion { get; } = new Sampled<Quatd>();
         public Sampled<Int2> Speed { get; } = new Sampled<Int2>();
 
-        public LegoCar(ServoPwmBoard pwmBoard,
+        public RedCar(ServoPwmBoard pwmBoard,
             MotoZeroBoard motoZero,
             ADCPiZeroBoard adcBoard,
             BNO055Sensor imu)
