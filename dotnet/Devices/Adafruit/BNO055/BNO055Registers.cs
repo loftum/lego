@@ -1,6 +1,6 @@
 ﻿namespace Devices.Adafruit.BNO055
 {
-    public enum Registers
+    public enum BNO055Registers
     {
         /* Page id register definition */
         BNO055_PAGE_ID_ADDR = 0X07,

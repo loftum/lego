@@ -89,14 +89,14 @@ namespace Devices.Adafruit.BNO055
         
         private void Load()
         {
-            var raw = _device.ReadByte((int) Registers.BNO055_UNIT_SEL_ADDR);
+            var raw = _device.ReadByte((int) BNO055Registers.BNO055_UNIT_SEL_ADDR);
             ParseRegisterValue(raw);
         }
 
         private void Save()
         {
             var raw = GetRegisterValue();
-            _device.Write((int)Registers.BNO055_UNIT_SEL_ADDR, raw);
+            _device.Write((int)BNO055Registers.BNO055_UNIT_SEL_ADDR, raw);
         }
 
         public override string ToString()

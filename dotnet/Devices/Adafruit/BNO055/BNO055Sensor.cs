@@ -21,8 +21,8 @@ namespace Devices.Adafruit.BNO055
         /// </summary>
         public OperationMode OperationMode
         {
-            get => (OperationMode) ReadByte(Registers.BNO055_OPR_MODE_ADDR);
-            private set => WriteByte(Registers.BNO055_OPR_MODE_ADDR, (byte) value);
+            get => (OperationMode) ReadByte(BNO055Registers.BNO055_OPR_MODE_ADDR);
+            private set => WriteByte(BNO055Registers.BNO055_OPR_MODE_ADDR, (byte) value);
         }
 
         /// <summary>
@@ -30,8 +30,8 @@ namespace Devices.Adafruit.BNO055
         /// </summary>
         public PowerMode PowerMode
         {
-            get => (PowerMode) ReadByte(Registers.BNO055_PWR_MODE_ADDR);
-            private set => WriteByte(Registers.BNO055_PWR_MODE_ADDR, (byte) value);
+            get => (PowerMode) ReadByte(BNO055Registers.BNO055_PWR_MODE_ADDR);
+            private set => WriteByte(BNO055Registers.BNO055_PWR_MODE_ADDR, (byte) value);
         }
 
         /// <summary>
@@ -39,8 +39,8 @@ namespace Devices.Adafruit.BNO055
         /// </summary>
         public AxisRemap AxisRemap
         {
-            get => (AxisRemap) ReadByte(Registers.BNO055_AXIS_MAP_CONFIG_ADDR);
-            private set => WriteByte(Registers.BNO055_AXIS_MAP_CONFIG_ADDR, (byte) value);
+            get => (AxisRemap) ReadByte(BNO055Registers.BNO055_AXIS_MAP_CONFIG_ADDR);
+            private set => WriteByte(BNO055Registers.BNO055_AXIS_MAP_CONFIG_ADDR, (byte) value);
         }
 
         /// <summary>
@@ -48,52 +48,52 @@ namespace Devices.Adafruit.BNO055
         /// </summary>
         public SignRemap SignRemap
         {
-            get => (SignRemap)ReadByte(Registers.BNO055_AXIS_MAP_SIGN_ADDR);
-            private set => WriteByte(Registers.BNO055_AXIS_MAP_SIGN_ADDR, (byte)value);
+            get => (SignRemap)ReadByte(BNO055Registers.BNO055_AXIS_MAP_SIGN_ADDR);
+            private set => WriteByte(BNO055Registers.BNO055_AXIS_MAP_SIGN_ADDR, (byte)value);
         }
 
         public UnitSelection UnitSelection { get; }
 
         public ClockSelection ClockSelection
         {
-            get => (ClockSelection) (ReadByte(Registers.BNO055_SYS_TRIGGER_ADDR) & 0b1000_0000);
+            get => (ClockSelection) (ReadByte(BNO055Registers.BNO055_SYS_TRIGGER_ADDR) & 0b1000_0000);
             set
             {
-                var regValue = ReadByte(Registers.BNO055_SYS_TRIGGER_ADDR);
+                var regValue = ReadByte(BNO055Registers.BNO055_SYS_TRIGGER_ADDR);
                 var clockSelection = (byte) ((byte) value << 7);
                 var newValue = regValue | clockSelection;
-                WriteByte(Registers.BNO055_SYS_TRIGGER_ADDR, (byte)newValue);
+                WriteByte(BNO055Registers.BNO055_SYS_TRIGGER_ADDR, (byte)newValue);
             }
         }
 
         public int RegisterPage
         {
-            get => ReadByte(Registers.BNO055_PAGE_ID_ADDR);
+            get => ReadByte(BNO055Registers.BNO055_PAGE_ID_ADDR);
             private set
             {
                 if (value < 0 || value > 1)
                 {
                     throw new InvalidOperationException("Page must be 0 or 1");
                 }
-                WriteByte(Registers.BNO055_PAGE_ID_ADDR, (byte)value);
+                WriteByte(BNO055Registers.BNO055_PAGE_ID_ADDR, (byte)value);
             }
         }
 
         public Double3 ReadGyro()
         {
-            var bytes = ReadBytes(Registers.BNO055_GYRO_DATA_X_LSB_ADDR, 6).FixMsb();
+            var bytes = ReadBytes(BNO055Registers.BNO055_GYRO_DATA_X_LSB_ADDR, 6).FixMsb();
             return bytes.ToVector3() / 16;
         }
 
         public Double3 ReadMag()
         {
-            var bytes = ReadBytes(Registers.BNO055_MAG_DATA_X_LSB_ADDR, 6).FixMsb();
+            var bytes = ReadBytes(BNO055Registers.BNO055_MAG_DATA_X_LSB_ADDR, 6).FixMsb();
             return bytes.ToVector3() / 16;
         }
 
         public Quatd ReadQuaternion()
         {
-            var bytes = ReadBytes(Registers.BNO055_QUATERNION_DATA_W_LSB_ADDR, 8);
+            var bytes = ReadBytes(BNO055Registers.BNO055_QUATERNION_DATA_W_LSB_ADDR, 8);
             return bytes.FixMsb().ToQuaternion() / 16384; // 2 ^ 14 LSB
         }
         
@@ -102,7 +102,7 @@ namespace Devices.Adafruit.BNO055
             // Stupid bug in the chip.
             // Sometimes msb is set for no apparent reason, which makes the int16 value negative.
             // Let's MacGyver it:
-            var buffer = ReadBytes(Registers.BNO055_EULER_H_LSB_ADDR, 6).FixMsb();
+            var buffer = ReadBytes(BNO055Registers.BNO055_EULER_H_LSB_ADDR, 6).FixMsb();
             
             var yaw = (short) (buffer[1] << 8 | buffer[0]);
             var roll = (short) (buffer[3] << 8 | buffer[2]);
@@ -127,7 +127,7 @@ namespace Devices.Adafruit.BNO055
          */
         public Double3 ReadLinearAccel()
         {
-            var bytes = ReadBytes(Registers.BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, 6);
+            var bytes = ReadBytes(BNO055Registers.BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, 6);
             var vector = bytes.ToVector3();
             switch (UnitSelection.AccelerometerUnit)
             {
@@ -164,7 +164,7 @@ namespace Devices.Adafruit.BNO055
          */
         public Double3 ReadAccel()
         {
-            var vector = ReadBytes(Registers.BNO055_ACCEL_DATA_X_LSB_ADDR, 6)
+            var vector = ReadBytes(BNO055Registers.BNO055_ACCEL_DATA_X_LSB_ADDR, 6)
                 .FixMsb()
                 .ToVector3();
             switch (UnitSelection.AccelerometerUnit)
@@ -216,27 +216,27 @@ namespace Devices.Adafruit.BNO055
                 return;
             }
             Console.WriteLine($"Loading offsets from {path}");
-            WriteBytes(Registers.ACCEL_OFFSET_X_LSB_ADDR, bytes);
+            WriteBytes(BNO055Registers.ACCEL_OFFSET_X_LSB_ADDR, bytes);
         }
 
         public byte[] GetSensorOffsets()
         {
             var mode = OperationMode;
             Thread.Sleep(25);
-            var bytes = ReadBytes(Registers.ACCEL_OFFSET_X_LSB_ADDR, 22);
+            var bytes = ReadBytes(BNO055Registers.ACCEL_OFFSET_X_LSB_ADDR, 22);
             OperationMode = mode;
             return bytes;
         }
 
         private void VerifyId(int retries = 1)
         {
-            var id = _device.ReadByte((int) Registers.BNO055_CHIP_ID_ADDR);
+            var id = _device.ReadByte((int) BNO055Registers.BNO055_CHIP_ID_ADDR);
             var count = 0;
             while (id != Id && count < retries)
             {
                 count++;
                 Thread.Sleep(100);
-                id = _device.ReadByte((int)Registers.BNO055_CHIP_ID_ADDR);
+                id = _device.ReadByte((int)BNO055Registers.BNO055_CHIP_ID_ADDR);
             }
             if (id != Id)
             {
@@ -246,7 +246,7 @@ namespace Devices.Adafruit.BNO055
 
         private void Reset()
         {
-            WriteByte(Registers.BNO055_SYS_TRIGGER_ADDR, 0x20);
+            WriteByte(BNO055Registers.BNO055_SYS_TRIGGER_ADDR, 0x20);
             Thread.Sleep(1000);
             VerifyId(10);
             Thread.Sleep(50);
@@ -254,7 +254,7 @@ namespace Devices.Adafruit.BNO055
 
         public CalibrationStatus GetCalibration()
         {
-            var calibration = ReadByte(Registers.BNO055_CALIB_STAT_ADDR);
+            var calibration = ReadByte(BNO055Registers.BNO055_CALIB_STAT_ADDR);
             var system = (byte) ((calibration >> 6) & 0x03);
             var gyro = (byte) ((calibration >> 4) & 0x03);
             var accel = (byte) ((calibration >> 2) & 0x03);
@@ -262,30 +262,30 @@ namespace Devices.Adafruit.BNO055
             return new CalibrationStatus(system, gyro, accel, mag);
         }
 
-        private byte ReadByte(Registers register)
+        private byte ReadByte(BNO055Registers register)
         {
             return _device.ReadByte((byte) register);
         }
         
-        private byte[] ReadBytes(Registers register, int length)
+        private byte[] ReadBytes(BNO055Registers register, int length)
         {
             var addressStart = (byte)register;
             return _device.ReadBlock(addressStart, length);
         }
 
-        private void WriteByte(Registers register, byte value)
+        private void WriteByte(BNO055Registers register, byte value)
         {
             _device.Write((byte)register, value);
         }
         
-        private void WriteBytes(Registers register, byte[] values)
+        private void WriteBytes(BNO055Registers register, byte[] values)
         {
             _device.Write((byte) register, values);
         }
 
         public double ReadTemp()
         {
-            var raw = ReadByte(Registers.BNO055_TEMP_ADDR);
+            var raw = ReadByte(BNO055Registers.BNO055_TEMP_ADDR);
             switch (UnitSelection.TemperatureUnit)
             {
                 case TemperatureUnit.Celsius:

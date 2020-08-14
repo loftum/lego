@@ -15,6 +15,7 @@
   <ItemGroup>
     <Folder Include="4tronix\Datasheets\" />
     <Folder Include="Adafruit\BNO055\Datasheet\" />
+    <Folder Include="SparkFun\BNO080\Datasheet" />
     <Folder Include="ThePiHut\MotoZero\Datasheets\" />
     <Folder Include="Distance\" />
     <Folder Include="Distance\Sharp\" />
