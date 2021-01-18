@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <LangVersion>default</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Devices\Devices.csproj" />
+      <ProjectReference Include="..\LCTP\LCTP.csproj" />
+      <ProjectReference Include="..\Lego.Server\Lego.Server.csproj" />
+      <ProjectReference Include="..\LegoCarServer\LegoCarServer.csproj" />
+      <ProjectReference Include="..\Lego\Lego.csproj" />
+    </ItemGroup>
+
+    <Import Project="..\Shared\Shared.projitems" Label="Shared" />
+
+</Project>

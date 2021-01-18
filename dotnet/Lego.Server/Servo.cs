@@ -35,10 +35,11 @@ namespace Lego.Server
 
         public Servo(Pwm pwm)
         {
+            _logger = Log.For<Servo>();
             _pwm = pwm;
             SetPositionLimitsMs(0.7, 2.3); // pretty default for servos
             Value = 90;
-            _logger = Log.For<Servo>();
+            
         }
 
         public void SetPositionLimitsMs(double minMs, double maxMs)

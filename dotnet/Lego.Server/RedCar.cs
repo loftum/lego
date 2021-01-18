@@ -34,14 +34,21 @@ namespace Lego.Server
         private readonly DistanceSensor _frontLeftDistance;
         private readonly DistanceSensor _frontCenterDistance;
         private readonly DistanceSensor _frontRightDistance;
+        
+        private readonly DistanceSensor _backLeftDistance;
         private readonly DistanceSensor _backCenterDistance;
+        private readonly DistanceSensor _backRightDistance;
         
         private readonly InterlockedAsyncTimer _updateTimer = new InterlockedAsyncTimer(25);
         
         public Sampled<double> FrontLeftDistance { get; } = new Sampled<double>();
         public Sampled<double> FrontCenterDistance { get; } = new Sampled<double>();
         public Sampled<double> FrontRightDistance { get; } = new Sampled<double>();
+
+        public Sampled<double> BackLeftDistance { get; } = new Sampled<double>();
         public Sampled<double> BackCenterDistance { get; } = new Sampled<double>();
+        public Sampled<double> BackRightDistance { get; } = new Sampled<double>();
+        
         public Sampled<Double3> EulerAngles { get; } = new Sampled<Double3>();
         public Sampled<Quatd> Quaternion { get; } = new Sampled<Quatd>();
         public Sampled<Int2> Speed { get; } = new Sampled<Int2>();
@@ -59,7 +66,10 @@ namespace Lego.Server
             _frontLeftDistance = CreateDistanceSensor(adcBoard.Inputs[0], DistanceCalculators.GP2Y0A41SK0F);
             _frontCenterDistance = CreateDistanceSensor(adcBoard.Inputs[1], DistanceCalculators.GP2Y0A02YK);
             _frontRightDistance = CreateDistanceSensor(adcBoard.Inputs[2], DistanceCalculators.GP2Y0A41SK0F);
-            _backCenterDistance = CreateDistanceSensor(adcBoard.Inputs[4], DistanceCalculators.GP2Y0A41SK0F);
+
+            _backLeftDistance = CreateDistanceSensor(adcBoard.Inputs[3], DistanceCalculators.GP2Y0A41SK0F);
+            _backCenterDistance = CreateDistanceSensor(adcBoard.Inputs[4], DistanceCalculators.GP2Y0A02YK);
+            _backRightDistance = CreateDistanceSensor(adcBoard.Inputs[5], DistanceCalculators.GP2Y0A41SK0F);
             
             _motoZero.Motors[0].Enabled = true;
             _motoZero.Motors[1].Enabled = true;
@@ -144,10 +154,21 @@ namespace Lego.Server
             FrontLeftDistance.Value = _frontLeftDistance.GetCm().Value;
             FrontCenterDistance.Value = _frontCenterDistance.GetCm().Value;
             FrontRightDistance.Value = _frontRightDistance.GetCm().Value;
+
+            BackLeftDistance.Value = _backLeftDistance.GetCm().Value;
             BackCenterDistance.Value = _backCenterDistance.GetCm().Value;
+            BackRightDistance.Value = _backRightDistance.GetCm().Value;
 
 
-            var values = new[] { FrontLeftDistance.Value, FrontCenterDistance.Value, FrontRightDistance.Value, BackCenterDistance.Value };
+            var values = new[]
+            {
+                FrontLeftDistance.Value,
+                FrontCenterDistance.Value,
+                FrontRightDistance.Value,
+                BackLeftDistance.Value,
+                BackCenterDistance.Value,
+                BackRightDistance.Value
+            };
             _logger.Trace($"Distances: [{string.Join(", ", values)}]");
             if (_imu != null)
             {
