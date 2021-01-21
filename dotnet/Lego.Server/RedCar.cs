@@ -155,19 +155,18 @@ namespace Lego.Server
             FrontCenterDistance.Value = _frontCenterDistance.GetCm().Value;
             FrontRightDistance.Value = _frontRightDistance.GetCm().Value;
 
-            BackLeftDistance.Value = _backLeftDistance.GetCm().Value;
-            BackCenterDistance.Value = _backCenterDistance.GetCm().Value;
             BackRightDistance.Value = _backRightDistance.GetCm().Value;
-
-
+            BackCenterDistance.Value = _backCenterDistance.GetCm().Value;
+            BackLeftDistance.Value = _backLeftDistance.GetCm().Value;
+            
             var values = new[]
             {
                 FrontLeftDistance.Value,
                 FrontCenterDistance.Value,
                 FrontRightDistance.Value,
-                BackLeftDistance.Value,
+                BackRightDistance.Value,
                 BackCenterDistance.Value,
-                BackRightDistance.Value
+                BackLeftDistance.Value
             };
             _logger.Trace($"Distances: [{string.Join(", ", values)}]");
             if (_imu != null)
@@ -190,7 +189,9 @@ namespace Lego.Server
                     FrontLeftDistance.Value,
                     FrontCenterDistance.Value,
                     FrontRightDistance.Value,
-                    BackCenterDistance.Value
+                    BackRightDistance.Value,
+                    BackCenterDistance.Value,
+                    BackLeftDistance.Value
                 }
             };
         }

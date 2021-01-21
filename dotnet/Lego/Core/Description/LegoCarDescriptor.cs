@@ -22,38 +22,47 @@ namespace Lego.Core.Description
             Height = 13,
             DistanceSensors = new List<DistanceSensorDescriptor>
             {
+                // Front left
                 new DistanceSensorDescriptor
                 {
                     ModelMatrix = Float4x4.CreateTranslation(-21f, 0, 0) *
                                   Float4x4.CreateTranslation(0, 0, 7f) *
                                   Float4x4.CreateRotation(Float.PI / 6, 0, 1f, 0)
-                                  
-                                  
                 },
+                // Front center
                 new DistanceSensorDescriptor
                 {
                     ModelMatrix = Float4x4.CreateTranslation(-21f, 0, 0)
                 },
+                // Front right
                 new DistanceSensorDescriptor
                 {
                     ModelMatrix = Float4x4.CreateTranslation(-21f, 0, 0) *
                                   Float4x4.CreateTranslation(0, 0, -7f) *
                                   Float4x4.CreateRotation(-Float.PI / 6, 0, 1f, 0)
                 },
-                // new DistanceSensorDescriptor
-                // {
-                //     ModelMatrix = Float4x4.CreateTranslation(21f, 0, 0) *
-                //         Float4x4.CreateTranslation(0, 0, 7f) *
-                //         Float4x4.CreateRotation(-Float.PI / 6, 0, 1f, 0)
-                // },
+                // Rear right
                 new DistanceSensorDescriptor
                 {
-                    ModelMatrix = Float4x4.CreateRotation(Float.PI, 0, 1f, 0) * Float4x4.CreateTranslation(-21f, 0, 0)
+                    ModelMatrix = Float4x4.CreateRotation(Float.PI, 0, 1f, 0) *
+                                  Float4x4.CreateTranslation(-21f, 0, 0) *
+                                  Float4x4.CreateTranslation(0, 0, 7f) *
+                                  Float4x4.CreateRotation(Float.PI / 6, 0, 1f, 0)
                 },
-                // new DistanceSensorDescriptor
-                // {
-                //     ModelMatrix = Float4x4.CreateRotation(Float.PI, 0, 1f, 0) * Float4x4.CreateTranslation(-21f, 0, 0)
-                // }
+                // Rear center
+                new DistanceSensorDescriptor
+                {
+                    ModelMatrix = Float4x4.CreateRotation(Float.PI, 0, 1f, 0) *
+                                  Float4x4.CreateTranslation(-21f, 0, 0)
+                },
+                // Rear left
+                new DistanceSensorDescriptor
+                {
+                    ModelMatrix = Float4x4.CreateRotation(Float.PI, 0, 1f, 0) *
+                                  Float4x4.CreateTranslation(-21f, 0, 0) *
+                                  Float4x4.CreateTranslation(0, 0, -7f) *
+                                  Float4x4.CreateRotation(-Float.PI / 6, 0, 1f, 0)
+                }
             }
         };
     }

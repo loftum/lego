@@ -61,6 +61,7 @@ namespace Visualizer.Rendering.Car
             Console.WriteLine($"FragmentUniformsBuffer.length = {car.FragmentUniformsBuffer.Length}");
             scene.RootNode.Children.Add(car);
 
+            Console.WriteLine($"Distance sensors: {descriptor.DistanceSensors.Count}");
             var ii = 0;
             foreach (var distanceSensor in descriptor.DistanceSensors)
             {
