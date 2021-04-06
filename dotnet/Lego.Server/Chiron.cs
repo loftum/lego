@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using Devices.ABElectronics.ADCPiZero;
 using Devices.ABElectronics.ServoPWMPiZero;
-using Devices.Adafruit.BNO055;
 using Devices.ThePiHut.MotoZero;
 using Lego.Client;
 using Lego.Core;
@@ -19,22 +19,21 @@ namespace Lego.Server
         private readonly ILogger _logger = Log.For<RedCar>();
         
         public Sampled<Int2> Speed { get; } = new Sampled<Int2>();
-        
+
+        private readonly IServo _steerFront;
         private readonly ADCPiZeroBoard _adcBoard; 
         private readonly ServoPwmBoard _pwmBoard;
         private readonly MotoZeroBoard _motoZero;
-        private readonly BNO055Sensor _imu;
         private readonly InterlockedAsyncTimer _updateTimer = new InterlockedAsyncTimer(25);
 
         public Chiron(ServoPwmBoard pwmBoard,
             MotoZeroBoard motoZero,
-            ADCPiZeroBoard adcBoard,
-            BNO055Sensor imu)
+            ADCPiZeroBoard adcBoard)
         {
             _pwmBoard = pwmBoard;
             _motoZero = motoZero;
             _adcBoard = adcBoard;
-            _imu = imu;
+            _steerFront = pwmBoard.Outputs[0].AsServo();
             
             motoZero.Motors[0].Enabled = true;
             motoZero.Motors[1].Enabled = true;
@@ -53,11 +52,12 @@ namespace Lego.Server
 
         public void SetSteerAngle(int angle)
         {
-            throw new System.NotImplementedException();
+            _steerFront.Value = angle;
         }
 
         public void Reset()
         {
+            _steerFront.Value = 90;
             _motoZero.Motors[0].Speed = 0;
             _motoZero.Motors[1].Speed = 0;
             _motoZero.Motors[2].Speed = 0;
@@ -68,7 +68,10 @@ namespace Lego.Server
         {
             return new LegoCarState
             {
-
+                EulerAngles = new Double3(),
+                Quaternion = new Quatd(),
+                Speed = Speed.Value,
+                Distances = new List<double>()
             };
         }
 

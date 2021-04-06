@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Devices.ABElectronics.ADCPiZero;
 using Devices.ABElectronics.ServoPWMPiZero;
 using Devices.Adafruit.BNO055;
+using Devices.OpenMV;
 using Devices.ThePiHut.MotoZero;
 using LCTP.Core.Server;
 using Lego.Server;
@@ -37,17 +38,18 @@ namespace LegoCarServer
                 Console.WriteLine("LegoCar Server v1.0");
                 
                 Setup.GpioCfgSetInternals(ConfigFlags.NoSignalHandler); // NO SIGINT or SIGRTMIN (runtime)
-
                 var result = Setup.GpioInitialise();
                 if (result == ResultCode.InitFailed)
                 {
                     throw new Exception($"Could not initialize: {result}");
                 }
+                
                 using var pwm = new ServoPwmBoard(Board.Peripherals, Board.Pins);
                 using var motoZero = new MotoZeroBoard(Board.Pins);
                 var adcBoard = new ADCPiZeroBoard(Board.Peripherals);
                 var imu = new BNO055Sensor(Board.Peripherals, OperationMode.NDOF);
                 imu.UnitSelection.EulerAngleUnit = EulerAngleUnit.Radians;
+                var cam = new OpenMVCamH7(Board.Peripherals.OpenUartPort("3", UartRate.BaudRate19200));
                 var car = new RedCar(pwm, motoZero, adcBoard, imu);
             
                 var controller = new RedCarController(car);

@@ -40,9 +40,9 @@ namespace Chiron
                 using var pwm = new ServoPwmBoard(Board.Peripherals, Board.Pins);
                 using var motoZero = new MotoZeroBoard(Board.Pins);
                 var adcBoard = new ADCPiZeroBoard(Board.Peripherals);
-                var imu = new BNO055Sensor(Board.Peripherals, OperationMode.NDOF);
-                imu.UnitSelection.EulerAngleUnit = EulerAngleUnit.Radians;
-                var car = new Lego.Server.Chiron(pwm, motoZero, adcBoard, imu);
+                //var imu = new BNO055Sensor(Board.Peripherals, OperationMode.NDOF);
+                //imu.UnitSelection.EulerAngleUnit = EulerAngleUnit.Radians;
+                var car = new Lego.Server.Chiron(pwm, motoZero, adcBoard);
             
                 var controller = new ChironController(car);
                 using var server = new LctpServer(5080, controller);
