@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Unosquare.PiGpio;
 using Unosquare.PiGpio.NativeEnums;
 using Unosquare.PiGpio.NativeMethods;
+using Unosquare.RaspberryIO;
 
 namespace OpenMVTest
 {
@@ -25,7 +26,7 @@ namespace OpenMVTest
                     throw new Exception($"Could not initialize: {result}");
                 }
 
-                await RunAsync(source.Token);
+                await RunUartAsync(source.Token);
 
                 return 0;
             }
@@ -44,9 +45,10 @@ namespace OpenMVTest
             }
         }
 
-        private static async Task RunAsync(CancellationToken cancellationToken)
+        private static async Task RunUartAsync(CancellationToken cancellationToken)
         {
-            using var uart = Board.Peripherals.OpenUartPort("/dev/serial1", UartRate.BaudRate19200);
+            using var uart = Board.Peripherals.OpenUartPort("/dev/serial0", UartRate.BaudRate9600);
+            Console.WriteLine("Wating for input ...");
             while (!cancellationToken.IsCancellationRequested)
             {
                 if (uart.Available > 0)
