@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Unosquare.PiGpio;
 using Unosquare.PiGpio.NativeEnums;
 using Unosquare.PiGpio.NativeMethods;
-using Unosquare.RaspberryIO;
 
 namespace OpenMVTest
 {
