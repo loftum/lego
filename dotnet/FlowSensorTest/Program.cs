@@ -27,7 +27,7 @@ namespace FlowSensorTest
                 using var channel = Board.Peripherals.OpenSpiChannel(SpiChannelId.SpiChannel0, 400000);
 
                 var pin = Board.Pins[UserGpio.Bcm08];
-                var sensor = new PAA5100JEQ_FlowSensor(channel, pin);
+                using var sensor = new PAA5100JEQ_FlowSensor(channel, pin);
                 await sensor.InitAsync(cancellationToken);
 
                 while (!cancellationToken.IsCancellationRequested)
