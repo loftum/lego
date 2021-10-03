@@ -31,7 +31,7 @@ namespace Devices.PixArt
                 0x43, 0x10
             });
 
-            if ((_read(0x67) & 0b1000_0000) != 0x00)
+            if ((Read(0x67) & 0b1000_0000) != 0x00)
             {
                 Write(0x48, 0x04);
             }
@@ -50,10 +50,10 @@ namespace Devices.PixArt
                 0x7f, 0x0E
             });
 
-            if (_read(0x73) == 0x00)
+            if (Read(0x73) == 0x00)
             {
-                var c1 = _read(0x70);
-                var c2 = _read(0x71);
+                var c1 = Read(0x70);
+                var c2 = Read(0x71);
                 if (c1 <= 28)
                 {
                     c1 += 14;
@@ -187,9 +187,6 @@ namespace Devices.PixArt
 
                 0x73, 0x00
             });
-
         }
     }
-
-    
 }

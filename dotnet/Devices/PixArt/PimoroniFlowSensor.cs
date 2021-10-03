@@ -38,7 +38,7 @@ namespace Devices.PixArt
             
             for (byte ii = 0; ii < 5; ii++)
             {
-                _read((byte) (REG_DATA_READY + ii));
+                Read((byte) (REG_DATA_READY + ii));
             }
 
             var (productId, revision) = GetId();
@@ -141,7 +141,7 @@ namespace Devices.PixArt
             return bytes;
         }
         
-        protected byte _read(byte register)
+        protected byte Read(byte register)
         {
             CsPin.Value = false;
             var read = SpiChannel.Transfer(new[] { register, (byte)0x00 });
