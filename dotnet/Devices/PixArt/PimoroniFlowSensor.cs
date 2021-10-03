@@ -7,7 +7,7 @@ using Unosquare.PiGpio.NativeEnums;
 
 namespace Devices.PixArt
 {
-    public abstract class PimoroniFlowSensor
+    public abstract class PimoroniFlowSensor : IDisposable
     {
         protected const byte WAIT = 0xff;
         protected const byte REG_POWER_UP_RESET = 0x3a;
@@ -15,7 +15,8 @@ namespace Devices.PixArt
         protected const byte REG_ID = 0x00;
         protected const byte REG_ORIENTATION = 0x5b;
         protected const byte REG_MOTION_BURST = 0x16;
-        
+        protected const byte SecretRegister = 0x7f;
+
         protected readonly SpiChannel SpiChannel;
         protected readonly GpioPin CsPin;
 
@@ -97,34 +98,37 @@ namespace Devices.PixArt
             Write(REG_ORIENTATION, value);
         }
 
-        public (ushort, ushort) GetMotion(TimeSpan timeout)
+        // 
+        private static readonly byte[] MotionBurstBytes = { REG_MOTION_BURST, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; 
+        
+        public async Task<(short, short)> GetMotionAsync(CancellationToken cancellationToken)
         {
-            var start = DateTimeOffset.UtcNow;
-
-            while (DateTimeOffset.UtcNow - start < timeout)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                CsPin.Value = false;
-                var data = SpiChannel.Transfer(new byte[] { REG_MOTION_BURST, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
-                CsPin.Value = true;
+                var data = Transfer(MotionBurstBytes);
+                var v = data[0];
                 var dr = data[1];
                 var obs = data[2];
-                var x = (ushort) (data[3] | data[4] << 1);
-                var y = (ushort) (data[5] | data[6] << 1);
+                var x = (short) (data[3] | data[4] << 8);
+                var y = (short) (data[5] | data[6] << 8);
                 var quality = data[7];
                 var raw_sum = data[8];
                 var raw_max = data[9];
                 var raw_min = data[10];
                 var shutter_upper = data[11];
                 var shutter_lower = data[12];
+                
+                //Console.WriteLine($"v: {v}, dr: {dr}, obs: {obs}, x: {x}, y:{y}, quality: {quality}, raw_sum: {raw_sum}, raw_max: {raw_max}, raw_min: {raw_min}, shutter_upper: {shutter_upper}, shutter_lower: {shutter_lower}");
 
                 if ((dr & 0b1000_0000) != 0 && !(quality < 0x19 && shutter_upper == 0x1f))
                 {
                     return (x, y);
                 }
-                Thread.Sleep(10);
+
+                await Task.Delay(10, cancellationToken);
             }
 
-            throw new Exception("Timeout for motion data");
+            return (0, 0);
         }
 
         protected IList<byte> Read(byte register, int length)
@@ -132,9 +136,7 @@ namespace Devices.PixArt
             var bytes = new List<byte>();
             for (var ii = 0; ii < length; ii++)
             {
-                CsPin.Value = false;
-                var read = SpiChannel.Transfer(new[] { (byte)(register + ii), (byte)0x00 });
-                CsPin.Value = true;
+                var read = Transfer(new[] { (byte)(register + ii), (byte)0x00 });
                 bytes.Add(read[1]);
             }
 
@@ -143,9 +145,7 @@ namespace Devices.PixArt
         
         protected byte Read(byte register)
         {
-            CsPin.Value = false;
-            var read = SpiChannel.Transfer(new[] { register, (byte)0x00 });
-            CsPin.Value = true;
+            var read = Transfer(new[] { register, (byte)0x00 });
             return read[1];
         }
 
@@ -171,6 +171,25 @@ namespace Devices.PixArt
             CsPin.Value = false;
             SpiChannel.Write(new[] { (byte) (register | 0x80), value });
             CsPin.Value = true;
+        }
+
+        private byte[] Transfer(byte[] data)
+        {
+            CsPin.Value = false;
+            var read = SpiChannel.Transfer(data);
+            CsPin.Value = true;
+            return read;
+        }
+
+        public void Dispose()
+        {
+            BulkWrite(new byte[]
+            {
+                SecretRegister, 0x14,  
+                0x6f, 0x00 // Turn off LED (I think)
+            });
+            
+            Write(0x3b, 0x00); // Shutdown (I think)
         }
     }
 }
