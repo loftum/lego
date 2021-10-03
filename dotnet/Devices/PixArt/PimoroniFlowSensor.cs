@@ -97,19 +97,19 @@ namespace Devices.PixArt
             Write(REG_ORIENTATION, value);
         }
 
-        public (ushort, ushort) GetMotion(TimeSpan timeout)
+        public async Task<(short, short)> GetMotionAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
             var start = DateTimeOffset.UtcNow;
 
-            while (DateTimeOffset.UtcNow - start < timeout)
+            while (!cancellationToken.IsCancellationRequested || DateTimeOffset.UtcNow - start < timeout)
             {
                 CsPin.Value = false;
                 var data = SpiChannel.Transfer(new byte[] { REG_MOTION_BURST, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
                 CsPin.Value = true;
                 var dr = data[1];
                 var obs = data[2];
-                var x = (ushort) (data[3] | data[4] << 1);
-                var y = (ushort) (data[5] | data[6] << 1);
+                var x = (short) (data[3] | data[4] << 8);
+                var y = (short) (data[5] | data[6] << 8);
                 var quality = data[7];
                 var raw_sum = data[8];
                 var raw_max = data[9];
@@ -121,7 +121,8 @@ namespace Devices.PixArt
                 {
                     return (x, y);
                 }
-                Thread.Sleep(10);
+
+                await Task.Delay(10, cancellationToken);
             }
 
             throw new Exception("Timeout for motion data");

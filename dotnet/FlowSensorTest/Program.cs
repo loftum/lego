@@ -24,15 +24,16 @@ namespace FlowSensorTest
                 Setup.GpioInitialise();
                 Console.WriteLine("FlowSensor test");
 
-                var channel = Board.Peripherals.OpenSpiChannel(SpiChannelId.SpiChannel0, 400000);
-                
-                var sensor = new PAA5100JEQ_FlowSensor(channel, Board.Pins[UserGpio.Bcm07]);
+                using var channel = Board.Peripherals.OpenSpiChannel(SpiChannelId.SpiChannel0, 400000);
+
+                var pin = Board.Pins[UserGpio.Bcm08];
+                var sensor = new PAA5100JEQ_FlowSensor(channel, pin);
                 await sensor.InitAsync(cancellationToken);
                 var timeout = TimeSpan.FromSeconds(5);
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    var (x, y) = sensor.GetMotion(timeout);
+                    var (x, y) = await sensor.GetMotionAsync(timeout, cancellationToken);
                     Console.WriteLine($"x: {x}, y: {y}");
                     await Task.Delay(100, cancellationToken);
                 }
