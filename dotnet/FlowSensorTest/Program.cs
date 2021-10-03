@@ -29,11 +29,10 @@ namespace FlowSensorTest
                 var pin = Board.Pins[UserGpio.Bcm08];
                 var sensor = new PAA5100JEQ_FlowSensor(channel, pin);
                 await sensor.InitAsync(cancellationToken);
-                var timeout = TimeSpan.FromSeconds(5);
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    var (x, y) = await sensor.GetMotionAsync(timeout, cancellationToken);
+                    var (x, y) = await sensor.GetMotionAsync(cancellationToken);
                     Console.WriteLine($"x: {x}, y: {y}");
                     await Task.Delay(100, cancellationToken);
                 }

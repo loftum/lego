@@ -100,11 +100,9 @@ namespace Devices.PixArt
         // 
         private static readonly byte[] MotionBurstBytes = { REG_MOTION_BURST, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; 
         
-        public async Task<(short, short)> GetMotionAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<(short, short)> GetMotionAsync(CancellationToken cancellationToken)
         {
-            var start = DateTimeOffset.UtcNow;
-
-            while (!cancellationToken.IsCancellationRequested && DateTimeOffset.UtcNow - start < timeout)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 var data = Transfer(MotionBurstBytes);
                 var v = data[0];
@@ -129,7 +127,7 @@ namespace Devices.PixArt
                 await Task.Delay(10, cancellationToken);
             }
 
-            throw new Exception("Timeout for motion data");
+            return (0, 0);
         }
 
         protected IList<byte> Read(byte register, int length)
