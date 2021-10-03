@@ -5,8 +5,8 @@ class ConnectViewController : NSViewController {
 
     private let hostField : NSTextField
     private let errorField: NSTextField
-    private let connectButton: NSButton
     private let userDefaults: UserDefaults = .standard
+    var delegate: ConnectViewControllerDelegate?
 
     required init(coder: NSCoder) {
         fatalError("nibs not supported")
@@ -17,17 +17,18 @@ class ConnectViewController : NSViewController {
         hostField.stringValue = userDefaults.string(forKey: "host") ?? "host"
         hostField.isBordered = true
 
-        connectButton = NSButton()
-        connectButton.title = "Connect"
-        if let cell = connectButton.cell {
-            cell.isBezeled = true
-        }
+
         errorField = NSTextField()
         errorField.textColor = .red
         errorField.isEditable = false
         errorField.isBordered = false
         errorField.backgroundColor = .clear
         super.init(nibName: nil, bundle: nil)
+
+        let connectButton = NSButton(title: "Connect", target: self, action: #selector(connectButtonClicked))
+        if let cell = connectButton.cell {
+            cell.isBezeled = true
+        }
 
         view = NSView()
         .withSubview(hostField, constraints: { c, p in [
@@ -44,25 +45,30 @@ class ConnectViewController : NSViewController {
             c.topAnchor.constraint(equalTo: hostField.bottomAnchor, constant: 20),
             c.widthAnchor.constraint(greaterThanOrEqualToConstant: 400)
         ]})
-
     }
 
     override func viewDidLoad() {
+        print("viewDidLoad")
         super.viewDidLoad()
-        connectButton.action = #selector(connectButtonClicked)
     }
 
     @objc
     func connectButtonClicked() {
+        print("connectButtonClicked")
         errorField.stringValue = ""
         if hostField.stringValue.isEmpty {
             return
         }
         let parts = hostField.stringValue.split(separator: ":")
-        let host = parts[0]
+        let host = String(parts[0])
         let port = parts.count > 1
                 ? Int(parts[1]) ?? 5080
                 : 5080
 
+        self.delegate?.connectViewController(self, didConnectTo: host, port: port)
     }
+}
+
+protocol ConnectViewControllerDelegate {
+    func connectViewController(_ controller: ConnectViewController, didConnectTo host: String, port: Int)
 }
