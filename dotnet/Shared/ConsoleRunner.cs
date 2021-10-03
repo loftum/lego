@@ -5,33 +5,31 @@ using System.Threading.Tasks;
 
 namespace Shared
 {
-    public class ConsoleRunner
+    public static class ConsoleRunner
     {
         public static async Task<int> RunAsync(Func<CancellationToken, Task> task)
         {
-            using (var source = new CancellationTokenSource())
+            using var source = new CancellationTokenSource();
+            Console.CancelKeyPress += (s, a) =>
             {
-                Console.CancelKeyPress += (s, a) =>
-                {
-                    source.Cancel();
-                    a.Cancel = true;
-                };
-                try
-                {
-                    await task(source.Token);
-                    return 0;
-                }
-                catch (Exception e)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Print(e);
-                    Console.ResetColor();
-                    return -1;
-                }
-                finally
-                {
-                    Console.WriteLine("Bye!");
-                }
+                source.Cancel();
+                a.Cancel = true;
+            };
+            try
+            {
+                await task(source.Token);
+                return 0;
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Print(e);
+                Console.ResetColor();
+                return -1;
+            }
+            finally
+            {
+                Console.WriteLine("Bye!");
             }
         }
 
@@ -46,25 +44,23 @@ namespace Shared
         
         public static int Run(Func<CancellationToken, Task> task)
         {
-            using (var source = new CancellationTokenSource())
+            using var source = new CancellationTokenSource();
+            Console.CancelKeyPress += (s, a) => source.Cancel();
+            try
             {
-                Console.CancelKeyPress += (s, a) => source.Cancel();
-                try
-                {
-                    task(source.Token).Wait(source.Token);
-                    return 0;
-                }
-                catch (Exception e)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Print(e);
-                    Console.ResetColor();
-                    return -1;
-                }
-                finally
-                {
-                    Console.WriteLine("Bye!");
-                }
+                task(source.Token).Wait(source.Token);
+                return 0;
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Print(e);
+                Console.ResetColor();
+                return -1;
+            }
+            finally
+            {
+                Console.WriteLine("Bye!");
             }
         }
     }
