@@ -97,15 +97,17 @@ namespace Devices.PixArt
             Write(REG_ORIENTATION, value);
         }
 
+        // 
+        private static readonly byte[] MotionBurstBytes = { REG_MOTION_BURST, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; 
+        
         public async Task<(short, short)> GetMotionAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
             var start = DateTimeOffset.UtcNow;
 
-            while (!cancellationToken.IsCancellationRequested || DateTimeOffset.UtcNow - start < timeout)
+            while (!cancellationToken.IsCancellationRequested && DateTimeOffset.UtcNow - start < timeout)
             {
-                CsPin.Value = false;
-                var data = SpiChannel.Transfer(new byte[] { REG_MOTION_BURST, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
-                CsPin.Value = true;
+                var data = Transfer(MotionBurstBytes);
+                var v = data[0];
                 var dr = data[1];
                 var obs = data[2];
                 var x = (short) (data[3] | data[4] << 8);
@@ -116,6 +118,8 @@ namespace Devices.PixArt
                 var raw_min = data[10];
                 var shutter_upper = data[11];
                 var shutter_lower = data[12];
+                
+                //Console.WriteLine($"v: {v}, dr: {dr}, obs: {obs}, x: {x}, y:{y}, quality: {quality}, raw_sum: {raw_sum}, raw_max: {raw_max}, raw_min: {raw_min}, shutter_upper: {shutter_upper}, shutter_lower: {shutter_lower}");
 
                 if ((dr & 0b1000_0000) != 0 && !(quality < 0x19 && shutter_upper == 0x1f))
                 {
@@ -133,9 +137,7 @@ namespace Devices.PixArt
             var bytes = new List<byte>();
             for (var ii = 0; ii < length; ii++)
             {
-                CsPin.Value = false;
-                var read = SpiChannel.Transfer(new[] { (byte)(register + ii), (byte)0x00 });
-                CsPin.Value = true;
+                var read = Transfer(new[] { (byte)(register + ii), (byte)0x00 });
                 bytes.Add(read[1]);
             }
 
@@ -144,9 +146,7 @@ namespace Devices.PixArt
         
         protected byte Read(byte register)
         {
-            CsPin.Value = false;
-            var read = SpiChannel.Transfer(new[] { register, (byte)0x00 });
-            CsPin.Value = true;
+            var read = Transfer(new[] { register, (byte)0x00 });
             return read[1];
         }
 
@@ -172,6 +172,14 @@ namespace Devices.PixArt
             CsPin.Value = false;
             SpiChannel.Write(new[] { (byte) (register | 0x80), value });
             CsPin.Value = true;
+        }
+
+        private byte[] Transfer(byte[] data)
+        {
+            CsPin.Value = false;
+            var read = SpiChannel.Transfer(data);
+            CsPin.Value = true;
+            return read;
         }
     }
 }
