@@ -20,6 +20,10 @@ namespace Shared
                 await task(source.Token);
                 return 0;
             }
+            catch (TaskCanceledException)
+            {
+                return 0;
+            }
             catch (Exception e)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -40,28 +44,6 @@ namespace Shared
                 .AppendLine(e.Message)
                 .AppendLine(e.StackTrace);
             Console.WriteLine(text.ToString());
-        }
-        
-        public static int Run(Func<CancellationToken, Task> task)
-        {
-            using var source = new CancellationTokenSource();
-            Console.CancelKeyPress += (s, a) => source.Cancel();
-            try
-            {
-                task(source.Token).Wait(source.Token);
-                return 0;
-            }
-            catch (Exception e)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Print(e);
-                Console.ResetColor();
-                return -1;
-            }
-            finally
-            {
-                Console.WriteLine("Bye!");
-            }
         }
     }
 }

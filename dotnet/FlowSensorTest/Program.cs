@@ -32,7 +32,7 @@ namespace FlowSensorTest
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    var (x, y) = sensor.get_motion(timeout);
+                    var (x, y) = sensor.GetMotion(timeout);
                     Console.WriteLine($"x: {x}, y: {y}");
                     await Task.Delay(100, cancellationToken);
                 }
