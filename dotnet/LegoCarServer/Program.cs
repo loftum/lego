@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Devices.ABElectronics.ADCPiZero;
 using Devices.ABElectronics.ServoPWMPiZero;
 using Devices.Adafruit.BNO055;
-using Devices.OpenMV;
+using Devices.PixArt;
 using Devices.ThePiHut.MotoZero;
 using LCTP.Core.Server;
 using Lego.Server;
@@ -15,7 +15,6 @@ using Shared;
 using Unosquare.PiGpio;
 using Unosquare.PiGpio.NativeEnums;
 using Unosquare.PiGpio.NativeMethods;
-using Unosquare.RaspberryIO;
 
 namespace LegoCarServer
 {
@@ -49,8 +48,8 @@ namespace LegoCarServer
                 var adcBoard = new ADCPiZeroBoard(Board.Peripherals);
                 var imu = new BNO055Sensor(Board.Peripherals, OperationMode.NDOF);
                 imu.UnitSelection.EulerAngleUnit = EulerAngleUnit.Radians;
-                var cam = new OpenMVCamH7(Board.Peripherals.OpenUartPort("3", UartRate.BaudRate19200));
-                var car = new RedCar(pwm, motoZero, adcBoard, imu);
+                var flowSensor = new PAA5100JEQ_FlowSensor(Board.Peripherals.OpenSpiChannel(SpiChannelId.SpiChannel0, 400_000), Board.Pins[UserGpio.Bcm07]);
+                var car = new RedCar(pwm, motoZero, adcBoard, imu, flowSensor);
             
                 var controller = new RedCarController(car);
                 using var server = new LctpServer(5080, controller);

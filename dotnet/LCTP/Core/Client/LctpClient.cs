@@ -7,7 +7,6 @@ namespace LCTP.Core.Client
 {
     public class LctpClient : ILctpClient
     {
-        
         private readonly string _name;
         public Func<ResponseMessage, Task> OnResponseReceived { get; set; } = r => Task.CompletedTask;
 

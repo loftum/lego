@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Devices._4tronix;
 using Lego.Core;
 using Maths;
@@ -43,18 +44,20 @@ namespace Lego.Server
         {
             return new LegoCarState
             {
-                Speed = new Int2(_motor.Speed, 0)
+                Throttle = new Int2(_motor.Speed, 0)
             };
         }
 
-        public void StopEngine()
+        public Task StartEngineAsync()
         {
             Reset();
+            return Task.CompletedTask;
         }
-
-        public void StartEngine()
+        
+        public Task StopEngineAsync()
         {
             Reset();
+            return Task.CompletedTask;
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Maths;
 
 namespace Lego.Core
@@ -8,8 +9,8 @@ namespace Lego.Core
         void SetSteerAngle(int angle);
         void Reset();
         LegoCarState GetState();
-        void StopEngine();
-        void StartEngine();
+        Task StopEngineAsync();
+        Task StartEngineAsync();
     }
 
     public interface IRedCar : ILegoCar

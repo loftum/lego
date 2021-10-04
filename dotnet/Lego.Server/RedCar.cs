@@ -7,6 +7,7 @@ using Devices.ABElectronics.ADCPiZero;
 using Devices.ABElectronics.ServoPWMPiZero;
 using Devices.Adafruit.BNO055;
 using Devices.Distance.Sharp.GP2Y0A41SK0F;
+using Devices.PixArt;
 using Devices.ThePiHut.MotoZero;
 using Lego.Client;
 using Lego.Core;
@@ -24,6 +25,7 @@ namespace Lego.Server
         private readonly ServoPwmBoard _pwmBoard;
         private readonly MotoZeroBoard _motoZero;
         private readonly BNO055Sensor _imu;
+        private readonly PAA5100JEQ_FlowSensor _flowSensor;
         public IServo SteerFront { get; }
         public IServo SteerBack { get; }
         public ILight LeftBlinker { get; }
@@ -52,16 +54,19 @@ namespace Lego.Server
         public Sampled<Double3> EulerAngles { get; } = new Sampled<Double3>();
         public Sampled<Quatd> Quaternion { get; } = new Sampled<Quatd>();
         public Sampled<Int2> Speed { get; } = new Sampled<Int2>();
+        public Sampled<Int2> Motion { get; } = new Sampled<Int2>(); 
 
         public RedCar(ServoPwmBoard pwmBoard,
             MotoZeroBoard motoZero,
             ADCPiZeroBoard adcBoard,
-            BNO055Sensor imu)
+            BNO055Sensor imu,
+            PAA5100JEQ_FlowSensor flowSensor)
         {
             _pwmBoard = pwmBoard;
             _motoZero = motoZero;
             _adcBoard = adcBoard;
             _imu = imu;
+            _flowSensor = flowSensor;
 
             _frontLeftDistance = CreateDistanceSensor(adcBoard.Inputs[0], DistanceCalculators.GP2Y0A41SK0F);
             _frontCenterDistance = CreateDistanceSensor(adcBoard.Inputs[1], DistanceCalculators.GP2Y0A02YK);
@@ -94,20 +99,23 @@ namespace Lego.Server
             return new DistanceSensor(input, calculator);
         }
         
-        public void StopEngine()
-        {
-            Reset();
-            Headlights.On = false;
-            RearLights.On = false;
-            _updateTimer.Stop();
-        }
-
-        public void StartEngine()
+        public Task StartEngineAsync()
         {
             Reset();
             Headlights.On = true;
             RearLights.On = true;
             _updateTimer.Start();
+            return _flowSensor.InitAsync(default);
+        }
+        
+        public Task StopEngineAsync()
+        {
+            Reset();
+            Headlights.On = false;
+            RearLights.On = false;
+            _updateTimer.Stop();
+            _flowSensor.ShutDown();
+            return Task.CompletedTask;
         }
 
         private async Task Update()
@@ -149,7 +157,7 @@ namespace Lego.Server
             return false;
         }
 
-        private Task ReadSensorsAsync()
+        private async Task ReadSensorsAsync()
         {
             FrontLeftDistance.Value = _frontLeftDistance.GetCm().Value;
             FrontCenterDistance.Value = _frontCenterDistance.GetCm().Value;
@@ -174,7 +182,12 @@ namespace Lego.Server
                 EulerAngles.Value = _imu.ReadEulerData();
                 Quaternion.Value = _imu.ReadQuaternion();
             }
-            return Task.CompletedTask;
+
+            if (_flowSensor != null)
+            {
+                var (x, y) = await _flowSensor.GetMotionAsync(default);
+                Motion.Value = new Int2(x, y);
+            }
         }
 
         public LegoCarState GetState()
@@ -183,7 +196,8 @@ namespace Lego.Server
             {
                 EulerAngles = EulerAngles.Value,
                 Quaternion = Quaternion.Value,
-                Speed = Speed.Value,
+                Throttle = Speed.Value,
+                
                 Distances = new List<double>
                 {
                     FrontLeftDistance.Value,

@@ -8,14 +8,16 @@ namespace Lego.Core
     {
         public Double3 EulerAngles { get; set; }
         public Quatd Quaternion { get; set; }
-        public Int2 Speed { get; set; }
+        public Int2 Throttle { get; set; }
+        public Int2 Motion { get; set; }
+        
         public List<double> Distances { get; set; } = new List<double>();
 
         public override string ToString() => Serialize();
 
         public string Serialize()
         {
-            return $"{EulerAngles};{Quaternion};{Speed};[{string.Join(",", Distances)}]";
+            return $"{EulerAngles};{Quaternion};{Throttle};{Motion};[{string.Join(",", Distances)}]";
         }
 
         public static bool TryParse(string serialized, out LegoCarState state)
@@ -39,13 +41,19 @@ namespace Lego.Core
                 return false;
             }
 
-            if (!Int2.TryParse(parts[2], out var speed))
+            if (!Int2.TryParse(parts[2], out var throttle))
             {
                 Console.WriteLine("Bad speed");
                 return false;
             }
 
-            if (!Doubles.TryParse(parts[3], out var distances))
+            if (!Int2.TryParse(parts[3], out var motion))
+            {
+                Console.WriteLine("Bad motion");
+                return false;
+            }
+
+            if (!Doubles.TryParse(parts[4], out var distances))
             {
                 Console.WriteLine("Bad doubles");
                 return false;
@@ -55,7 +63,8 @@ namespace Lego.Core
             {
                 EulerAngles = euler,
                 Quaternion = quaternion,
-                Speed = speed,
+                Throttle = throttle,
+                Motion = motion,
                 Distances = distances
             };
             return true;

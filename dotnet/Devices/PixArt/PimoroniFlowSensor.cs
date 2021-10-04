@@ -7,7 +7,12 @@ using Unosquare.PiGpio.NativeEnums;
 
 namespace Devices.PixArt
 {
-    public abstract class PimoroniFlowSensor : IDisposable
+    public interface IFlowSensor
+    {
+        Task<(short, short)> GetMotionAsync(CancellationToken cancellationToken);
+    }
+    
+    public abstract class PimoroniFlowSensor : IFlowSensor, IDisposable
     {
         protected const byte WAIT = 0xff;
         protected const byte REG_POWER_UP_RESET = 0x3a;
@@ -19,7 +24,7 @@ namespace Devices.PixArt
 
         protected readonly SpiChannel SpiChannel;
         protected readonly GpioPin CsPin;
-
+        
         protected PimoroniFlowSensor(SpiChannel spiChannel, GpioPin csPin)
         {
             SpiChannel = spiChannel;
@@ -54,6 +59,17 @@ namespace Devices.PixArt
         {
             var read = Read(REG_ID, 2);
             return (read[0], read[1]);
+        }
+
+        public void ShutDown()
+        {
+            BulkWrite(new byte[]
+            {
+                SecretRegister, 0x14,  
+                0x6f, 0x00 // Turn off LED (I think)
+            });
+            
+            Write(0x3b, 0x00); // Shutdown (I think)
         }
 
         public void SetRotation(int degrees)
@@ -183,13 +199,8 @@ namespace Devices.PixArt
 
         public void Dispose()
         {
-            BulkWrite(new byte[]
-            {
-                SecretRegister, 0x14,  
-                0x6f, 0x00 // Turn off LED (I think)
-            });
-            
-            Write(0x3b, 0x00); // Shutdown (I think)
+            ShutDown();
+            GC.SuppressFinalize(this);
         }
     }
 }

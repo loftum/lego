@@ -19,7 +19,7 @@ namespace LedTest
             return ConsoleRunner.RunAsync(RunAsync);
         }
 
-        private static async Task RunAsync(CancellationToken cancellationToken)
+        private static Task RunAsync(CancellationToken cancellationToken)
         {
             try
             {
@@ -50,6 +50,7 @@ namespace LedTest
             {
                 Setup.GpioTerminate();
             }
+            return Task.CompletedTask;
         }
 
         private static void Parse(string line, IList<Led> leds)

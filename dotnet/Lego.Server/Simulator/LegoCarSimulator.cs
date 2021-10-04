@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Timers;
 using Devices.ThePiHut.MotoZero;
 using Lego.Core;
@@ -37,14 +38,10 @@ namespace Lego.Server.Simulator
                 Distances = new List<double>()
             };
         }
-
-        public void StopEngine()
-        {
-        }
-
-        public void StartEngine()
-        {
-        }
+        
+        public Task StartEngineAsync() => Task.CompletedTask;
+        public Task StopEngineAsync() => Task.CompletedTask;
+        
 
         public Double3 GetEulerAngles()
         {

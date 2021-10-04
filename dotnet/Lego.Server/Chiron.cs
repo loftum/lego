@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Devices.ABElectronics.ADCPiZero;
 using Devices.ABElectronics.ServoPWMPiZero;
 using Devices.ThePiHut.MotoZero;
@@ -70,21 +71,24 @@ namespace Lego.Server
             {
                 EulerAngles = new Double3(),
                 Quaternion = new Quatd(),
-                Speed = Speed.Value,
+                Throttle = Speed.Value,
+                Motion = new Int2(0, 0),
                 Distances = new List<double>()
             };
         }
 
-        public void StopEngine()
+        public Task StopEngineAsync()
         {
             Reset();
             _updateTimer.Stop();
+            return Task.CompletedTask;
         }
 
-        public void StartEngine()
+        public Task StartEngineAsync()
         {
             Reset();
             _updateTimer.Start();
+            return Task.CompletedTask;
         }
     }
 }

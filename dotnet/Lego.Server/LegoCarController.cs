@@ -57,12 +57,12 @@ namespace Lego.Server
         
         public override void ConnectionClosed()
         {
-            _car.StopEngine();
+            _car.StopEngineAsync();
         }
 
         public override void ConnectionOpened()
         {
-            _car.StartEngine();
+            _car.StartEngineAsync();
         }
     }
 }

@@ -132,8 +132,8 @@ namespace SteeringWheel.Controllers
                 var state = _client.GetState();
                 DispatchQueue.MainQueue.DispatchAsync(() =>
                 {
-                    _speedometer.Text = $"{state.Speed.X}";
-                    if (state.Speed.Y < -100 || state.Speed.Y > 100)
+                    _speedometer.Text = $"{state.Throttle.X}";
+                    if (state.Throttle.Y < -100 || state.Throttle.Y > 100)
                     {
                         _impactFeedback.ImpactOccurred();
                     }

@@ -8,8 +8,8 @@ class ClientHandshake {
         self.name = name
     }
 
-    func connect(host: String, port: Int) async {
-        
+    func connect(host: String, port: Int) {
+
     }
 
 }
