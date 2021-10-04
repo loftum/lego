@@ -19,13 +19,13 @@ namespace Visualizer.ViewControllers
     public class VisualizerViewController : NSViewController, IRotationProvider, ILegoCarStateProvider
     {
         public event EventHandler OnDisconnect;
-        private readonly NSSlider _throttleSlider;
-        private readonly NSSlider _steerSlider;
         
         private LegoCarClient _client;
         private readonly IMTKViewDelegate _renderer;
         private readonly MTKView _mtkView;
         private readonly NSButton _disconnectButton;
+        private readonly NSTextField _xMotionField;
+        private readonly NSTextField _yMotionField;
         private readonly InterlockedTimer _timer = new InterlockedTimer(25);
 
         public VisualizerViewController()
@@ -44,21 +44,6 @@ namespace Visualizer.ViewControllers
             _renderer = new CarRenderer(_mtkView, this);
             _mtkView.Delegate = _renderer;
             
-            _throttleSlider = new NSSlider
-            {
-                IsVertical = 1,
-                MinValue = -255,
-                MaxValue = 255,
-                IntValue = 0
-            };
-
-            _steerSlider = new NSSlider
-            {
-                MinValue = -90,
-                MaxValue = 90,
-                IntValue = 0
-            };
-            
             _disconnectButton = new NSButton
             {
                 Title = "Disconnect",
@@ -68,7 +53,11 @@ namespace Visualizer.ViewControllers
                 }
             };
             _disconnectButton.Activated += DisconnectAsync;
-            
+
+            var xMotionLabel = new NSTextField {StringValue = "X-motion", Editable = false};
+            _xMotionField = new NSTextField();
+            var yMotionLabel = new NSTextField {StringValue = "Y-motion", Editable = false};
+            _yMotionField = new NSTextField();
             View = new NSView()
                 .WithSubview(_mtkView, (c, p) => new []
                 {
@@ -77,23 +66,40 @@ namespace Visualizer.ViewControllers
                     c.WidthAnchor.ConstraintEqualToAnchor(p.WidthAnchor, .8f),
                     c.HeightAnchor.ConstraintEqualToAnchor(p.HeightAnchor, .8f)
                 })
-                .WithSubview(_throttleSlider, (c, p) => new[]
-                {
-                    c.TopAnchor.ConstraintEqualToAnchor(p.TopAnchor, 40),
-                    c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor, -20),
-                    c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor, -40)
-                })
-                .WithSubview(_steerSlider, (c, p) => new[]
-                {
-                    c.LeadingAnchor.ConstraintEqualToAnchor(p.LeadingAnchor, 40),
-                    c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor, -40),
-                    c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor, -20)
-                })
                 .WithSubview(_disconnectButton, (c, p) => new[]
                 {
                     c.TopAnchor.ConstraintEqualToAnchor(p.TopAnchor, 20),
                     c.CenterXAnchor.ConstraintEqualToAnchor(p.CenterXAnchor)
-                });
+                })
+                .WithSubview(new NSView()
+                    .WithSubview(xMotionLabel, (c, p) => new []
+                    {
+                        c.LeadingAnchor.ConstraintEqualToAnchor(p.LeadingAnchor)
+                    })
+                    .WithSubview(_xMotionField, (c, p) => new[]
+                    {
+                        c.LeadingAnchor.ConstraintEqualToAnchor(xMotionLabel.TrailingAnchor),
+                    })
+                    .WithSubview(yMotionLabel, (c, p) => new []
+                    {
+                        c.LeadingAnchor.ConstraintEqualToAnchor(_xMotionField.TrailingAnchor)
+                    })
+                    .WithSubview(_yMotionField, (c, p) => new[]
+                    {
+                        c.LeadingAnchor.ConstraintEqualToAnchor(yMotionLabel.TrailingAnchor),
+                        c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor)
+                    }),
+                    (c, p) => new[]
+                    {
+                        c.TopAnchor.ConstraintEqualToAnchor(_mtkView.BottomAnchor),
+                        c.CenterXAnchor.ConstraintEqualToAnchor(p.CenterXAnchor),
+                        c.WidthAnchor.ConstraintEqualToAnchor(p.WidthAnchor),
+                        c.HeightAnchor.ConstraintEqualToAnchor(p.HeightAnchor),
+                        c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor)
+                    }
+                )
+                
+                ;
             _timer.Elapsed += Update;
         }
 
@@ -103,12 +109,9 @@ namespace Visualizer.ViewControllers
             {
                 return;
             }
-            DispatchQueue.MainQueue.DispatchSync(() =>
-            {
-                _client.SetMotorSpeed(_throttleSlider.IntValue);
-                _client.SetSteer(_steerSlider.IntValue);    
-            });
+            
             await _client.UpdateAsync();
+            
         }
 
         public async Task ConnectAsync(string host, int port)
