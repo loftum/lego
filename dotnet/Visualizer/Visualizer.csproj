@@ -117,7 +117,6 @@
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />
-    <InterfaceDefinition Include="MainMenu.xib" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LCTP\LCTP.csproj">

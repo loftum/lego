@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		0E74D04F270A27B100D4F91F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E74D04E270A27B100D4F91F /* AppDelegate.swift */; };
 		0E74D053270A27B400D4F91F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0E74D052270A27B400D4F91F /* Assets.xcassets */; };
+		BE97B11155430709816C6DA3 /* ClientHandshake.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE97B530E5A6AD88FB6E596F /* ClientHandshake.swift */; };
+		BE97B44AE6A22974BE2DF061 /* LctpClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE97B596F04368B04DC25F4A /* LctpClient.swift */; };
 		BE97B954CC0F314E1AB38611 /* LegoCarClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE97B6707F1577416F70D920 /* LegoCarClient.swift */; };
 		BE97BA145C43AE2E85B173C8 /* VisualizerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE97BFECA5CE194E3FB41FC4 /* VisualizerViewController.swift */; };
 		BE97BAD950F2A2815BA65098 /* MainWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE97BE084FCA92E1B61341E7 /* MainWindowController.swift */; };
@@ -26,6 +28,8 @@
 		0E74D057270A27B400D4F91F /* Visualizer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Visualizer.entitlements; sourceTree = "<group>"; };
 		BE97B0881F00059EE36BE47A /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		BE97B4D1ABFEBDE37C8B0F96 /* CarRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CarRenderer.swift; sourceTree = "<group>"; };
+		BE97B530E5A6AD88FB6E596F /* ClientHandshake.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClientHandshake.swift; sourceTree = "<group>"; };
+		BE97B596F04368B04DC25F4A /* LctpClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LctpClient.swift; sourceTree = "<group>"; };
 		BE97B6707F1577416F70D920 /* LegoCarClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegoCarClient.swift; sourceTree = "<group>"; };
 		BE97B8EF644A5EB0F0F39346 /* ILegoCarStateProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ILegoCarStateProvider.swift; sourceTree = "<group>"; };
 		BE97BD95C6110736D337C387 /* ConnectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectViewController.swift; sourceTree = "<group>"; };
@@ -79,8 +83,26 @@
 			isa = PBXGroup;
 			children = (
 				BE97B6707F1577416F70D920 /* LegoCarClient.swift */,
+				BE97B54E6C4385BBF5B3F8FE /* Lctp */,
 			);
 			path = Core;
+			sourceTree = "<group>";
+		};
+		BE97B54E6C4385BBF5B3F8FE /* Lctp */ = {
+			isa = PBXGroup;
+			children = (
+				BE97B596F04368B04DC25F4A /* LctpClient.swift */,
+				BE97BE291D13912C45958A52 /* Handshake */,
+			);
+			path = Lctp;
+			sourceTree = "<group>";
+		};
+		BE97BE291D13912C45958A52 /* Handshake */ = {
+			isa = PBXGroup;
+			children = (
+				BE97B530E5A6AD88FB6E596F /* ClientHandshake.swift */,
+			);
+			path = Handshake;
 			sourceTree = "<group>";
 		};
 		BE97BEE46CDFE6103B3E7C6A /* Views */ = {
@@ -173,6 +195,8 @@
 				BE97B954CC0F314E1AB38611 /* LegoCarClient.swift in Sources */,
 				BE97BEE56A8C3684ECE68025 /* CarRenderer.swift in Sources */,
 				BE97BEDAB89030C8FBA6A8AC /* ILegoCarStateProvider.swift in Sources */,
+				BE97B44AE6A22974BE2DF061 /* LctpClient.swift in Sources */,
+				BE97B11155430709816C6DA3 /* ClientHandshake.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
