@@ -60,6 +60,7 @@ namespace LCTP.Core.Client
         {
             try
             {
+                Console.WriteLine("Communicator disconnecting");
                 await _writer.WriteLineAndFlushAsync("DISCONNECT");
             }
             catch (Exception e)
@@ -73,7 +74,7 @@ namespace LCTP.Core.Client
         {
             try
             {
-                while (true)
+                while (_socket is { Connected: true })
                 {
                     var message = await _reader.ReadLineAsync();
                     switch (message)
@@ -109,7 +110,7 @@ namespace LCTP.Core.Client
             }
             catch
             {
-                
+                //
             }
         }
 

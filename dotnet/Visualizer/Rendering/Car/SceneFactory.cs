@@ -31,9 +31,9 @@ namespace Visualizer.Rendering.Car
                 AmbientLightColor = new Float3(.5f, .5f, 0f),
                 Lights = new List<Light>
                 {
-                    new Light {WorldPosition = new Float3(5, 5, 0), Color = new Float3(.3f, .3f, .3f)},
-                    new Light {WorldPosition = new Float3(-5, 5, 0), Color = new Float3(.3f, .3f, .3f)},
-                    new Light {WorldPosition = new Float3(0, -5, 0), Color = new Float3(.3f, .3f, .3f)}
+                    new Light { WorldPosition = new Float3(5, 5, 0), Color = new Float3(.3f, .3f, .3f) },
+                    new Light { WorldPosition = new Float3(-5, 5, 0), Color = new Float3(.3f, .3f, .3f) },
+                    new Light { WorldPosition = new Float3(0, -5, 0), Color = new Float3(.3f, .3f, .3f) }
                 }
             };
 
@@ -52,7 +52,21 @@ namespace Visualizer.Rendering.Car
                 VertexUniformsBuffer = _library.Device.CreateBuffer((nuint)(VertexUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
                 FragmentUniformsBuffer = _library.Device.CreateBuffer((nuint)(FragmentUniforms.SizeInBytes * _maxInflightBuffers), MTLResourceOptions.CpuCacheModeDefault),
                 Mesh = _modelFactory.CreateRaceCar(),
-                // Make car point upwards, looking down on the car roof
+                // Make car point upwards. Camera looks down on the car roof
+                // Car nose: positive Y
+                // Right car door: positive X
+                // Car roof: positive Z
+                //
+                // Y
+                // ^     ____
+                // |    /    \
+                // |    |/--\|
+                // |    |    |
+                // |    |----|
+                // |    |____|
+                // |
+                // +-----------------> X
+                // Z
                 InitialModelMatrix = Float4x4.Scale(.15f) * Float4x4.CreateRotation(-Float.PI / 2, 0, 0, 1) * Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
             };
             car.VertexUniformsBuffer.Label = "Car VertexUniformsBuffer";

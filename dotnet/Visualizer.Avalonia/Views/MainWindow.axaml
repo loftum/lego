@@ -1,0 +1,48 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Visualizer.Avalonia.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        x:Class="Visualizer.Avalonia.Views.MainWindow"
+        Icon="/Assets/logo.ico"
+        Title="Visualizer.Avalonia">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+    
+    <Grid>
+        <StackPanel Name="ConnectPanel"
+                    IsVisible="{Binding !IsConnected}"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+            <TextBox Text="{Binding Host}" Watermark="host"/>
+            <Button Content="Connect"
+                    Command="{Binding Path=Connect}"
+            />    
+        </StackPanel>
+        <Grid Name="StatePanel" IsVisible="{Binding IsConnected}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" HorizontalAlignment="Center">
+                <Button Content="Disconnect" Command="{Binding Disconnect}" />
+            </StackPanel>
+            <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Label>Graphics</Label>
+            </StackPanel>
+            
+            <WrapPanel Grid.Row="2">
+                <Label Content="Throttle" />
+                <TextBox Text="{Binding Path=Throttle}"/>
+                <Label Content="Motion" />
+                <TextBox IsReadOnly="True" Text="{Binding State.Motion}" />
+            </WrapPanel>
+        </Grid>
+    </Grid>
+
+</Window>

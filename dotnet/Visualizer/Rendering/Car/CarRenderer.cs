@@ -75,10 +75,11 @@ namespace Visualizer.Rendering.Car
             //     Float4x4.CreateRotation(Float.PI / 2, 1, 0, 0)
             //     ;
             var car = _scene.NodeNamed("car");
-            car.ModelMatrix = Float4x4.CreateRotation(rotation.Z, 0, 0, 1) *
-                              Float4x4.CreateRotation(-rotation.Y, 0, 1, 0) *
-                              Float4x4.CreateRotation(rotation.X, 1, 0, 0) *
-                              car.InitialModelMatrix
+            car.ModelMatrix = 
+                Float4x4.CreateRotation(rotation.Z, 0, 0, 1) *
+                Float4x4.CreateRotation(-rotation.Y, 0, 1, 0) *
+                Float4x4.CreateRotation(rotation.X, 1, 0, 0) *
+                car.InitialModelMatrix
                 ;
             
             var distances = car.Children.Where(c => c.Name.StartsWith("distance")).ToList();

@@ -99,13 +99,15 @@ namespace Lego.Server
             return new DistanceSensor(input, calculator);
         }
         
-        public Task StartEngineAsync()
+        public async Task StartEngineAsync()
         {
             Reset();
             Headlights.On = true;
             RearLights.On = true;
             _updateTimer.Start();
-            return _flowSensor.InitAsync(default);
+            await _flowSensor.InitAsync(default);
+            // Y is forward. X is to the right.
+            _flowSensor.SetRotation(180);
         }
         
         public Task StopEngineAsync()
@@ -197,6 +199,7 @@ namespace Lego.Server
                 EulerAngles = EulerAngles.Value,
                 Quaternion = Quaternion.Value,
                 Throttle = Speed.Value,
+                Motion = Motion.Value, // Y: forward, X: to the right
                 
                 Distances = new List<double>
                 {

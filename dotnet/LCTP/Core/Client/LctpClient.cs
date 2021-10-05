@@ -51,7 +51,8 @@ namespace LCTP.Core.Client
 
         public Task DisconnectAsync()
         {
-            return _communicator?.DisconnectAsync();
+            Console.WriteLine("LCTP client disconnecting");
+            return _communicator?.DisconnectAsync() ?? Task.CompletedTask;
         }
 
         public async Task SendAsync(RequestMessage request)

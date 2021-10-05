@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Timers;
 using Devices.ThePiHut.MotoZero;
 using Lego.Core;
 using Maths;
@@ -17,7 +16,6 @@ namespace Lego.Server.Simulator
         public IServo SteerBack { get; }
         public IMotor[] Motors { get; }
         private Double3 _eulerAngles;
-        private readonly Timer _timer;
 
         public LegoCarSimulator(int motors)
         {
@@ -27,7 +25,6 @@ namespace Lego.Server.Simulator
             SteerFront = new ServoSimulator("Steer front");
             SteerBack = new ServoSimulator("Steer back");
             Motors = Enumerable.Range(0, motors).Select(i => new MotorSimulator($"Motor {i}")).ToArray();
-            _timer = new Timer(10);
         }
 
         public LegoCarState GetState()
@@ -35,13 +32,15 @@ namespace Lego.Server.Simulator
             return new LegoCarState
             {
                 EulerAngles = GetEulerAngles(),
-                Distances = new List<double>()
+                Distances = new List<double>(),
+                Throttle = new Int2(Motors[0].Speed, 0),
+                Motion = new Int2(0, 256 * Motors[0].Speed),
+                Quaternion = GetQuaternion()
             };
         }
         
         public Task StartEngineAsync() => Task.CompletedTask;
         public Task StopEngineAsync() => Task.CompletedTask;
-        
 
         public Double3 GetEulerAngles()
         {
@@ -64,12 +63,14 @@ namespace Lego.Server.Simulator
 
         public void SetSteerAngle(int angle)
         {
-            
+            SteerFront.Value = angle;
+            SteerBack.Value = angle;
         }
 
         public void Reset()
         {
             SetThrottle(0);
+            SetSteerAngle(0);
         }
     }
 }

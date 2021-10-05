@@ -52,5 +52,18 @@ namespace Visualizer.ViewControllers
             return view;
         }
     }
+
+    public static class NSStackViewExtensions
+    {
+        public static TParent WithArrangedSubviews<TParent>(this TParent parent, NSView child, params NSView[] children) where TParent : NSStackView
+        {
+            parent.AddArrangedSubview(child);
+            foreach (var c in children)
+            {
+                parent.AddArrangedSubview(c);
+            }
+            return parent;
+        }
+    }
 }
 

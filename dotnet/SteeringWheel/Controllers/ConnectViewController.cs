@@ -172,8 +172,8 @@ namespace SteeringWheel.Controllers
         {
             try
             {
-                var vc = new SteeringWheelViewController(host, port);
-                await vc.ConnectAsync();
+                var vc = new SteeringWheelViewController();
+                await vc.ConnectAsync(host, port);
                 ShowViewController(vc, this);
                 _userDefaults.SetString(_hostField.Text, "host");
             }

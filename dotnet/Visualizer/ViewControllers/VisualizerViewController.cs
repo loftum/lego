@@ -1,11 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using System.Timers;
 using AppKit;
 using CoreFoundation;
 using CoreGraphics;
 using Foundation;
-using LCTP.Core.Client;
 using Lego.Client;
 using Lego.Core;
 using Lego.Core.Description;
@@ -20,13 +18,12 @@ namespace Visualizer.ViewControllers
     {
         public event EventHandler OnDisconnect;
         
-        private LegoCarClient _client;
+        private readonly LegoCarClient _client = new LegoCarClient(NSHost.Current.Name);
         private readonly IMTKViewDelegate _renderer;
         private readonly MTKView _mtkView;
         private readonly NSButton _disconnectButton;
         private readonly NSTextField _xMotionField;
         private readonly NSTextField _yMotionField;
-        private readonly InterlockedTimer _timer = new InterlockedTimer(25);
 
         public VisualizerViewController()
         {
@@ -52,84 +49,61 @@ namespace Visualizer.ViewControllers
                     Bezeled = true
                 }
             };
-            _disconnectButton.Activated += DisconnectAsync;
+            _disconnectButton.Activated += DisconnectButtonClicked;
 
             var xMotionLabel = new NSTextField {StringValue = "X-motion", Editable = false};
-            _xMotionField = new NSTextField();
+            _xMotionField = new NSTextField { Editable = false, StringValue = "     " };
             var yMotionLabel = new NSTextField {StringValue = "Y-motion", Editable = false};
-            _yMotionField = new NSTextField();
+            _yMotionField = new NSTextField { Editable = false, StringValue = "     " };
+            
+
+            var numberView = new NSStackView {Orientation = NSUserInterfaceLayoutOrientation.Horizontal}
+                .WithArrangedSubviews(xMotionLabel, _xMotionField, yMotionLabel, _yMotionField);
+            
             View = new NSView()
-                .WithSubview(_mtkView, (c, p) => new []
-                {
-                    c.CenterXAnchor.ConstraintEqualToAnchor(p.CenterXAnchor),
-                    c.CenterYAnchor.ConstraintEqualToAnchor(p.CenterYAnchor),
-                    c.WidthAnchor.ConstraintEqualToAnchor(p.WidthAnchor, .8f),
-                    c.HeightAnchor.ConstraintEqualToAnchor(p.HeightAnchor, .8f)
-                })
                 .WithSubview(_disconnectButton, (c, p) => new[]
                 {
                     c.TopAnchor.ConstraintEqualToAnchor(p.TopAnchor, 20),
                     c.CenterXAnchor.ConstraintEqualToAnchor(p.CenterXAnchor)
                 })
-                .WithSubview(new NSView()
-                    .WithSubview(xMotionLabel, (c, p) => new []
-                    {
-                        c.LeadingAnchor.ConstraintEqualToAnchor(p.LeadingAnchor)
-                    })
-                    .WithSubview(_xMotionField, (c, p) => new[]
-                    {
-                        c.LeadingAnchor.ConstraintEqualToAnchor(xMotionLabel.TrailingAnchor),
-                    })
-                    .WithSubview(yMotionLabel, (c, p) => new []
-                    {
-                        c.LeadingAnchor.ConstraintEqualToAnchor(_xMotionField.TrailingAnchor)
-                    })
-                    .WithSubview(_yMotionField, (c, p) => new[]
-                    {
-                        c.LeadingAnchor.ConstraintEqualToAnchor(yMotionLabel.TrailingAnchor),
-                        c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor)
-                    }),
-                    (c, p) => new[]
-                    {
-                        c.TopAnchor.ConstraintEqualToAnchor(_mtkView.BottomAnchor),
-                        c.CenterXAnchor.ConstraintEqualToAnchor(p.CenterXAnchor),
-                        c.WidthAnchor.ConstraintEqualToAnchor(p.WidthAnchor),
-                        c.HeightAnchor.ConstraintEqualToAnchor(p.HeightAnchor),
-                        c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor)
-                    }
-                )
-                
+                .WithSubview(_mtkView, (c, p) => new []
+                {
+                    c.TopAnchor.ConstraintEqualToAnchor(_disconnectButton.BottomAnchor),
+                    c.LeadingAnchor.ConstraintEqualToAnchor(p.LeadingAnchor),
+                    c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor)
+                })
+                .WithSubview(numberView, (c, p) => new[]
+                {
+                    c.TopAnchor.ConstraintEqualToAnchor(_mtkView.BottomAnchor),
+                    c.LeadingAnchor.ConstraintEqualToAnchor(p.LeadingAnchor),
+                    c.TrailingAnchor.ConstraintEqualToAnchor(p.TrailingAnchor),
+                    c.BottomAnchor.ConstraintEqualToAnchor(p.BottomAnchor)
+                })
                 ;
-            _timer.Elapsed += Update;
+            _client.DidUpdate = DidUpdate;
+            _client.Disconnected = _ => DisconnectAsync();
         }
 
-        private async void Update(object sender, ElapsedEventArgs e)
+        private Task DidUpdate(LegoCarClient client, LegoCarState state)
         {
-            if (_client == null || !_client.Connected)
+            DispatchQueue.MainQueue.DispatchAsync(() =>
             {
-                return;
-            }
-            
-            await _client.UpdateAsync();
-            
+                _xMotionField.IntValue = state.Motion.X;
+                _yMotionField.IntValue = state.Motion.Y;
+            });
+            return Task.CompletedTask;
         }
 
         public async Task ConnectAsync(string host, int port)
         {
-            var client = new LctpClient(NSHost.Current.Name, host, port);
-            _client = new LegoCarClient(client);
-            
-            await _client.ConnectAsync();
-            _timer.Start();
+            await _client.ConnectAsync(host, port);
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                _timer.Stop();
-                _timer.Elapsed -= Update;
-                _disconnectButton.Activated -= DisconnectAsync;
+                _disconnectButton.Activated -= DisconnectButtonClicked;
                 _client.DisconnectAsync().Wait(1000);
                 _client.Dispose();
                 _renderer.Dispose();
@@ -138,11 +112,15 @@ namespace Visualizer.ViewControllers
             base.Dispose(disposing);
         }
 
-        private async void DisconnectAsync(object sender, EventArgs e)
+        private async Task DisconnectAsync()
         {
-            _timer.Stop();
             await _client.DisconnectAsync();
             OnDisconnect?.Invoke(this, EventArgs.Empty);
+        }
+
+        private async void DisconnectButtonClicked(object sender, EventArgs e)
+        {
+            await DisconnectAsync();
         }
 
         public LegoCarState GetState()

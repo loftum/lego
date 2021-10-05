@@ -24,7 +24,7 @@ namespace Lego.Core
         {
             state = null;
             var parts = serialized.Split(';');
-            if (parts.Length != 4)
+            if (parts.Length != 5)
             {
                 Console.WriteLine("Bad length");
                 return false;

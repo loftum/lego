@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Net.Sockets;
 using System.Threading.Tasks;
 using CoreFoundation;
 using CoreGraphics;
 using CoreMotion;
-using LCTP.Core.Client;
 using Lego.Client;
 using Lego.Core;
 using Maths;
@@ -15,7 +12,7 @@ namespace SteeringWheel.Controllers
 {
     public class SteeringWheelViewController : UIViewController
     {
-        private readonly LegoCarClient _client;
+        private readonly LegoCarClient _client = new LegoCarClient(UIDevice.CurrentDevice.Name);
         private readonly CMMotionManager _motionManager = MotionManager.Instance;
 
         private readonly UISlider _throttleSlider;
@@ -24,10 +21,9 @@ namespace SteeringWheel.Controllers
         private readonly UIButton _rightBlinkerButton;
         private readonly UIButton _disconnectButton;
         private readonly UILabel _speedometer;
-        private readonly InterlockedAsyncTimer _timer = new InterlockedAsyncTimer(15);
         private readonly UIImpactFeedbackGenerator _impactFeedback = new UIImpactFeedbackGenerator(UIImpactFeedbackStyle.Heavy);
 
-        public SteeringWheelViewController(string host, int port) : base(null, null)
+        public SteeringWheelViewController() : base(null, null)
         {
             View.BackgroundColor = UIColor.White;   
             
@@ -102,68 +98,40 @@ namespace SteeringWheel.Controllers
             const int width = 50;
             const int height = 200;
             _throttleSlider.Frame = new CGRect(frame.Width - 100, frame.Height / 2 - height / 2, width, height);
-            
-            var client = new LctpClient(UIDevice.CurrentDevice.Name, host, port);
-            _client = new LegoCarClient(client);
+            _client.WillUpdate = ClientWillUpdate;
+            _client.DidUpdate = ClientDidUpdate;
+            _client.Disconnected = c => DisconnectAndDismissAsync();
         }
 
-        public async Task ConnectAsync()
+        private Task ClientDidUpdate(LegoCarClient client, LegoCarState state)
         {
-            await _client.ConnectAsync();
-            _motionManager.DeviceMotionUpdateInterval = 0.1;
-            _motionManager.StartDeviceMotionUpdates();
-            _timer.Elapsed = UpdateAsync;
-            _timer.Start();
+            DispatchQueue.MainQueue.DispatchAsync(() =>
+            {
+                _speedometer.Text = $"{state.Throttle.X}";
+                if (state.Throttle.Y < -100 || state.Throttle.Y > 100)
+                {
+                    _impactFeedback.ImpactOccurred();
+                }
+            });
+            return Task.CompletedTask;
         }
 
-        private async Task UpdateAsync()
+        private Task ClientWillUpdate(LegoCarClient client)
         {
-            var sw = new Stopwatch();
-            sw.Start();
             DispatchQueue.MainQueue.DispatchSync(() =>
             {
                 _client.SetMotorSpeed((int)_throttleSlider.Value);
                 _client.SetSteer(GetSteerAngle());
                 
             });
-            try
-            {
-                await _client.UpdateAsync();
-                var state = _client.GetState();
-                DispatchQueue.MainQueue.DispatchAsync(() =>
-                {
-                    _speedometer.Text = $"{state.Throttle.X}";
-                    if (state.Throttle.Y < -100 || state.Throttle.Y > 100)
-                    {
-                        _impactFeedback.ImpactOccurred();
-                    }
-                });
-            }
-            catch (Exception exception)
-            {
-                var inner = exception.GetBaseException();
-                switch (inner)
-                {
-                    case null:
-                        Console.WriteLine(exception);
-                        await DisconnectAndDismissAsync();
-                        break;
-                    case SocketException socketException:
-                        Console.WriteLine($"SocketException: {socketException.SocketErrorCode}");
-                        Console.WriteLine(exception);
-                        await DisconnectAndDismissAsync();
-                        break;
-                    default:
-                        Console.WriteLine(exception);
-                        await DisconnectAndDismissAsync();
-                        break;
-                }
-            }
-            finally
-            {
-                sw.Stop();
-                Console.WriteLine($"Elapsed: {sw.ElapsedMilliseconds}ms");
-            }
+            return Task.CompletedTask;
+        }
+
+        public async Task ConnectAsync(string host, int port)
+        {
+            await _client.ConnectAsync(host, port);
+            _motionManager.DeviceMotionUpdateInterval = 0.1;
+            _motionManager.StartDeviceMotionUpdates();
         }
 
         private int GetSteerAngle()
@@ -210,8 +178,6 @@ namespace SteeringWheel.Controllers
 
         private async Task DisconnectAsync()
         {
-            _timer.Stop();
-            _timer.Elapsed = null;
             await _client.DisconnectAsync();
             _motionManager.StopDeviceMotionUpdates();
         }

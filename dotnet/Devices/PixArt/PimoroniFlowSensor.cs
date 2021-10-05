@@ -93,7 +93,7 @@ namespace Devices.PixArt
             }
         }
 
-        private void SetOrientation(bool invertX, bool invertY, bool swapXy)
+        public void SetOrientation(bool invertX, bool invertY, bool swapXy)
         {
             byte value = 0;
             if (swapXy)
@@ -138,13 +138,23 @@ namespace Devices.PixArt
 
                 if ((dr & 0b1000_0000) != 0 && !(quality < 0x19 && shutter_upper == 0x1f))
                 {
-                    return (x, y);
+                    return (Filter(x), Filter(y));
                 }
 
                 await Task.Delay(10, cancellationToken);
             }
 
             return (0, 0);
+        }
+
+        private static short Filter(short value)
+        {
+            if (value < 5 && value > -5)
+            {
+                return 0;
+            }
+
+            return value;
         }
 
         protected IList<byte> Read(byte register, int length)
