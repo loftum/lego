@@ -21,9 +21,9 @@
             <TextBox Text="{Binding Host}" Watermark="host"/>
             <Button Content="Connect"
                     Command="{Binding Path=Connect}"
-            />    
+            />
         </StackPanel>
-        <Grid Name="StatePanel" IsVisible="{Binding IsConnected}">
+        <Grid Name="StatePanel" IsVisible="{Binding Path=IsConnected}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -32,15 +32,25 @@
             <StackPanel Grid.Row="0" HorizontalAlignment="Center">
                 <Button Content="Disconnect" Command="{Binding Disconnect}" />
             </StackPanel>
-            <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Label>Graphics</Label>
-            </StackPanel>
+            <Canvas Grid.Row="1"
+                    Name="Canvas"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                
+                <Rectangle Fill="Red" Height="200" Width="100" Name="Car" RenderTransform="{Binding Path=State.CarTransform}"></Rectangle>
+                
+                
+            </Canvas>
             
             <WrapPanel Grid.Row="2">
                 <Label Content="Throttle" />
                 <TextBox Text="{Binding Path=Throttle}"/>
+                
+                <Label Content="Steer" />
+                <TextBox Text="{Binding Path=Steer}"/>
+                
                 <Label Content="Motion" />
-                <TextBox IsReadOnly="True" Text="{Binding State.Motion}" />
+                <TextBox IsReadOnly="True" BorderThickness="0" Text="{Binding State.Motion}" />
             </WrapPanel>
         </Grid>
     </Grid>

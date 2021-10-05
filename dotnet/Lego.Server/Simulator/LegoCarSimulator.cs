@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -44,6 +45,8 @@ namespace Lego.Server.Simulator
 
         public Double3 GetEulerAngles()
         {
+            _eulerAngles.Z += 2 * Math.PI * SteerFront.Value / 360;
+            
             return _eulerAngles;
         }
 

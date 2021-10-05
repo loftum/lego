@@ -2,10 +2,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Avalonia;
+using Avalonia.Media;
 using Avalonia.Threading;
 using Lego.Client;
 using Lego.Core;
-using Maths;
 using ReactiveUI;
 
 namespace Visualizer.Avalonia.ViewModels
@@ -16,7 +17,8 @@ namespace Visualizer.Avalonia.ViewModels
         
         private string _host;
         private bool _isConnected;
-        private int _throttle;
+        private string _throttle;
+        private string _steer;
         public ICommand Connect { get; }
         public ICommand Disconnect { get; }
         
@@ -34,11 +36,18 @@ namespace Visualizer.Avalonia.ViewModels
 
         public StateViewModel State { get; } = new();
 
-        public int Throttle
+        public string Throttle
         {
             get => _throttle;
             set => this.RaiseAndSetIfChanged(ref _throttle, value);
         }
+
+        public string Steer
+        {
+            get => _steer;
+            set => this.RaiseAndSetIfChanged(ref _steer, value);
+        }
+
 
         public MainWindowViewModel()
         {
@@ -72,16 +81,21 @@ namespace Visualizer.Avalonia.ViewModels
         private Task ClientDidUpdate(LegoCarClient client, LegoCarState state)
         {
             //Console.WriteLine("Client did update");
-            return Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                State.Motion = state.Motion.ToString();
-            });
+            return Dispatcher.UIThread.InvokeAsync(() => State.Update(state));
         }
 
         private Task ClientWillUpdate(LegoCarClient client)
         {
             //Console.WriteLine("Client will update");
-            client.SetMotorSpeed(Throttle);
+            if (int.TryParse(Throttle, out var throttle))
+            {
+                client.SetMotorSpeed(throttle);    
+            }
+
+            if (int.TryParse(Steer, out var steer))
+            {
+                client.SetSteer(steer);
+            }
             return Task.CompletedTask;
         }
 
@@ -98,7 +112,7 @@ namespace Visualizer.Avalonia.ViewModels
             }
             finally
             {
-                IsConnected = true; //_client.IsConnected;
+                IsConnected = _client.IsConnected;
             }
         }
         
@@ -118,7 +132,7 @@ namespace Visualizer.Avalonia.ViewModels
             finally
             {
                 Console.WriteLine("Setting IsConnected");
-                IsConnected = false; //_client.IsConnected;
+                IsConnected = _client.IsConnected;
                 Console.WriteLine("Did set IsConnected");
             }
         }
@@ -132,6 +146,19 @@ namespace Visualizer.Avalonia.ViewModels
         {
             get => _motion;
             set => this.RaiseAndSetIfChanged(ref _motion, value);
+        }
+
+        public RotateTransform CarTransform { get; } = new RotateTransform();
+
+        public void Update(LegoCarState state)
+        {
+            Motion = state.Motion.ToString();
+            CarTransform.Angle = Degrees(state.EulerAngles.Z);
+        }
+
+        private static double Degrees(double radians)
+        {
+            return 180 / Math.PI * radians;
         }
     }
 }
