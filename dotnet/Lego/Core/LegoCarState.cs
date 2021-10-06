@@ -4,14 +4,14 @@ using Maths;
 
 namespace Lego.Core
 {
-    public class LegoCarState
+    public struct LegoCarState
     {
         public Double3 EulerAngles { get; set; }
         public Quatd Quaternion { get; set; }
         public Int2 Throttle { get; set; }
         public Int2 Motion { get; set; }
         
-        public List<double> Distances { get; set; } = new List<double>();
+        public List<double> Distances { get; set; }
 
         public override string ToString() => Serialize();
 
@@ -22,7 +22,7 @@ namespace Lego.Core
 
         public static bool TryParse(string serialized, out LegoCarState state)
         {
-            state = null;
+            state = default;
             var parts = serialized.Split(';');
             if (parts.Length != 5)
             {

@@ -37,8 +37,10 @@
                     VerticalAlignment="Center"
                     HorizontalAlignment="Center">
                 
-                <Rectangle Fill="Red" Height="200" Width="100" Name="Car" RenderTransform="{Binding Path=State.CarTransform}"></Rectangle>
-                
+                <Rectangle Fill="Red" Height="200" Width="100" Name="Car" RenderTransform="{Binding Path=State.CarTransform}">
+                    
+                </Rectangle>
+                <Ellipse Width="20" Height="20" Fill="Yellow"></Ellipse>
                 
             </Canvas>
             
@@ -51,6 +53,8 @@
                 
                 <Label Content="Motion" />
                 <TextBox IsReadOnly="True" BorderThickness="0" Text="{Binding State.Motion}" />
+                
+                <Button Content="Perform U-turn" Command="{Binding Path=PerformUturn}" />
             </WrapPanel>
         </Grid>
     </Grid>

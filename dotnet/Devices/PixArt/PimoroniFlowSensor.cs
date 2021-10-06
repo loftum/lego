@@ -7,11 +7,6 @@ using Unosquare.PiGpio.NativeEnums;
 
 namespace Devices.PixArt
 {
-    public interface IFlowSensor
-    {
-        Task<(short, short)> GetMotionAsync(CancellationToken cancellationToken);
-    }
-    
     public abstract class PimoroniFlowSensor : IFlowSensor, IDisposable
     {
         protected const byte WAIT = 0xff;
@@ -114,7 +109,7 @@ namespace Devices.PixArt
             Write(REG_ORIENTATION, value);
         }
 
-        // 
+        // Ask sensor for "burst" data. Consists of 13 bytes
         private static readonly byte[] MotionBurstBytes = { REG_MOTION_BURST, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; 
         
         public async Task<(short, short)> GetMotionAsync(CancellationToken cancellationToken)
@@ -149,7 +144,7 @@ namespace Devices.PixArt
 
         private static short Filter(short value)
         {
-            if (value < 5 && value > -5)
+            if (value < 10 && value > -10)
             {
                 return 0;
             }

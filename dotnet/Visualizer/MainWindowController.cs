@@ -11,7 +11,6 @@ namespace Visualizer
     {
         private readonly ConnectViewController _connectViewController = new ConnectViewController();
         private readonly VisualizerViewController _visualizerViewcontroller = new VisualizerViewController();
-        private readonly MetalTestViewController _metalTestViewController = new MetalTestViewController();
 
         public MainWindowController(IntPtr handle) : base(handle)
         {

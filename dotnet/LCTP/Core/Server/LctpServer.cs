@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -28,7 +29,15 @@ namespace LCTP.Core.Server
             _controller = controller;
             _port = port;
             _listener = CreateListener(port);
-            _publisher = new NetworkServicePublisher(_name, "_legocar._tcp", (ushort) port, logger: LogAdapter.For(nameof(NetworkServicePublisher)));
+            _publisher = new NetworkServicePublisher(_name,
+                "_legocar._tcp",
+                "local",
+                (ushort) port,
+                new Dictionary<string, string>
+                {
+                    ["_d"] = _name
+                },
+                LogAdapter.For(nameof(NetworkServicePublisher)));
             _handshake = new LctpServerHandshake(_name, controller);
         }
         

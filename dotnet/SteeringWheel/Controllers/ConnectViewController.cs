@@ -59,7 +59,7 @@ namespace SteeringWheel.Controllers
         private readonly UIButton _connectButton;
         private readonly UITableView _hostsTable;
         private readonly NSUserDefaults _userDefaults = new NSUserDefaults("app", NSUserDefaultsType.SuiteName);
-        private readonly NetworkServiceBrowser _browser = new NetworkServiceBrowser("_legocar._tcp", logger: LogAdapter.For(nameof(NetworkServiceBrowser)));
+        private readonly NetworkServiceBrowser _browser = new NetworkServiceBrowser("_legocar._tcp", "local", LogAdapter.For(nameof(NetworkServiceBrowser)));
 
         private readonly HostSource _hostSource = new HostSource();
         private readonly TableViewDelegate _tableViewDelegate = new TableViewDelegate();

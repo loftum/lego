@@ -20,7 +20,7 @@ namespace SteeringWheel.Controllers
         private readonly UIButton _leftBlinkerButton;
         private readonly UIButton _rightBlinkerButton;
         private readonly UIButton _disconnectButton;
-        private readonly UILabel _speedometer;
+        private readonly UITextField _speedometer;
         private readonly UIImpactFeedbackGenerator _impactFeedback = new UIImpactFeedbackGenerator(UIImpactFeedbackStyle.Heavy);
 
         public SteeringWheelViewController() : base(null, null)
@@ -73,15 +73,16 @@ namespace SteeringWheel.Controllers
             .WithParent(View)
             .WithConstraints(v => new[] {
                 v.CenterXAnchor.ConstraintEqualTo(View.CenterXAnchor),
-                v.CenterYAnchor.ConstraintEqualTo(View.CenterYAnchor),
+                //v.CenterYAnchor.ConstraintEqualTo(View.CenterYAnchor),
+                v.TopAnchor.ConstraintEqualTo(View.TopAnchor,10)
             })
             .WithTouchUpInside(DisconnectButton_TouchUpInside);
             
-            _speedometer = new UILabel()
+            _speedometer = new UITextField()
                 .With(l =>
                 {
                     l.BackgroundColor = UIColor.SystemPinkColor;
-                    l.Text = "0";
+                    l.Text = "000";
                     l.TextAlignment = UITextAlignment.Center;
                     l.Font = UIFont.PreferredTitle1.WithSize(50f);
                     l.TextColor = UIColor.Orange;
@@ -90,8 +91,10 @@ namespace SteeringWheel.Controllers
                 .WithConstraints(v => new[]
                 {
                     v.CenterXAnchor.ConstraintEqualTo(View.CenterXAnchor),
-                    v.BottomAnchor.ConstraintEqualTo(View.BottomAnchor, 100)
+                    v.CenterYAnchor.ConstraintEqualTo(View.CenterYAnchor),
+                    //v.BottomAnchor.ConstraintEqualTo(_disconnectButton.BottomAnchor)
                 });
+
 
             // Set throttle positions
             var frame = View.GetFrame();
@@ -101,14 +104,33 @@ namespace SteeringWheel.Controllers
             _client.WillUpdate = ClientWillUpdate;
             _client.DidUpdate = ClientDidUpdate;
             _client.Disconnected = c => DisconnectAndDismissAsync();
+
+            if (!_motionManager.AccelerometerAvailable)
+            {
+                throw new Exception("Accelerometer not available");
+            }
+
+            if (!_motionManager.GyroAvailable)
+            {
+                throw new Exception("Gyro not available");
+            }
+
+            if (!_motionManager.DeviceMotionAvailable)
+            {
+                throw new Exception("DeviceMotion not available");
+            }
+
+            _motionManager.AccelerometerUpdateInterval = .1;
         }
 
         private Task ClientDidUpdate(LegoCarClient client, LegoCarState state)
         {
             DispatchQueue.MainQueue.DispatchAsync(() =>
             {
-                _speedometer.Text = $"{state.Throttle.X}";
-                if (state.Throttle.Y < -100 || state.Throttle.Y > 100)
+                _speedometer.Text = $"{state.Motion}";
+                var absX = Math.Abs(state.Motion.X);
+                var absY = Math.Abs(state.Motion.Y);
+                if (absY > 100 && absX > 100 && absX > absY)
                 {
                     _impactFeedback.ImpactOccurred();
                 }
@@ -122,7 +144,6 @@ namespace SteeringWheel.Controllers
             {
                 _client.SetMotorSpeed((int)_throttleSlider.Value);
                 _client.SetSteer(GetSteerAngle());
-                
             });
             return Task.CompletedTask;
         }
@@ -130,15 +151,27 @@ namespace SteeringWheel.Controllers
         public async Task ConnectAsync(string host, int port)
         {
             await _client.ConnectAsync(host, port);
-            _motionManager.DeviceMotionUpdateInterval = 0.1;
+            
+            Console.WriteLine("Starting devicemotion updates");
             _motionManager.StartDeviceMotionUpdates();
         }
 
         private int GetSteerAngle()
         {
-            var attitude = _motionManager.DeviceMotion?.Attitude;
-            var angle = 90 - attitude?.Pitch.ToDeg() ?? 0;
-            //Console.WriteLine($"Angle: {angle}");
+            var deviceMotion = _motionManager.DeviceMotion;
+            if (deviceMotion == null)
+            {
+                Console.WriteLine($"deviceMotion is null _motionManager.DeviceMotionActive={_motionManager.DeviceMotionActive}, _motionManager.DeviceMotionAvailable={_motionManager.DeviceMotionAvailable}");
+                return 0;
+            }
+            var attitude = deviceMotion.Attitude;
+            if (attitude == null)
+            {
+                Console.WriteLine($"attitude is null _motionManager.DeviceMotionActive={_motionManager.DeviceMotionActive}, _motionManager.DeviceMotionAvailable={_motionManager.DeviceMotionAvailable}");
+                return 0;
+            }
+            var angle = 90 - attitude.Pitch.ToDeg();
+            Console.WriteLine($"Angle: {angle}");
             return angle;
         }
 

@@ -88,8 +88,8 @@
     </MtouchVerbosity>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Convenient.Gooday, Version=0.0.3.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Convenient.Gooday.0.0.3\lib\netstandard2.0\Convenient.Gooday.dll</HintPath>
+    <Reference Include="Convenient.Gooday, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Convenient.Gooday.1.0.0\lib\netstandard2.0\Convenient.Gooday.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

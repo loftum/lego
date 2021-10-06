@@ -128,6 +128,7 @@ namespace Lego.Server
 
         private bool EmergencyBrakeForDistanceLimit(int speed)
         {
+            return false;
             var val = FrontCenterDistance.Value;
             if (speed > 0 &&
                 (val < DistanceLimit ||

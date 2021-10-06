@@ -20,6 +20,11 @@ namespace LCTP.Core.Routing
             Add("set", route, handler);
         }
 
+        protected void Perform(string route, Func<RequestMessage, Match, Task<ResponseMessage>> handler)
+        {
+            Add("perform", route, handler);
+        }
+
         protected void Add(string method, string route, Func<RequestMessage, Match, Task<ResponseMessage>> handler)
         {
             Routes.Add(new Route(method, route, handler));

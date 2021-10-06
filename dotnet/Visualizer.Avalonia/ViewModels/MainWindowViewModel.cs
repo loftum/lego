@@ -21,6 +21,7 @@ namespace Visualizer.Avalonia.ViewModels
         private string _steer;
         public ICommand Connect { get; }
         public ICommand Disconnect { get; }
+        public ICommand PerformUturn { get; }
         
         public string Host
         {
@@ -48,15 +49,20 @@ namespace Visualizer.Avalonia.ViewModels
             set => this.RaiseAndSetIfChanged(ref _steer, value);
         }
 
-
         public MainWindowViewModel()
         {
             Connect = ReactiveCommand.CreateFromTask(ConnectAsync);
             Disconnect = ReactiveCommand.CreateFromTask(DisconnectAsync);
+            PerformUturn = ReactiveCommand.CreateFromTask(PerformUturnAsync);
             _client.WillUpdate = ClientWillUpdate;
             _client.DidUpdate = ClientDidUpdate;
             _client.Disconnected = ClientDisconnected;
             _client.Connected = ClientConnected;
+        }
+
+        private Task PerformUturnAsync()
+        {
+            return Task.CompletedTask;
         }
 
         private Task ClientConnected(LegoCarClient client)
